@@ -1,0 +1,7 @@
+{{template "_fields/label" .}}
+<input type="text"
+       id="{{.Name}}"
+       name="{{.Name}}"
+       value="{{.Value}}"
+       {{if .Optional}}{{else}}required{{end}} />
+{{template "_fields/errors" .}}

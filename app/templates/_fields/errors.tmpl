@@ -1,0 +1,7 @@
+{{if .Errors}}
+  <ul>
+    {{range $message := .Errors}}
+      <li>{{$message}}</li>
+    {{end}}
+  </ul>
+{{end}}

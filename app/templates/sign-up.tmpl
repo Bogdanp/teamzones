@@ -1,0 +1,10 @@
+{{define "title-sign-up"}} - Sign Up{{end}}
+
+<form action="" method="post">
+  {{template "_fields/text" .CompanyName}}
+  {{template "_fields/text" .CompanySubdomain}}
+  {{template "_fields/email" .Email}}
+  {{template "_fields/password" .Password}}
+
+  <input type="submit" />
+</form>
