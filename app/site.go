@@ -12,7 +12,7 @@ import (
 
 func init() {
 	GET(siteRouter, homeRoute, "/", home)
-	ALL(siteRouter, signUpRoute, "/sign-up", signUp)
+	ALL(siteRouter, signUpRoute, "/sign-up/", signUp)
 }
 
 func home(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"gopkg.in/julienschmidt/httprouter.v1"
@@ -24,9 +25,12 @@ type segment struct {
 
 // RouteBuilder is used to build routes in a reasonably-safe manner.
 type RouteBuilder struct {
-	path     string
-	params   map[string]string
-	segments []segment
+	path      string
+	subdomain string
+	absolute  bool
+	params    map[string]string
+	query     map[string][]string
+	segments  []segment
 }
 
 // Param sets a parameter on the RouteBuilder.  Parameters are not
@@ -36,11 +40,40 @@ func (b RouteBuilder) Param(name, value string) RouteBuilder {
 	return b
 }
 
+// Query sets a list of query string parameters on the RouterBuilder.
+func (b RouteBuilder) Query(name string, value ...string) RouteBuilder {
+	b.query[name] = value
+	return b
+}
+
+// Subdomain sets the subdomain on the RouteBuilder.
+func (b RouteBuilder) Subdomain(subdomain string) RouteBuilder {
+	b.subdomain = subdomain
+	b.absolute = true
+	return b
+}
+
+// Absolute sets the absolute flag on RouteBuilder to true.
+func (b RouteBuilder) Absolute() RouteBuilder {
+	b.absolute = true
+	return b
+}
+
 // Build converts the RouteBuilder to a URI.  Panics if there are
 // missing parameters.
 func (b RouteBuilder) Build() string {
 	var buffer bytes.Buffer
 
+	// Add the subdomain and the domain
+	if b.absolute {
+		if b.subdomain != "" {
+			buffer.WriteString(b.subdomain + "." + config.Host())
+		} else {
+			buffer.WriteString(config.Host())
+		}
+	}
+
+	// Add the path
 	for _, segment := range b.segments {
 		switch segment.kind {
 		case segmentStatic:
@@ -55,13 +88,29 @@ func (b RouteBuilder) Build() string {
 		}
 	}
 
+	// Add the query string
+	if len(b.query) > 0 {
+		buffer.WriteString("?")
+
+		for param, values := range b.query {
+			for i, value := range values {
+				buffer.WriteString(fmt.Sprintf("%s=%s", param, url.QueryEscape(value)))
+
+				if i < len(values)-1 {
+					buffer.WriteString("&")
+				}
+			}
+		}
+	}
+
 	return buffer.String()
 }
 
 func newBuilder(path string) RouteBuilder {
 	params := make(map[string]string)
-	subpath := path
+	query := make(map[string][]string)
 	segments := []segment{}
+	subpath := path
 
 	for {
 		i := strings.Index(subpath, ":")
@@ -88,7 +137,14 @@ func newBuilder(path string) RouteBuilder {
 		)
 	}
 
-	return RouteBuilder{path, params, segments}
+	return RouteBuilder{
+		path:      path,
+		subdomain: "",
+		absolute:  false,
+		params:    params,
+		query:     query,
+		segments:  segments,
+	}
 }
 
 func register(

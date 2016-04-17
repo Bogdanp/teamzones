@@ -39,7 +39,8 @@ func NewUser() *User {
 	return &user
 }
 
-func newUserKey(ctx context.Context, parent *datastore.Key, email string) *datastore.Key {
+// NewUserKey creates fully-qualified datastore keys for Users.
+func NewUserKey(ctx context.Context, parent *datastore.Key, email string) *datastore.Key {
 	return datastore.NewKey(ctx, "User", email, 0, parent)
 }
 
@@ -60,7 +61,7 @@ func CreateMainUser(
 	company.Subdomain = companySubdomain
 
 	user := NewUser()
-	userKey := newUserKey(ctx, companyKey, email)
+	userKey := NewUserKey(ctx, companyKey, email)
 	user.Company = companyKey
 	user.Email = email
 	user.SetPassword(password)
@@ -100,7 +101,7 @@ func Authenticate(
 ) (*User, error) {
 
 	var user User
-	if err := datastore.Get(ctx, newUserKey(ctx, company, email), &user); err != nil {
+	if err := datastore.Get(ctx, NewUserKey(ctx, company, email), &user); err != nil {
 		if err == datastore.ErrNoSuchEntity {
 			return nil, ErrInvalidCredentials
 		}

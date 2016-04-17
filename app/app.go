@@ -29,14 +29,23 @@ type routeKey int
 type contextKey int
 
 const (
+	// Site
 	homeRoute   routeKey = iota
-	signInRoute routeKey = iota
 	signUpRoute routeKey = iota
+
+	// Application
+	dashboardRoute routeKey = iota
+	signInRoute    routeKey = iota
+	signOutRoute   routeKey = iota
 )
 
 const (
 	companyCtxKey contextKey = iota
 	userCtxKey    contextKey = iota
+)
+
+const (
+	uidSessionKey = "uid"
 )
 
 // Initializes the router and middleware.
@@ -45,13 +54,11 @@ func createRouters() (*httprouter.Router, *httprouter.Router) {
 	appRouter := httprouter.New()
 
 	store := cookiestore.New([]byte(config.Secret))
-
-	site := negroni.New()
-	site.UseHandler(siteRouter)
-
+	site := negroni.New(negroni.Wrap(siteRouter))
 	app := negroni.New(
 		sessions.Sessions("session", store),
-		negroni.HandlerFunc(subdomainMiddleware),
+		negroni.HandlerFunc(Subdomain),
+		negroni.HandlerFunc(Auth),
 		negroni.Wrap(appRouter),
 	)
 

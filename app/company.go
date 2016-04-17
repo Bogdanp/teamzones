@@ -1,20 +1,25 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"teamzones/forms"
 	"teamzones/models"
 
 	"google.golang.org/appengine"
 
+	"github.com/goincremental/negroni-sessions"
 	"github.com/gorilla/context"
 
 	"gopkg.in/julienschmidt/httprouter.v1"
 )
 
 func init() {
-	ALL(appRouter, signInRoute, "/sign-in", signIn)
+	GET(appRouter, dashboardRoute, "/", dashboard)
+	ALL(appRouter, signInRoute, "/sign-in/", signIn)
+	GET(appRouter, signOutRoute, "/sign-out/", signOut)
+}
+
+func dashboard(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 }
 
 type signInForm struct {
@@ -63,7 +68,15 @@ func signIn(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 
 		switch err {
 		case nil:
-			log.Println(user)
+			session := sessions.GetSession(req)
+			session.Set(uidSessionKey, user.Email)
+			path := req.FormValue("r")
+			if path == "" {
+				path = "/"
+			}
+
+			http.Redirect(res, req, path, http.StatusFound)
+			return
 		case models.ErrInvalidCredentials:
 			renderer.HTML(res, http.StatusBadRequest, "sign-in", templateCtx)
 			return
@@ -73,4 +86,10 @@ func signIn(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	}
 
 	renderer.HTML(res, http.StatusOK, "sign-in", templateCtx)
+}
+
+func signOut(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	session := sessions.GetSession(req)
+	session.Delete(uidSessionKey)
+	http.Redirect(res, req, ReverseSimple(signInRoute), http.StatusFound)
 }
