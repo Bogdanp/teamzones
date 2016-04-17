@@ -1,10 +1,17 @@
 package handlers
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
-	"gopkg.in/codegangsta/negroni.v0"
+	"github.com/codegangsta/negroni"
+	"github.com/goincremental/negroni-sessions"
+	"github.com/goincremental/negroni-sessions/cookiestore"
+
+	"google.golang.org/appengine"
+
 	"gopkg.in/julienschmidt/httprouter.v1"
 	"gopkg.in/unrolled/render.v1"
 	"gopkg.in/yaml.v2"
@@ -13,17 +20,44 @@ import (
 var (
 	metadata = loadMetadata()
 	config   = loadConfig()
-	router   = createRouter()
 	renderer = createRenderer()
 )
 
+var siteRouter, appRouter = createRouters()
+
+type routeKey int
+type contextKey int
+
+const (
+	homeRoute   routeKey = iota
+	signInRoute routeKey = iota
+	signUpRoute routeKey = iota
+)
+
+const (
+	companyCtxKey contextKey = iota
+	userCtxKey    contextKey = iota
+)
+
 // Initializes the router and middleware.
-func createRouter() *httprouter.Router {
-	router := httprouter.New()
-	middleware := negroni.New()
-	middleware.UseHandler(router)
-	http.Handle("/", middleware)
-	return router
+func createRouters() (*httprouter.Router, *httprouter.Router) {
+	siteRouter := httprouter.New()
+	appRouter := httprouter.New()
+
+	store := cookiestore.New([]byte(config.Secret))
+
+	site := negroni.New()
+	site.UseHandler(siteRouter)
+
+	app := negroni.New(
+		sessions.Sessions("session", store),
+		negroni.HandlerFunc(subdomainMiddleware),
+		negroni.Wrap(appRouter),
+	)
+
+	http.Handle("/", app)
+	http.Handle(fmt.Sprintf("%s/", config.Host()), site)
+	return siteRouter, appRouter
 }
 
 // Initializes the renderer.
@@ -60,9 +94,42 @@ func loadMetadata() *Metadata {
 // Config contains information read from environment-specific
 // configuration files.
 type Config struct {
+	Secret string
+	Domain struct {
+		Host string
+		Port int
+	}
+}
+
+// Host is the full host name according to the configuration.  The
+// port is included if it's not 80 or 443.
+func (c *Config) Host() string {
+	if c.Domain.Port != 80 && c.Domain.Port != 443 {
+		return fmt.Sprintf("%s:%d", c.Domain.Host, c.Domain.Port)
+	}
+
+	return c.Domain.Host
 }
 
 // Reads the configuration file for the current environment.
 func loadConfig() *Config {
-	return &Config{}
+	var config Config
+	var data []byte
+	var err error
+
+	if strings.Contains(appengine.ServerSoftware(), "Development") {
+		data, err = ioutil.ReadFile("config/local.yaml")
+	} else {
+		data, err = ioutil.ReadFile(fmt.Sprintf("config/%s.yaml", metadata.Application))
+	}
+
+	if err != nil {
+		panic(err)
+	}
+
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		panic(err)
+	}
+
+	return &config
 }

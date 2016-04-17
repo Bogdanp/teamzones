@@ -1,0 +1,8 @@
+{{define "title-sign-in"}} - Sign In{{end}}
+
+<form action="" method="post">
+  {{template "_fields/email" .Form.Email}}
+  {{template "_fields/password" .Form.Password}}
+
+  <input type="submit" />
+</form>

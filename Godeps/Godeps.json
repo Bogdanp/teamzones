@@ -1,0 +1,105 @@
+{
+	"ImportPath": "teamzones",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v62",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/codegangsta/negroni",
+			"Comment": "v0.1-70-gc7477ad",
+			"Rev": "c7477ad8e330bef55bf1ebe300cf8aa67c492d1b"
+		},
+		{
+			"ImportPath": "github.com/goincremental/negroni-sessions",
+			"Rev": "b07e2d18b97e3f627edaa67876c21fa23eba6a08"
+		},
+		{
+			"ImportPath": "github.com/goincremental/negroni-sessions/cookiestore",
+			"Rev": "b07e2d18b97e3f627edaa67876c21fa23eba6a08"
+		},
+		{
+			"ImportPath": "github.com/golang/protobuf/proto",
+			"Rev": "f0a097ddac24fb00e07d2ac17f8671423f3ea47c"
+		},
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
+		},
+		{
+			"ImportPath": "github.com/gorilla/securecookie",
+			"Rev": "8dacca26977607e637262eb66b15b7d39f2d3009"
+		},
+		{
+			"ImportPath": "github.com/gorilla/sessions",
+			"Rev": "a1216e0aed834aa9074063dd4085f5c3df8d1fab"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/bcrypt",
+			"Rev": "1777f3ba8c1fed80fcaec3317e3aaa4f627764d2"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/blowfish",
+			"Rev": "1777f3ba8c1fed80fcaec3317e3aaa4f627764d2"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "fb93926129b8ec0056f2f458b1f519654814edf0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/datastore",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/internal",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/internal/app_identity",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/internal/base",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/internal/datastore",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/internal/log",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/internal/modules",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/internal/remote_api",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "gopkg.in/codegangsta/negroni.v0",
+			"Comment": "v0.1",
+			"Rev": "46a638d98be2af4fa6de146b5d28a9d9904a3949"
+		},
+		{
+			"ImportPath": "gopkg.in/julienschmidt/httprouter.v1",
+			"Comment": "v1.1",
+			"Rev": "8c199fb6259ffc1af525cc3ad52ee60ba8359669"
+		},
+		{
+			"ImportPath": "gopkg.in/unrolled/render.v1",
+			"Rev": "198ad4d8b8a4612176b804ca10555b222a086b40"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v2",
+			"Rev": "a83829b6f1293c91addabc89d0571c246397bbf4"
+		}
+	]
+}
