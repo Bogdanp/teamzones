@@ -36,12 +36,20 @@ type RouteBuilder struct {
 // Param sets a parameter on the RouteBuilder.  Parameters are not
 // checked for existance.
 func (b RouteBuilder) Param(name, value string) RouteBuilder {
+	if b.params == nil {
+		b.params = make(map[string]string)
+	}
+
 	b.params[name] = value
 	return b
 }
 
 // Query sets a list of query string parameters on the RouterBuilder.
 func (b RouteBuilder) Query(name string, value ...string) RouteBuilder {
+	if b.query == nil {
+		b.query = make(map[string][]string)
+	}
+
 	b.query[name] = value
 	return b
 }
@@ -64,7 +72,7 @@ func (b RouteBuilder) Absolute() RouteBuilder {
 func (b RouteBuilder) Build() string {
 	var buffer bytes.Buffer
 
-	// Add the subdomain and the domain
+	// add the subdomain and the domain
 	if b.absolute {
 		if b.subdomain != "" {
 			buffer.WriteString(b.subdomain + "." + config.Host())
@@ -73,7 +81,7 @@ func (b RouteBuilder) Build() string {
 		}
 	}
 
-	// Add the path
+	// add the path
 	for _, segment := range b.segments {
 		switch segment.kind {
 		case segmentStatic:
@@ -88,7 +96,7 @@ func (b RouteBuilder) Build() string {
 		}
 	}
 
-	// Add the query string
+	// add the query string
 	if len(b.query) > 0 {
 		buffer.WriteString("?")
 
@@ -107,8 +115,6 @@ func (b RouteBuilder) Build() string {
 }
 
 func newBuilder(path string) RouteBuilder {
-	params := make(map[string]string)
-	query := make(map[string][]string)
 	segments := []segment{}
 	subpath := path
 
@@ -141,8 +147,8 @@ func newBuilder(path string) RouteBuilder {
 		path:      path,
 		subdomain: "",
 		absolute:  false,
-		params:    params,
-		query:     query,
+		params:    nil,
+		query:     nil,
 		segments:  segments,
 	}
 }

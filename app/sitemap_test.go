@@ -40,3 +40,12 @@ func TestBuildingSubdomains(t *testing.T) {
 		t.Error("bad subdomain")
 	}
 }
+
+func TestBuildersAreSafe(t *testing.T) {
+	sitemap["foo"] = newBuilder("/foo")
+	b1 := ReverseRoute("foo").Query("a", "hello")
+	b2 := ReverseRoute("foo").Query("a", "goodbye")
+	if b1.Build() == b2.Build() {
+		t.Error("builders are not safe")
+	}
+}
