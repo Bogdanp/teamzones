@@ -5,6 +5,10 @@ import (
 	"google.golang.org/appengine/datastore"
 )
 
+const (
+	companyKind = "Company"
+)
+
 // Company is a way to group users in an organization.
 type Company struct {
 	Name      string
@@ -23,7 +27,12 @@ func NewCompany() *Company {
 
 // NewCompanyKey creates datastore keys for companies.
 func NewCompanyKey(ctx context.Context, subdomain string) *datastore.Key {
-	return datastore.NewKey(ctx, "Company", subdomain, 0, nil)
+	return datastore.NewKey(ctx, companyKind, subdomain, 0, nil)
+}
+
+// Key is a helper function for building a Company's key.
+func (c *Company) Key(ctx context.Context) *datastore.Key {
+	return NewCompanyKey(ctx, c.Subdomain)
 }
 
 // Load tells datastore how to deserialize Companies when reading them.

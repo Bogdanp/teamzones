@@ -39,12 +39,13 @@ func Auth(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 
 	company := context.Get(req, companyCtxKey).(*models.Company)
 	ctx := appengine.NewContext(req)
-	key := models.NewUserKey(ctx, models.NewCompanyKey(ctx, company.Subdomain), email.(string))
+	key := models.NewUserKey(ctx, company.Key(ctx), email.(string))
 	err := datastore.Get(ctx, key, &user)
 
 	switch err {
 	case nil:
 		context.Set(req, userCtxKey, &user)
+		defer context.Clear(req)
 		next(res, req)
 	case datastore.ErrNoSuchEntity:
 		redirect()
@@ -57,12 +58,12 @@ func Auth(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 // current subdomain and stores it in the context.  404s if the
 // subdomain does not exist.
 func Subdomain(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
-	var company models.Company
-
 	subdomain, err := parseSubdomain(req.Host)
 	if err != nil {
 		panic(err)
 	}
+
+	var company models.Company
 
 	ctx := appengine.NewContext(req)
 	key := models.NewCompanyKey(ctx, subdomain)

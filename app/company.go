@@ -20,6 +20,15 @@ func init() {
 }
 
 func dashboard(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	var users []models.User
+
+	ctx := appengine.NewContext(req)
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	if _, err := models.FindUsers(company.Key(ctx)).GetAll(ctx, &users); err != nil {
+		panic(err)
+	}
+
+	renderer.HTML(res, http.StatusOK, "dashboard", users)
 }
 
 type signInForm struct {
