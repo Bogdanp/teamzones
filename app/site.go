@@ -66,7 +66,10 @@ func signUp(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 
 		switch err {
 		case nil:
-			http.Redirect(res, req, ReverseSimple(signInRoute), http.StatusTemporaryRedirect)
+			location := ReverseRoute(signInRoute).
+				Subdomain(form.CompanySubdomain.Value).
+				Build()
+			http.Redirect(res, req, location, http.StatusTemporaryRedirect)
 			return
 		case models.ErrSubdomainTaken:
 			form.CompanySubdomain.Errors = []string{err.Error()}
