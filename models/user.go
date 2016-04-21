@@ -41,7 +41,10 @@ func NewUser() *User {
 }
 
 // NewUserKey creates fully-qualified datastore keys for Users.
-func NewUserKey(ctx context.Context, parent *datastore.Key, email string) *datastore.Key {
+func NewUserKey(
+	ctx context.Context,
+	parent *datastore.Key, email string,
+) *datastore.Key {
 	return datastore.NewKey(ctx, userKind, email, 0, parent)
 }
 
@@ -78,6 +81,25 @@ func CreateMainUser(
 	}, nil)
 
 	return company, user, err
+}
+
+// CreateUser creates team members.
+func CreateUser(
+	ctx context.Context,
+	companyKey *datastore.Key,
+	email, password string,
+) (*User, error) {
+
+	user := NewUser()
+	userKey := NewUserKey(ctx, companyKey, email)
+	user.Company = companyKey
+	user.Email = email
+	user.SetPassword(password)
+	if _, err := datastore.Put(ctx, userKey, user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 // SetPassword updates the User's password by hashing the given string.
