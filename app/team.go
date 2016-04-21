@@ -15,6 +15,7 @@ import (
 
 func init() {
 	GET(appRouter, dashboardRoute, "/", dashboard)
+	ALL(appRouter, teamSignUpRoute, "/sign-up/", teamSignUp)
 	ALL(appRouter, signInRoute, "/sign-in/", signIn)
 	GET(appRouter, signOutRoute, "/sign-out/", signOut)
 }
@@ -31,18 +32,16 @@ func dashboard(res http.ResponseWriter, req *http.Request, _ httprouter.Params) 
 	renderer.HTML(res, http.StatusOK, "dashboard", users)
 }
 
+func teamSignUp(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+}
+
 type signInForm struct {
 	Email    forms.Field
 	Password forms.Field
 }
 
 func signIn(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	company, found := context.GetOk(req, companyCtxKey)
-	if !found {
-		notFound(res)
-		return
-	}
-
+	company := context.Get(req, companyCtxKey).(*models.Company)
 	form := signInForm{
 		forms.Field{
 			Name:       "email",
@@ -58,7 +57,7 @@ func signIn(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	templateCtx := struct {
 		Company *models.Company
 		Form    *signInForm
-	}{company.(*models.Company), &form}
+	}{company, &form}
 
 	if req.Method == http.MethodPost {
 		if !forms.Bind(req, &form) {
@@ -66,11 +65,10 @@ func signIn(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 			return
 		}
 
-		c := company.(*models.Company)
 		ctx := appengine.NewContext(req)
 		user, err := models.Authenticate(
 			ctx,
-			models.NewCompanyKey(ctx, c.Subdomain),
+			models.NewCompanyKey(ctx, company.Subdomain),
 			form.Email.Value,
 			form.Password.Value,
 		)
