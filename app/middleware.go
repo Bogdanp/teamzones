@@ -13,9 +13,21 @@ import (
 	"google.golang.org/appengine/datastore"
 )
 
+var (
+	guestPaths = []string{
+		"/sign-in",
+		"/sign-up",
+	}
+)
+
 func guestPath(path string) bool {
-	return strings.HasPrefix(path, "/sign-in") ||
-		strings.HasPrefix(path, "/sign-up")
+	for _, p := range guestPaths {
+		if strings.HasPrefix(path, p) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func redirectAuth(res http.ResponseWriter, req *http.Request, r string) {
