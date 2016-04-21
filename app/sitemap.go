@@ -25,6 +25,7 @@ type segment struct {
 
 // RouteBuilder is used to build routes in a reasonably-safe manner.
 type RouteBuilder struct {
+	scheme    string
 	path      string
 	subdomain string
 	absolute  bool
@@ -67,6 +68,12 @@ func (b RouteBuilder) Absolute() RouteBuilder {
 	return b
 }
 
+// Scheme sets the URI scheme on the RouteBuilder.
+func (b RouteBuilder) Scheme(scheme string) RouteBuilder {
+	b.scheme = scheme
+	return b
+}
+
 // Build converts the RouteBuilder to a URI.  Panics if there are
 // missing parameters.
 func (b RouteBuilder) Build() string {
@@ -75,9 +82,9 @@ func (b RouteBuilder) Build() string {
 	// add the subdomain and the domain
 	if b.absolute {
 		if b.subdomain != "" {
-			buffer.WriteString(b.subdomain + "." + config.Host())
+			buffer.WriteString(b.scheme + "://" + b.subdomain + "." + config.Host())
 		} else {
-			buffer.WriteString(config.Host())
+			buffer.WriteString(b.scheme + "://" + config.Host())
 		}
 	}
 
@@ -144,6 +151,7 @@ func newBuilder(path string) RouteBuilder {
 	}
 
 	return RouteBuilder{
+		scheme:    "http",
 		path:      path,
 		subdomain: "",
 		absolute:  false,
