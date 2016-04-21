@@ -34,9 +34,10 @@ const (
 	signUpRoute routeKey = iota
 
 	// Application
-	dashboardRoute routeKey = iota
-	signInRoute    routeKey = iota
-	signOutRoute   routeKey = iota
+	dashboardRoute  routeKey = iota
+	teamSignUpRoute routeKey = iota
+	signInRoute     routeKey = iota
+	signOutRoute    routeKey = iota
 )
 
 const (
