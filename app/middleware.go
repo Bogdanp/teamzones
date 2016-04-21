@@ -13,25 +13,35 @@ import (
 	"google.golang.org/appengine/datastore"
 )
 
+func guestPath(path string) bool {
+	return strings.HasPrefix(path, "/sign-in") ||
+		strings.HasPrefix(path, "/sign-up")
+}
+
+func redirectAuth(res http.ResponseWriter, req *http.Request, r string) {
+	path := ReverseRoute(signInRoute).
+		Query("r", r).
+		Build()
+	http.Redirect(res, req, path, http.StatusFound)
+}
+
 // Auth ensures that the user is authenticated before they can access
 // a resource.  It also injects the User into the context.
 func Auth(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
-	if req.URL.Path == "/sign-in/" {
-		next(res, req)
-		return
-	}
-
+	isGuestPath := guestPath(req.URL.Path)
 	session := sessions.GetSession(req)
 	email := session.Get(uidSessionKey)
-	redirect := func() {
-		path := ReverseRoute(signInRoute).
-			Query("r", req.URL.String()).
-			Build()
-		http.Redirect(res, req, path, http.StatusFound)
-	}
 
 	if email == nil {
-		redirect()
+		if isGuestPath {
+			next(res, req)
+			return
+		}
+
+		redirectAuth(res, req, req.URL.String())
+		return
+	} else if isGuestPath {
+		http.Redirect(res, req, "/", http.StatusFound)
 		return
 	}
 
@@ -48,7 +58,7 @@ func Auth(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 		defer context.Clear(req)
 		next(res, req)
 	case datastore.ErrNoSuchEntity:
-		redirect()
+		redirectAuth(res, req, req.URL.String())
 	default:
 		panic(err)
 	}
