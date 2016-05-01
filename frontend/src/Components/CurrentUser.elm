@@ -11,7 +11,7 @@ avatar user =
     [ class "avatar" ]
     [ img [ src user.avatar
           , title user.name
-          , alt "avatar"
+          , alt "Avatar"
           ] []
     ]
 
