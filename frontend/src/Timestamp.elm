@@ -6,8 +6,8 @@ type alias Timestamp = Int
 type alias Timezone = String
 type alias Format = String
 
-format : Timestamp -> Format -> String
+format : Format -> Timestamp -> String
 format = Native.Timestamp.format
 
-tzFormat : Timezone -> Timestamp -> Format -> String
+tzFormat : Timezone -> Format -> Timestamp -> String
 tzFormat = Native.Timestamp.formatWithTimezone

@@ -5,10 +5,21 @@ import Html.Attributes exposing (..)
 
 import Types exposing (User)
 
+avatar : User -> Html
+avatar user =
+  div
+    [ class "avatar" ]
+    [ img [ src user.avatar
+          , title user.name
+          , alt "avatar"
+          ] []
+    ]
+
 view : User -> Html
 view user =
   div
     [ class "current-user" ]
-    [ h1 [] [ text user.name ]
-    , h2 [] [ text user.timezone ]
+    [ avatar user
+    , h3 [] [ text user.name ]
+    , h6 [] [ text user.timezone ]
     ]

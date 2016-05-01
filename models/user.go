@@ -30,7 +30,7 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"-"`
-	Picture  string `json:"picture"`
+	Avatar   string `json:"avatar"`
 	Timezone string `json:"timezone"`
 
 	Times
@@ -40,6 +40,7 @@ type User struct {
 // are initialized correctly.
 func NewUser() *User {
 	user := User{}
+	user.Avatar = "/static/images/default-avatar.png"
 	user.initTimes()
 	return &user
 }

@@ -1,12 +1,12 @@
-var format = function(timestamp) {
-  return function(format) {
+var format = function(format) {
+  return function(timestamp) {
     return moment(timestamp).format(format);
   };
 };
 
 var formatWithTimezone = function(timezone) {
-  return function(timestamp) {
-    return function(format) {
+  return function(format) {
+    return function(timestamp) {
       return moment(timestamp).tz(timezone).format(format);
     };
   };

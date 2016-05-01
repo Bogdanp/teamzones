@@ -10,8 +10,9 @@ type alias Company
     }
 
 type alias User
-  = { email : String
-    , name : String
+  = { name : String
+    , email : String
+    , avatar : String
     , timezone : Timezone
     }
 
