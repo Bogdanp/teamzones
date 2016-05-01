@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+case "$1" in
+    */css/*)
+        make style
+        ;;
+    */lib/*)
+        make javascript
+        ;;
+    */src/*)
+        make elm
+        ;;
+esac

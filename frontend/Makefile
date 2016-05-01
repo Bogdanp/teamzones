@@ -10,4 +10,4 @@ elm: src/*.elm
 	elm make src/Main.elm --output=../app/static/js/app.js
 
 watch:
-	fswatch -o css lib src | xargs -n1 -I{} make all
+	fswatch css lib src | xargs -n1 ./bin/watch
