@@ -38,4 +38,4 @@ view messages model =
       ]
 
 time : Timestamp -> Html
-time = Timestamp.format "HH:mm" >> text
+time = Timestamp.format "hh:mmA" >> text
