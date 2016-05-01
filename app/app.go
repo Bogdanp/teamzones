@@ -25,24 +25,22 @@ var (
 
 var siteRouter, appRouter = createRouters()
 
-type routeKey int
-type contextKey int
-
 const (
 	// Site
-	homeRoute   routeKey = iota
-	signUpRoute routeKey = iota
+	homeRoute   = iota
+	signUpRoute = iota
 
 	// Application
-	dashboardRoute  routeKey = iota
-	teamSignUpRoute routeKey = iota
-	signInRoute     routeKey = iota
-	signOutRoute    routeKey = iota
+	dashboardRoute  = iota
+	teamSignUpRoute = iota
+	signInRoute     = iota
+	signOutRoute    = iota
+	settingsRoute   = iota
 )
 
 const (
-	companyCtxKey contextKey = iota
-	userCtxKey    contextKey = iota
+	companyCtxKey = iota
+	userCtxKey    = iota
 )
 
 const (

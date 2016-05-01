@@ -2,6 +2,8 @@ package handlers
 
 import "testing"
 
+const aRoute = iota
+
 func TestBuilderStaticParsing(t *testing.T) {
 	b := newBuilder("/hello")
 	if b.Build() != "/hello" {
@@ -36,15 +38,16 @@ func TestBuildingQueryStrings(t *testing.T) {
 
 func TestBuildingSubdomains(t *testing.T) {
 	b := newBuilder("/sign-in")
-	if b.Subdomain("test").Build() != "test.teamzones.io/sign-in" {
-		t.Error("bad subdomain")
+	r := b.Subdomain("test").Build()
+	if r != "http://test.teamzones.io/sign-in" {
+		t.Errorf("bad subdomain: %s", r)
 	}
 }
 
 func TestBuildersAreSafe(t *testing.T) {
-	sitemap["foo"] = newBuilder("/foo")
-	b1 := ReverseRoute("foo").Query("a", "hello")
-	b2 := ReverseRoute("foo").Query("a", "goodbye")
+	sitemap[aRoute] = newBuilder("/foo")
+	b1 := ReverseRoute(aRoute).Query("a", "hello")
+	b2 := ReverseRoute(aRoute).Query("a", "goodbye")
 	if b1.Build() == b2.Build() {
 		t.Error("builders are not safe")
 	}
