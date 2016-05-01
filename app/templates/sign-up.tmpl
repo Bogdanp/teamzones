@@ -3,8 +3,15 @@
 <form action="" method="post">
   {{template "_fields/text" .CompanyName}}
   {{template "_fields/text" .CompanySubdomain}}
+  {{template "_fields/text" .Name}}
   {{template "_fields/email" .Email}}
   {{template "_fields/password" .Password}}
+  {{template "_fields/hidden" .Timezone}}
 
   <input type="submit" />
 </form>
+
+<script src="/static/js/lib.js"></script>
+<script>
+  document.getElementById("timezone").value = moment.tz.guess();
+</script>

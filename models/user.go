@@ -22,12 +22,16 @@ const (
 	userKind     = "User"
 )
 
-// User represents an account belonging to a Company.  Every user has
+// User represents an account belonging to a Company.  Every User has
 // a Company as an ancestor in its Key.
 type User struct {
-	Company  *datastore.Key `json:"-"`
-	Email    string         `json:"email"`
-	Password string         `json:"-"`
+	Company *datastore.Key `json:"-"`
+
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"-"`
+	Picture  string `json:"picture"`
+	Timezone string `json:"timezone"`
 
 	Times
 }
@@ -52,7 +56,7 @@ func NewUserKey(
 // pair for a company.
 func CreateMainUser(
 	ctx context.Context,
-	companyName, companySubdomain, email, password string,
+	companyName, companySubdomain, name, email, password, timezone string,
 ) (*Company, *User, error) {
 
 	company := NewCompany()
@@ -67,8 +71,10 @@ func CreateMainUser(
 	user := NewUser()
 	userKey := NewUserKey(ctx, companyKey, email)
 	user.Company = companyKey
+	user.Name = name
 	user.Email = email
 	user.SetPassword(password)
+	user.Timezone = timezone
 
 	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		_, err := datastore.Put(ctx, companyKey, company)
@@ -87,14 +93,16 @@ func CreateMainUser(
 func CreateUser(
 	ctx context.Context,
 	companyKey *datastore.Key,
-	email, password string,
+	name, email, password, timezone string,
 ) (*User, error) {
 
 	user := NewUser()
 	userKey := NewUserKey(ctx, companyKey, email)
 	user.Company = companyKey
+	user.Name = name
 	user.Email = email
 	user.SetPassword(password)
+	user.Timezone = timezone
 	if _, err := datastore.Put(ctx, userKey, user); err != nil {
 		return nil, err
 	}

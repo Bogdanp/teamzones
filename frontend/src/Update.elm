@@ -6,10 +6,11 @@ import Effects exposing (Effects)
 import Timestamp exposing (Timestamp)
 import Types exposing (..)
 
-init : Timestamp -> User -> (Model, Effects Message)
-init now user =
+init : Timestamp -> Company -> User -> (Model, Effects Message)
+init now company user =
   let
     model = { now = now
+            , company = company
             , user = user
             , team = Dict.empty
             }

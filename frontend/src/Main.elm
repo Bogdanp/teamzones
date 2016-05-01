@@ -12,7 +12,7 @@ import View exposing (view)
 
 app : App Model
 app =
-  start { init = init now user
+  start { init = init now company user
         , view = view
         , update = update
         , inputs = [ Signal.map Tick timestamps ]
@@ -28,5 +28,6 @@ port tasks =
 port now : Timestamp
 port timestamps : Signal Timestamp
 
+port company : Company
 port user : User
-port team : List Member
+port team : List User

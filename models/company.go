@@ -11,8 +11,8 @@ const (
 
 // Company is a way to group users in an organization.
 type Company struct {
-	Name      string
-	Subdomain string
+	Name      string `json:"name"`
+	Subdomain string `json:"-"`
 
 	Times
 }

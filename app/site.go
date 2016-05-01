@@ -23,8 +23,10 @@ func signUp(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	form := struct {
 		CompanyName      forms.Field
 		CompanySubdomain forms.Field
+		Name             forms.Field
 		Email            forms.Field
 		Password         forms.Field
+		Timezone         forms.Field
 	}{
 		forms.Field{
 			Name:       "company-name",
@@ -38,14 +40,24 @@ func signUp(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 			Validators: []forms.Validator{forms.MinLength(3), forms.MaxLength(15)},
 		},
 		forms.Field{
+			Name:       "name",
+			Label:      "Your name",
+			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(75)},
+		},
+		forms.Field{
 			Name:       "email",
 			Label:      "E-mail address",
-			Validators: []forms.Validator{forms.Email},
+			Validators: []forms.Validator{forms.Email, forms.MaxLength(150)},
 		},
 		forms.Field{
 			Name:       "password",
 			Label:      "Password",
 			Validators: []forms.Validator{forms.MinLength(6)},
+		},
+		forms.Field{
+			Name:       "timezone",
+			Label:      "Timezone",
+			Validators: []forms.Validator{},
 		},
 	}
 
@@ -60,8 +72,10 @@ func signUp(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 			ctx,
 			form.CompanyName.Value,
 			form.CompanySubdomain.Value,
+			form.Name.Value,
 			form.Email.Value,
 			form.Password.Value,
+			form.Timezone.Value,
 		)
 
 		switch err {

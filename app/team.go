@@ -34,12 +34,15 @@ func dashboard(res http.ResponseWriter, req *http.Request, _ httprouter.Params) 
 		panic(err)
 	}
 
+	user := context.Get(req, userCtxKey).(*models.User)
 	data, err := json.Marshal(struct {
-		User *models.User  `json:"user"`
-		Team []models.User `json:"team"`
+		Company *models.Company `json:"company"`
+		User    *models.User    `json:"user"`
+		Team    []models.User   `json:"team"`
 	}{
-		User: context.Get(req, userCtxKey).(*models.User),
-		Team: users,
+		Company: company,
+		User:    user,
+		Team:    users,
 	})
 	if err != nil {
 		panic(err)
