@@ -1,5 +1,8 @@
-<ol>
-  {{range .}}
-    <li>{{.Email}}</li>
-  {{end}}
-</ol>
+<div id="app">
+</div>
+
+<script src="/static/js/lib.js"></script>
+<script src="/static/js/app.js"></script>
+<script>
+  init(Elm, document.getElementById("app"), {{.}});
+</script>

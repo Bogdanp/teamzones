@@ -25,9 +25,9 @@ const (
 // User represents an account belonging to a Company.  Every user has
 // a Company as an ancestor in its Key.
 type User struct {
-	Company  *datastore.Key
-	Email    string
-	Password string
+	Company  *datastore.Key `json:"-"`
+	Email    string         `json:"email"`
+	Password string         `json:"-"`
 
 	Times
 }

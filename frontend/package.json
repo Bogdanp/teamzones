@@ -1,0 +1,16 @@
+{
+  "name": "teamzones",
+  "version": "1.0.0",
+  "description": "Teamzones UI",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "devDependencies": {
+    "browserify": "^13.0.0"
+  },
+  "dependencies": {
+    "moment-timezone": "^0.5.3"
+  }
+}

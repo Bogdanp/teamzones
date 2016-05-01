@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
+	"html/template"
+	"log"
 	"net/http"
+	"strconv"
 	"teamzones/forms"
 	"teamzones/models"
 
@@ -15,9 +19,10 @@ import (
 
 func init() {
 	GET(appRouter, dashboardRoute, "/", dashboard)
-	ALL(appRouter, teamSignUpRoute, "/sign-up/", teamSignUp)
+	ALL(appRouter, teamSignUpRoute, "/sign-up/:invite", teamSignUp)
 	ALL(appRouter, signInRoute, "/sign-in/", signIn)
 	GET(appRouter, signOutRoute, "/sign-out/", signOut)
+	GET(appRouter, settingsRoute, "/settings/", settings)
 }
 
 func dashboard(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
@@ -29,10 +34,36 @@ func dashboard(res http.ResponseWriter, req *http.Request, _ httprouter.Params) 
 		panic(err)
 	}
 
-	renderer.HTML(res, http.StatusOK, "dashboard", users)
+	data, err := json.Marshal(struct {
+		User *models.User  `json:"user"`
+		Team []models.User `json:"team"`
+	}{
+		User: context.Get(req, userCtxKey).(*models.User),
+		Team: users,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	renderer.HTML(res, http.StatusOK, "dashboard", template.JS(data))
 }
 
-func teamSignUp(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+func teamSignUp(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	inviteID, err := strconv.ParseInt(ps.ByName("invite"), 10, 64)
+	if err != nil {
+		notFound(res)
+		return
+	}
+
+	ctx := appengine.NewContext(req)
+	invite, err := models.GetInvite(ctx, company.Key(ctx), inviteID)
+	if err != nil {
+		notFound(res)
+		return
+	}
+
+	log.Println(invite)
 }
 
 type signInForm struct {
@@ -99,4 +130,7 @@ func signOut(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	session := sessions.GetSession(req)
 	session.Delete(uidSessionKey)
 	http.Redirect(res, req, ReverseSimple(signInRoute), http.StatusFound)
+}
+
+func settings(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 }

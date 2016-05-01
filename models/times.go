@@ -6,8 +6,8 @@ import "time"
 // created and last updated.  These are never saved to datastore by
 // themselves.
 type Times struct {
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (t *Times) initTimes() {
