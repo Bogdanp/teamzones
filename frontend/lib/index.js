@@ -18,7 +18,7 @@ window.init = function(Elm, el, context) {
   };
 
   setTimeout(function() {
-    setInterval(1000, sendTimestamp);
+    setInterval(sendTimestamp, 60000);
 
     sendTimestamp();
   }, (60 - seconds()) * 1000);
