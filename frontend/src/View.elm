@@ -8,31 +8,20 @@ import Html.Lazy exposing (lazy)
 import Json.Decode as Json
 
 import Routes exposing (Sitemap(..))
-import Timestamp exposing (Timestamp)
-import Types exposing (Model, Message(..))
+import Timestamp exposing (Timestamp, Timezone)
+import Types exposing (Model, Message(..), Company)
+import Util
 
 import Components.CurrentUser as CurrentUser
+import Components.Team as Team
 
 view : Address Message -> Model -> Html
 view messages model =
   let
-    top =
-      div
-        [ class "top-bar" ]
-        [ div [ class "team-name" ] [ a [ href "/" ] [ text model.company.name ] ]
-        , div [ class "clock" ] [ time model.now ]
-        , div [ class "menu" ] []
-        ]
-
     content =
       div
         [ class "content" ]
-        [ sidebar, team ]
-
-    team =
-      div
-        [ class "team" ]
-        []
+        [ sidebar, Team.view model.now model.team ]
 
     sidebar =
       div
@@ -50,7 +39,7 @@ view messages model =
       if model.user.role == Types.Member then
         []
       else
-        [ routeTo (InviteR ()) "Invite Teammate"
+        [ routeTo (InviteR ()) "Invite Teammates"
         , routeTo (SettingsR ()) "Settings"
         ]
 
@@ -70,9 +59,16 @@ view messages model =
   in
     div
       [ class "app" ]
-      [ top
+      [ top model.company model.now model.user.timezone
       , content
       ]
 
-time : Timestamp -> Html
-time = Timestamp.format "hh:mmA" >> text
+
+top : Company -> Timestamp -> Timezone -> Html
+top company now timezone =
+  div
+    [ class "top-bar" ]
+    [ div [ class "team-name" ] [ a [ href "/" ] [ text company.name ] ]
+    , div [ class "clock" ] [ Util.time timezone now ]
+    , div [ class "menu" ] []
+    ]

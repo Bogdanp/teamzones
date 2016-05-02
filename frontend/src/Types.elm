@@ -31,11 +31,14 @@ type alias User
     , timezone : Timezone
     }
 
+type alias Team
+  = Dict (Timezone, TimezoneOffset) (List User)
+
 type alias Model
   = { now : Timestamp
     , company : Company
     , user : User
-    , team : Dict (Timezone, TimezoneOffset) (List User)
+    , team : Team
     , route : Sitemap
     }
 

@@ -72,6 +72,18 @@ h1, h2, h3, h4, h5, h6 {
         height: 250px;
         width: 250px;
       }
+
+      .initials {
+        display: table-cell;
+
+        width: 250px;
+        height: 250px;
+
+        color: #FFF;
+        font-size: 4em;
+        text-align: center;
+        vertical-align: middle;
+      }
     }
 
     h3, h6 {
@@ -121,7 +133,65 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     flex: 1 1 auto;
     flex-direction: row;
+    align-items: stretch;
 
-    overflow-x: scroll;
+    overflow: scroll;
+
+    padding: 10px 3px;
+
+    .zone {
+      flex: 0 0 auto;
+
+      margin: 0 7px;
+      width: 192px;
+
+      h4, h6 {
+        cursor: default;
+
+        line-height: 0;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      h6 {
+        margin-top: 10px;
+      }
+
+      h6 {
+        color: #999;
+      }
+    }
+
+    .users {
+      margin: 0;
+      padding: 0;
+
+      list-style-type: none;
+
+      text-align: center;
+    }
+
+    .user {
+      float: left;
+
+      margin: 5px 7px;
+
+      .avatar, .initials {
+        background: #CCC;
+        height: 50px;
+        width: 50px;
+
+        border-radius: 50%;
+      }
+
+      a.initials {
+        display: table-cell;
+
+        color: white;
+        font-size: 1.3em;
+        text-align: center;
+        vertical-align: middle;
+      }
+    }
   }
 }

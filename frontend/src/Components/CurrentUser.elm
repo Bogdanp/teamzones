@@ -8,13 +8,30 @@ import Util exposing (initials)
 
 avatar : User -> Html
 avatar user =
-  div
-    [ class "avatar" ]
-    [ img [ src <| Maybe.withDefault "/static/images/default-avatar.png" user.avatar
-          , title user.name
-          , alt <| initials user.name
-          ] []
-    ]
+  let
+    initials' = initials user.name
+
+    avatar' =
+      case user.avatar of
+        Nothing ->
+          a
+            [ class "initials", href "" ]
+            [ text initials' ]
+
+        Just uri ->
+          a
+            [ href "" ]
+            [ img
+                [ src uri
+                , title user.name
+                , alt initials'
+                ]
+                [ ]
+            ]
+  in
+    div
+      [ class "avatar" ]
+      [ avatar' ]
 
 view : User -> Html
 view user =

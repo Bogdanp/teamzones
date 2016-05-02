@@ -14,8 +14,8 @@ init : String -> Timestamp -> Company -> ContextUser -> List ContextUser -> (Mod
 init path now company user team =
   pure { now = now
        , company = company
-       , user = parseUser user
-       , team = groupTeam team
+       , user = prepareUser user
+       , team = prepareTeam team
        , route = Routes.match path
        }
 
@@ -50,8 +50,8 @@ pure : Model -> (Model, Effects Message)
 pure = (flip (,) Effects.none)
 
 
-parseUser : ContextUser -> User
-parseUser u =
+prepareUser : ContextUser -> User
+prepareUser u =
   let
     role r =
       case r of
@@ -72,8 +72,9 @@ parseUser u =
     , timezone = u.timezone
     }
 
-groupTeam : List ContextUser -> Dict (Timezone, TimezoneOffset) (List User)
-groupTeam xs =
+
+prepareTeam : List ContextUser -> Team
+prepareTeam xs =
   let
     key u =
       (u.timezone, Timestamp.offset u.timezone)
@@ -87,7 +88,7 @@ groupTeam xs =
           Just (u :: xs)
 
     group cu team =
-      let user = parseUser cu in
+      let user = prepareUser cu in
       Dict.update (key user) (insert user) team
   in
     List.foldl group Dict.empty xs
