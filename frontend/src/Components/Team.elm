@@ -6,7 +6,7 @@ import Html.Attributes exposing (..)
 
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (Team, User)
-import Util exposing (initials)
+import Util exposing (initials, initialsColor)
 
 view : Timestamp -> Team -> Html
 view now team =
@@ -35,12 +35,14 @@ zone now timezone users =
 user : User -> Html
 user u =
   let
+    initials' = initials u.name
+
     avatar =
       case u.avatar of
         Nothing ->
           a
-            [ class "initials", href "" ]
-            [ text <| initials u.name ]
+            [ class "initials", href "", style [ "background" => initialsColor initials' ]  ]
+            [ text <| initials' ]
 
         Just uri ->
           a
@@ -51,3 +53,6 @@ user u =
             ]
   in
     li [ class "user" ] [ avatar ]
+
+
+(=>) = (,)

@@ -5,12 +5,17 @@ import Effects exposing (Effects)
 import History
 import Task
 
-import Routes
+import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
 
 
-init : String -> Timestamp -> Company -> ContextUser -> List ContextUser -> (Model, Effects Message)
+init : String
+     -> Timestamp
+     -> Company
+     -> ContextUser
+     -> List ContextUser
+     -> (Model, Effects Message)
 init path now company user team =
   pure { now = now
        , company = company
@@ -47,7 +52,7 @@ update message model =
 
 
 pure : Model -> (Model, Effects Message)
-pure = (flip (,) Effects.none)
+pure = flip (,) Effects.none
 
 
 prepareUser : ContextUser -> User

@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 import Types exposing (User)
-import Util exposing (initials)
+import Util exposing (initials, initialsColor)
 
 avatar : User -> Html
 avatar user =
@@ -15,7 +15,7 @@ avatar user =
       case user.avatar of
         Nothing ->
           a
-            [ class "initials", href "" ]
+            [ class "initials", href "", style [ "background" => initialsColor initials' ] ]
             [ text initials' ]
 
         Just uri ->
@@ -41,3 +41,5 @@ view user =
     , h3 [] [ text user.name ]
     , h6 [] [ text user.timezone ]
     ]
+
+(=>) = (,)

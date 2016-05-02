@@ -6,14 +6,14 @@ import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Routes exposing (Sitemap)
 
 
-type alias Company
-  = { name : String
-    }
-
 type Role
   = Main
   | Manager
   | Member
+
+type alias Company
+  = { name : String
+    }
 
 type alias ContextUser
   = { role : Int
