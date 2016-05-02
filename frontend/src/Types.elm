@@ -9,10 +9,24 @@ type alias Company
   = { name : String
     }
 
-type alias User
-  = { name : String
+type Role
+  = Main
+  | Manager
+  | Member
+
+type alias ContextUser
+  = { role : Int
+    , name : String
     , email : String
     , avatar : String
+    , timezone : Timezone
+    }
+
+type alias User
+  = { role : Role
+    , name : String
+    , email : String
+    , avatar : Maybe String
     , timezone : Timezone
     }
 
@@ -26,3 +40,4 @@ type alias Model
 
 type Message
   = Tick Timestamp
+  | TimezoneChanged Timezone

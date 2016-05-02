@@ -9,7 +9,7 @@ avatar : User -> Html
 avatar user =
   div
     [ class "avatar" ]
-    [ img [ src user.avatar
+    [ img [ src <| Maybe.withDefault "/static/images/default-avatar.png" user.avatar
           , title user.name
           , alt "Avatar"
           ] []

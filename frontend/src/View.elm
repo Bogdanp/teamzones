@@ -24,7 +24,14 @@ view messages model =
     content =
       div
         [ class "content" ]
-        [ sidebar ]
+        [ sidebar
+        , team
+        ]
+
+    team =
+      div
+        [ class "team" ]
+        []
 
     sidebar =
       div

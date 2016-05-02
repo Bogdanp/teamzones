@@ -6,12 +6,34 @@ import Effects exposing (Effects)
 import Timestamp exposing (Timestamp)
 import Types exposing (..)
 
-init : Timestamp -> Company -> User -> (Model, Effects Message)
+convertUser : ContextUser -> User
+convertUser u =
+  let
+    role r =
+      case r of
+        0 -> Main
+        1 -> Manager
+        _ -> Member
+
+    avatar a =
+      if a == "" then
+        Nothing
+      else
+        Just a
+  in
+    { role = role u.role
+    , name = u.name
+    , email = u.email
+    , avatar = avatar u.avatar
+    , timezone = u.timezone
+    }
+
+init : Timestamp -> Company -> ContextUser -> (Model, Effects Message)
 init now company user =
   let
     model = { now = now
             , company = company
-            , user = user
+            , user = convertUser user
             , team = Dict.empty
             }
   in
@@ -23,6 +45,10 @@ update message model =
   case message of
     Tick now ->
       pure { model | now = now }
+
+    TimezoneChanged timezone ->
+      -- FIXME: Prompt user to update timezone.
+      pure model
 
 
 pure : Model -> (Model, Effects Message)
