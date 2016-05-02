@@ -36,6 +36,9 @@ const (
 	signInRoute     = iota
 	signOutRoute    = iota
 	settingsRoute   = iota
+
+	// API
+	locationRoute = iota
 )
 
 const (

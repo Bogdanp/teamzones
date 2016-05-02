@@ -48,6 +48,10 @@
 			"Rev": "fb93926129b8ec0056f2f458b1f519654814edf0"
 		},
 		{
+			"ImportPath": "golang.org/x/net/context/ctxhttp",
+			"Rev": "fb93926129b8ec0056f2f458b1f519654814edf0"
+		},
+		{
 			"ImportPath": "google.golang.org/appengine",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
@@ -76,12 +80,36 @@
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
 		{
+			"ImportPath": "google.golang.org/appengine/internal/memcache",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
 			"ImportPath": "google.golang.org/appengine/internal/modules",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
 		{
 			"ImportPath": "google.golang.org/appengine/internal/remote_api",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/internal/urlfetch",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/memcache",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/urlfetch",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "googlemaps.github.io/maps",
+			"Rev": "a668f32115fcfc36b306babfaef618868a6ab3b6"
+		},
+		{
+			"ImportPath": "googlemaps.github.io/maps/internal",
+			"Rev": "a668f32115fcfc36b306babfaef618868a6ab3b6"
 		},
 		{
 			"ImportPath": "gopkg.in/codegangsta/negroni.v0",

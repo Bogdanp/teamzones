@@ -29,7 +29,18 @@ view messages model =
     sidebar =
       div
         [ class "sidebar" ]
-        [ CurrentUser.view model.user ]
+        [ CurrentUser.view model.user
+        , menu
+        ]
+
+    menu =
+      ul
+        [ class "menu" ]
+        [ link "/sign-out" "Sign out"
+        ]
+
+    link uri label =
+      li [] [ a [ href uri ] [ text label ] ]
   in
     div
       [ class "app" ]
