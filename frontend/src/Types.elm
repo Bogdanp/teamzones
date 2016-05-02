@@ -3,6 +3,7 @@ module Types where
 import Dict exposing (Dict)
 
 import Timestamp exposing (Timestamp, Timezone)
+import Routes exposing (Sitemap)
 
 
 type alias Company
@@ -35,9 +36,13 @@ type alias Model
     , company : Company
     , user : User
     , team : Dict Timezone (List User)
+    , route : Sitemap
     }
 
 
 type Message
-  = Tick Timestamp
+  = NoOp
+  | Tick Timestamp
   | TimezoneChanged Timezone
+  | PathChanged String
+  | RouteTo Sitemap

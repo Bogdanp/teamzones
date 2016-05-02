@@ -13,6 +13,7 @@ window.moment = moment;
 window.init = function(Elm, el, context) {
   context.now = context.timestamps = now();
   context.timezones = context.user.timezone;
+  context.path = window.location.pathname;
 
   var app = Elm.embed(Elm.Main, el, context);
   var sendTimestamp = function() {

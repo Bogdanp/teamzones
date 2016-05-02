@@ -19,10 +19,11 @@ import (
 
 func init() {
 	GET(appRouter, dashboardRoute, "/", dashboard)
+	GET(appRouter, inviteRoute, "/invite", dashboard)
+	GET(appRouter, settingsRoute, "/settings", dashboard)
 	ALL(appRouter, teamSignUpRoute, "/sign-up/:invite", teamSignUp)
 	ALL(appRouter, signInRoute, "/sign-in/", signIn)
 	GET(appRouter, signOutRoute, "/sign-out/", signOut)
-	GET(appRouter, settingsRoute, "/settings/", settings)
 }
 
 func dashboard(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
@@ -133,7 +134,4 @@ func signOut(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	session := sessions.GetSession(req)
 	session.Delete(uidSessionKey)
 	http.Redirect(res, req, ReverseSimple(signInRoute), http.StatusFound)
-}
-
-func settings(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 }

@@ -32,10 +32,11 @@ const (
 
 	// Application
 	dashboardRoute  = iota
+	inviteRoute     = iota
+	settingsRoute   = iota
 	teamSignUpRoute = iota
 	signInRoute     = iota
 	signOutRoute    = iota
-	settingsRoute   = iota
 
 	// API
 	locationRoute = iota

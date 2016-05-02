@@ -3,10 +3,13 @@ module View where
 import Signal exposing (Address)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Html.Lazy exposing (lazy)
+import Json.Decode as Json
 
+import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp)
-import Types exposing (Model, Message)
+import Types exposing (Model, Message(..))
 
 import Components.CurrentUser as CurrentUser
 
@@ -24,9 +27,7 @@ view messages model =
     content =
       div
         [ class "content" ]
-        [ sidebar
-        , team
-        ]
+        [ sidebar, team ]
 
     team =
       div
@@ -43,11 +44,29 @@ view messages model =
     menu =
       ul
         [ class "menu" ]
-        [ link "/sign-out" "Sign out"
+        ( managerLinks ++ [ link "/sign-out" "Sign out" ])
+
+    managerLinks =
+      if model.user.role == Types.Member then
+        []
+      else
+        [ routeTo (InviteR ()) "Invite Teammate"
+        , routeTo (SettingsR ()) "Settings"
         ]
 
     link uri label =
       li [] [ a [ href uri ] [ text label ] ]
+
+    routeTo route label =
+      li [] [ a [ href <| Routes.route route
+                , onWithOptions
+                    "click"
+                    { stopPropagation = True
+                    , preventDefault = True
+                    }
+                    Json.value
+                    (always <| Signal.message messages (RouteTo route))
+                ] [ text label ] ]
   in
     div
       [ class "app" ]

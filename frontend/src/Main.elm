@@ -1,6 +1,7 @@
 module Main where
 
 import Effects exposing (Never)
+import History
 import Html exposing (Html, text)
 import StartApp exposing (App, start)
 import Task exposing (Task)
@@ -12,11 +13,12 @@ import View exposing (view)
 
 app : App Model
 app =
-  start { init = init now company user
+  start { init = init path now company user
         , view = view
         , update = update
         , inputs = [ Signal.map Tick timestamps
                    , Signal.map TimezoneChanged timezones
+                   , Signal.map PathChanged History.path
                    ]
         }
 
@@ -26,6 +28,8 @@ main = app.html
 port tasks : Signal (Task Never ())
 port tasks =
   app.tasks
+
+port path : String
 
 port now : Timestamp
 port timestamps : Signal Timestamp
