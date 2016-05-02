@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 
 import Types exposing (User)
+import Util exposing (initials)
 
 avatar : User -> Html
 avatar user =
@@ -11,7 +12,7 @@ avatar user =
     [ class "avatar" ]
     [ img [ src <| Maybe.withDefault "/static/images/default-avatar.png" user.avatar
           , title user.name
-          , alt "Avatar"
+          , alt <| initials user.name
           ] []
     ]
 
