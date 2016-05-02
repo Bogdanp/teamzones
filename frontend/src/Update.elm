@@ -1,21 +1,21 @@
 module Update (init, update) where
 
-import Dict
+import Dict exposing (Dict)
 import Effects exposing (Effects)
 import History
 import Task
 
 import Routes
-import Timestamp exposing (Timestamp)
+import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
 
 
-init : String -> Timestamp -> Company -> ContextUser -> (Model, Effects Message)
-init path now company user =
+init : String -> Timestamp -> Company -> ContextUser -> List ContextUser -> (Model, Effects Message)
+init path now company user team =
   pure { now = now
        , company = company
-       , user = convertUser user
-       , team = Dict.empty
+       , user = parseUser user
+       , team = groupTeam team
        , route = Routes.match path
        }
 
@@ -50,8 +50,8 @@ pure : Model -> (Model, Effects Message)
 pure = (flip (,) Effects.none)
 
 
-convertUser : ContextUser -> User
-convertUser u =
+parseUser : ContextUser -> User
+parseUser u =
   let
     role r =
       case r of
@@ -71,3 +71,23 @@ convertUser u =
     , avatar = avatar u.avatar
     , timezone = u.timezone
     }
+
+groupTeam : List ContextUser -> Dict (Timezone, TimezoneOffset) (List User)
+groupTeam xs =
+  let
+    key u =
+      (u.timezone, Timestamp.offset u.timezone)
+
+    insert u mxs =
+      case mxs of
+        Nothing ->
+          Just [u]
+
+        Just xs ->
+          Just (u :: xs)
+
+    group cu team =
+      let user = parseUser cu in
+      Dict.update (key user) (insert user) team
+  in
+    List.foldl group Dict.empty xs

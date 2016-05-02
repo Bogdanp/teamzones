@@ -12,16 +12,23 @@ var formatWithTimezone = function(timezone) {
   };
 };
 
+var offset = function(timezone) {
+  return moment.tz(timezone).utcOffset();
+};
+
 var make = function make(elm) {
-    elm.Native = elm.Native || {};
-    elm.Native.Timestamp = elm.Native.Timestamp || {};
+  elm.Native = elm.Native || {};
+  elm.Native.Timestamp = elm.Native.Timestamp || {};
 
-    if (elm.Native.Timestamp.values) return elm.Native.Timestamp.values;
+  if (elm.Native.Timestamp.values) {
+    return elm.Native.Timestamp.values;
+  }
 
-    return elm.Native.Timestamp.values = {
-      'format': format,
-      'formatWithTimezone': formatWithTimezone
-    };
+  return elm.Native.Timestamp.values = {
+    format: format,
+    formatWithTimezone: formatWithTimezone,
+    offset: offset
+  };
 };
 
 Elm.Native.Timestamp = {};

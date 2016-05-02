@@ -13,7 +13,7 @@ import View exposing (view)
 
 app : App Model
 app =
-  start { init = init path now company user
+  start { init = init path now company user team
         , view = view
         , update = update
         , inputs = [ Signal.map Tick timestamps
