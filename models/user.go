@@ -22,6 +22,12 @@ const (
 	userKind     = "User"
 )
 
+const (
+	roleMain    = iota
+	roleManager = iota
+	roleUser    = iota
+)
+
 // User represents an account belonging to a Company.  Every User has
 // a Company as an ancestor in its Key.
 type User struct {
@@ -32,6 +38,7 @@ type User struct {
 	Password string `json:"-"`
 	Avatar   string `json:"avatar"`
 	Timezone string `json:"timezone"`
+	Role     int    `json:"role"`
 
 	Times
 }
@@ -40,7 +47,7 @@ type User struct {
 // are initialized correctly.
 func NewUser() *User {
 	user := User{}
-	user.Avatar = "/static/images/default-avatar.png"
+	user.Role = roleUser
 	user.initTimes()
 	return &user
 }
@@ -76,6 +83,7 @@ func CreateMainUser(
 	user.Email = email
 	user.SetPassword(password)
 	user.Timezone = timezone
+	user.Role = roleMain
 
 	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		_, err := datastore.Put(ctx, companyKey, company)
