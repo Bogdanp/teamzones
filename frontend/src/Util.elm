@@ -1,5 +1,6 @@
 module Util where
 
+import Bitwise
 import Char
 import Html exposing (Html, text)
 import Html.Events exposing (onWithOptions)
@@ -20,13 +21,28 @@ initials name =
 
 initialsColor : String -> String
 initialsColor initials =
-  String.toList initials
-    |> List.repeat 3
-    |> List.concat
-    |> List.take 3
-    |> List.map (Char.toCode >> max 16 >> min 99 >> hexFromInt)
-    |> String.join ""
-    |> ((++) "#")
+  let
+    hash i c =
+      toFloat c * 0.6180339 * (2 ^ 54)
+        |> floor
+        |> flip Bitwise.shiftLeft i
+        |> flip Bitwise.shiftRight 52
+        |> flip rem 256
+        |> abs
+
+    hexFromChar i c =
+      Char.toCode c
+        |> hash i
+        |> max 16
+        |> hexFromInt
+  in
+    String.toList initials
+      |> List.repeat 3
+      |> List.concat
+      |> List.take 3
+      |> List.indexedMap hexFromChar
+      |> String.join ""
+      |> ((++) "#")
 
 
 hexFromInt : Int -> String

@@ -11,17 +11,14 @@ import Util exposing ((=>), initials, initialsColor)
 
 view : Timestamp -> Team -> Html
 view now team =
-  let
-    zones =
-      Dict.toList team
-        |> List.sortBy (fst >> snd)
-        |> List.map (\((timezone, _), users) -> zone now timezone users)
-  in
-    div [ class "team" ] zones
+  Dict.toList team
+    |> List.sortBy (fst >> snd)
+    |> List.map (\((timezone, _), users) -> zone users timezone now)
+    |> div [ class "team" ]
 
 
-zone : Timestamp -> Timezone -> List User -> Html
-zone now timezone users =
+zone : List User -> Timezone -> Timestamp -> Html
+zone users timezone now =
   div
     [ class "zone" ]
     [ div

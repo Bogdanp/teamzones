@@ -42,7 +42,6 @@ type alias Model
     , route : Sitemap
     }
 
-
 type Message
   = NoOp
   | Tick Timestamp

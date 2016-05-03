@@ -90,13 +90,17 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     h3 {
+      margin-bottom: 0;
+
       color: #000;
-      line-height: 0.4em;
+      line-height: 1em;
       text-align: center;
       text-transform: uppercase;
     }
 
     h6 {
+      margin-top: 0.8em;
+
       color: #AAA;
       line-height: 0em;
       text-align: center;
@@ -136,7 +140,7 @@ h1, h2, h3, h4, h5, h6 {
 
     overflow: scroll;
 
-    padding: 10px 3px;
+    padding: 15px 3px;
 
     .zone {
       flex: 0 0 auto;

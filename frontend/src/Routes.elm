@@ -19,8 +19,8 @@ match = Route.match sitemap >> Maybe.withDefault (HomeR ())
 
 
 route : Sitemap -> String
-route r =
-  case r of
+route route =
+  case route of
     HomeR () -> reverse homeR []
     InviteR () -> reverse inviteR []
     SettingsR () -> reverse settingsR []

@@ -70,12 +70,7 @@ prepareUser u =
       else
         Just a
   in
-    { role = role u.role
-    , name = u.name
-    , email = u.email
-    , avatar = avatar u.avatar
-    , timezone = u.timezone
-    }
+    User (role u.role) u.name u.email (avatar u.avatar) u.timezone
 
 
 prepareTeam : List ContextUser -> Team
@@ -93,7 +88,6 @@ prepareTeam xs =
           Just (u :: xs)
 
     group cu team =
-      let user = prepareUser cu in
-      Dict.update (key user) (insert user) team
+      Dict.update (key cu) (insert <| prepareUser cu) team
   in
     List.foldl group Dict.empty xs
