@@ -2,9 +2,6 @@ module View where
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
-import Html.Lazy exposing (lazy)
-import Json.Decode as Json
 import Signal exposing (Address)
 
 import Routes exposing (Sitemap(..))
@@ -13,6 +10,8 @@ import Types exposing (Model, Message(..), Company)
 import Util exposing (hijack)
 
 import Components.CurrentUser as CurrentUser
+import Components.Invite as Invite
+import Components.Settings as Settings
 import Components.Team as Team
 
 
@@ -22,28 +21,34 @@ view messages {now, company, user, team, route} =
     content =
       div
         [ class "content" ]
-        [ sidebar
-        , Team.view now team
-        ]
+        [ sidebar, page]
+
+    page =
+      case route of
+        HomeR () ->
+          Team.view team now
+
+        InviteR () ->
+          Invite.view
+
+        SettingsR () ->
+          Settings.view
 
     sidebar =
       div
         [ class "sidebar" ]
         [ CurrentUser.view user
-        , menu
+        , ul [ class "menu" ] links
         ]
-
-    menu =
-      ul
-        [ class "menu" ]
-        links
 
     links =
       if user.role == Types.Member then
-        [ linkTo "/sign-out" "Sign out"
+        [ routeTo (HomeR ()) "Dashboard"
+        , linkTo "/sign-out" "Sign out"
         ]
       else
-        [ routeTo (InviteR ()) "Invite Teammates"
+        [ routeTo (HomeR ()) "Dashboard"
+        , routeTo (InviteR ()) "Invite Teammates"
         , routeTo (SettingsR ()) "Settings"
         , linkTo "/sign-out" "Sign out"
         ]

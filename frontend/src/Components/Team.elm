@@ -9,8 +9,8 @@ import Types exposing (Team, User)
 import Util exposing ((=>), initials, initialsColor)
 
 
-view : Timestamp -> Team -> Html
-view now team =
+view : Team -> Timestamp -> Html
+view team now =
   Dict.toList team
     |> List.sortBy (fst >> snd)
     |> List.map (\((timezone, _), users) -> zone users timezone now)
