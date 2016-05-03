@@ -1,73 +1,74 @@
 module View where
 
-import Signal exposing (Address)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Lazy exposing (lazy)
 import Json.Decode as Json
+import Signal exposing (Address)
 
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (Model, Message(..), Company)
-import Util
+import Util exposing (hijack)
 
 import Components.CurrentUser as CurrentUser
 import Components.Team as Team
 
+
 view : Address Message -> Model -> Html
-view messages model =
+view messages {now, company, user, team, route} =
   let
     content =
       div
         [ class "content" ]
-        [ sidebar, Team.view model.now model.team ]
+        [ sidebar
+        , Team.view now team
+        ]
 
     sidebar =
       div
         [ class "sidebar" ]
-        [ CurrentUser.view model.user
+        [ CurrentUser.view user
         , menu
         ]
 
     menu =
       ul
         [ class "menu" ]
-        ( managerLinks ++ [ link "/sign-out" "Sign out" ])
+        links
 
-    managerLinks =
-      if model.user.role == Types.Member then
-        []
+    links =
+      if user.role == Types.Member then
+        [ linkTo "/sign-out" "Sign out"
+        ]
       else
         [ routeTo (InviteR ()) "Invite Teammates"
         , routeTo (SettingsR ()) "Settings"
+        , linkTo "/sign-out" "Sign out"
         ]
 
-    link uri label =
+    linkTo uri label =
       li [] [ a [ href uri ] [ text label ] ]
 
     routeTo route label =
       li [] [ a [ href <| Routes.route route
-                , onWithOptions
-                    "click"
-                    { stopPropagation = True
-                    , preventDefault = True
-                    }
-                    Json.value
-                    (always <| Signal.message messages (RouteTo route))
-                ] [ text label ] ]
+                , hijack "click" <| Signal.message messages (RouteTo route)
+                ]
+                [ text label ]
+            ]
   in
     div
       [ class "app" ]
-      [ top model.company model.now model.user.timezone
+      [ toolbar company user.timezone now
       , content
       ]
 
 
-top : Company -> Timestamp -> Timezone -> Html
-top company now timezone =
+toolbar : Company -> Timezone -> Timestamp -> Html
+toolbar company timezone now =
   div
-    [ class "top-bar" ]
+    [ class "toolbar" ]
     [ div [ class "team-name" ] [ a [ href "/" ] [ text company.name ] ]
     , div [ class "clock" ] [ Util.time timezone now ]
     , div [ class "menu" ] []

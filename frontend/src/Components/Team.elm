@@ -6,7 +6,8 @@ import Html.Attributes exposing (..)
 
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (Team, User)
-import Util exposing (initials, initialsColor)
+import Util exposing ((=>), initials, initialsColor)
+
 
 view : Timestamp -> Team -> Html
 view now team =
@@ -28,31 +29,31 @@ zone now timezone users =
         [ h6 [] [ text timezone ]
         , h4 [] [ Util.time timezone now ]
         ]
-    , ul [ class "users" ] (List.map user users)
+    , ul [ ] (List.map user users)
     ]
 
 
 user : User -> Html
 user u =
   let
-    initials' = initials u.name
+    initials' =
+      initials u.name
 
     avatar =
       case u.avatar of
         Nothing ->
           a
-            [ class "initials", href "", style [ "background" => initialsColor initials' ]  ]
-            [ text <| initials' ]
+            [ href ""
+            , class "initials"
+            , style [ "background" => initialsColor initials' ]
+            ]
+            [ text initials' ]
 
         Just uri ->
           a
-            [ href "" ]
-            [ img
-                [ class "avatar", src uri ]
-                [ ]
+            [ href ""
+            , class "avatar"
             ]
+            [ img [ src uri ] [ ] ]
   in
-    li [ class "user" ] [ avatar ]
-
-
-(=>) = (,)
+    li [ ] [ avatar ]

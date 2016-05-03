@@ -2,6 +2,8 @@ module Util where
 
 import Char
 import Html exposing (Html, text)
+import Html.Events exposing (onWithOptions)
+import Json.Decode as Json
 import String
 
 import Timestamp exposing (Timestamp, Timezone)
@@ -12,9 +14,8 @@ initials name =
   name
     |> String.split " "
     |> List.take 2
-    |> List.map (fst << Maybe.withDefault (' ', "") << String.uncons)
+    |> List.filterMap (Maybe.map fst << String.uncons)
     |> String.fromList
-    |> String.trimRight
 
 
 initialsColor : String -> String
@@ -23,13 +24,13 @@ initialsColor initials =
     |> List.repeat 3
     |> List.concat
     |> List.take 3
-    |> List.map (Char.toCode >> max 17 >> min 99 >> toHex)
+    |> List.map (Char.toCode >> max 16 >> min 99 >> hexFromInt)
     |> String.join ""
     |> ((++) "#")
 
 
-toHex : Int -> String
-toHex n =
+hexFromInt : Int -> String
+hexFromInt n =
   let
     toChar n =
       case n of
@@ -51,13 +52,28 @@ toHex n =
         0  -> '0'
         _  -> Debug.crash "Invalid number passed to toChar"
 
-    toHex' n acc =
+    hexFromInt' n acc =
       if n < 16 then
         String.cons (toChar n) acc
       else
-        toHex' (n // 16) (String.cons (toChar (n `rem` 16)) acc)
+        hexFromInt' (n // 16) (String.cons (toChar (n `rem` 16)) acc)
   in
-    toHex' n ""
+    hexFromInt' n ""
+
+
+(=>) : a -> b -> (a, b)
+(=>) = (,)
+
 
 time : Timezone -> Timestamp -> Html
 time tz = Timestamp.tzFormat tz "h:mmA" >> text
+
+
+hijack : String -> Signal.Message -> Html.Attribute
+hijack event message =
+  let
+    options = { stopPropagation = True
+              , preventDefault = True
+              }
+  in
+    onWithOptions event options Json.value (always message)
