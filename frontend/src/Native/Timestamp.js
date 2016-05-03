@@ -1,15 +1,9 @@
-var format = function(format) {
-  return function(timestamp) {
-    return moment(timestamp).format(format);
-  };
+var format = function(format, timestamp) {
+  return moment(timestamp).format(format);
 };
 
-var formatWithTimezone = function(timezone) {
-  return function(format) {
-    return function(timestamp) {
-      return moment(timestamp).tz(timezone).format(format);
-    };
-  };
+var formatWithTimezone = function(timezone, format, timestamp) {
+  return moment(timestamp).tz(timezone).format(format);
 };
 
 var offset = function(timezone) {
@@ -25,8 +19,8 @@ var make = function make(elm) {
   }
 
   return elm.Native.Timestamp.values = {
-    format: format,
-    formatWithTimezone: formatWithTimezone,
+    format: F2(format),
+    formatWithTimezone: F3(formatWithTimezone),
     offset: offset
   };
 };
