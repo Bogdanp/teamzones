@@ -2,6 +2,7 @@ module View where
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Lazy exposing (lazy)
 import Signal exposing (Address)
 
 import Routes exposing (Sitemap(..))
@@ -16,7 +17,7 @@ import Components.Team as Team
 
 
 view : Address Message -> Model -> Html
-view messages {now, company, user, team, route} =
+view messages {now, company, user, team, route, invite} =
   let
     content =
       div
@@ -29,7 +30,9 @@ view messages {now, company, user, team, route} =
           Team.view team now
 
         InviteR () ->
-          Invite.view
+          Signal.forwardTo messages ToInvite
+            |> Invite.view
+            |> flip lazy invite
 
         SettingsR () ->
           Settings.view

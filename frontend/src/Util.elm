@@ -2,6 +2,7 @@ module Util where
 
 import Bitwise
 import Char
+import Effects exposing (Effects)
 import Html exposing (Html, text)
 import Html.Events exposing (onWithOptions)
 import Json.Decode as Json
@@ -93,3 +94,7 @@ hijack event message =
               }
   in
     onWithOptions event options Json.value (always message)
+
+
+pure : a -> (a, Effects b)
+pure = flip (,) Effects.none

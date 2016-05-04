@@ -5,6 +5,8 @@ import Dict exposing (Dict)
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Routes exposing (Sitemap)
 
+import Components.Invite as Invite
+
 
 type Role
   = Main
@@ -40,6 +42,7 @@ type alias Model
     , user : User
     , team : Team
     , route : Sitemap
+    , invite : Invite.Model
     }
 
 type Message
@@ -48,3 +51,4 @@ type Message
   | TimezoneChanged Timezone
   | PathChanged String
   | RouteTo Sitemap
+  | ToInvite Invite.Message

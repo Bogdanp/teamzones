@@ -8,6 +8,9 @@ import Task
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
+import Util exposing (pure)
+
+import Components.Invite as Invite
 
 
 init : String
@@ -22,6 +25,7 @@ init path now company user team =
        , user = prepareUser user
        , team = prepareTeam team
        , route = Routes.match path
+       , invite = Invite.init
        }
 
 
@@ -50,9 +54,13 @@ update message model =
           |> Effects.task
       )
 
-
-pure : Model -> (Model, Effects Message)
-pure = flip (,) Effects.none
+    ToInvite message ->
+      let
+        (invite, fx) = Invite.update message model.invite
+      in
+        ( { model | invite = invite }
+        , Effects.map ToInvite fx
+        )
 
 
 prepareUser : ContextUser -> User
