@@ -27,24 +27,24 @@ var siteRouter, appRouter = createRouters()
 
 const (
 	// Site
-	homeRoute   = iota
-	signUpRoute = iota
+	homeRoute = iota
+	signUpRoute
 
 	// Application
-	dashboardRoute  = iota
-	inviteRoute     = iota
-	settingsRoute   = iota
-	teamSignUpRoute = iota
-	signInRoute     = iota
-	signOutRoute    = iota
+	dashboardRoute
+	inviteRoute
+	settingsRoute
+	teamSignUpRoute
+	signInRoute
+	signOutRoute
 
 	// API
-	locationRoute = iota
+	locationRoute
 )
 
 const (
 	companyCtxKey = iota
-	userCtxKey    = iota
+	userCtxKey
 )
 
 const (

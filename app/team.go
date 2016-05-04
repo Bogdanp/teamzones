@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 	"teamzones/forms"
@@ -61,13 +60,13 @@ func teamSignUp(res http.ResponseWriter, req *http.Request, ps httprouter.Params
 	}
 
 	ctx := appengine.NewContext(req)
-	invite, err := models.GetInvite(ctx, company.Key(ctx), inviteID)
+	_, err = models.GetInvite(ctx, company.Key(ctx), inviteID)
 	if err != nil {
 		notFound(res)
 		return
 	}
 
-	log.Println(invite)
+	// FIXME: Implement team signup.
 }
 
 type signInForm struct {

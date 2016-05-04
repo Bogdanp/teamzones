@@ -10,9 +10,10 @@ import (
 	"gopkg.in/julienschmidt/httprouter.v1"
 )
 
-type route int
+// Route is the type of route identifiers.
+type Route int
 
-var sitemap = make(map[route]RouteBuilder)
+var sitemap = make(map[Route]RouteBuilder)
 
 const (
 	segmentStatic  = iota
@@ -165,7 +166,7 @@ func newBuilder(path string) RouteBuilder {
 
 func register(
 	router *httprouter.Router,
-	name route, path string, handler httprouter.Handle, methods ...string,
+	name Route, path string, handler httprouter.Handle, methods ...string,
 ) {
 
 	sitemap[name] = newBuilder(path)
@@ -176,24 +177,24 @@ func register(
 }
 
 // GET creates an HTTP GET route handler.
-func GET(router *httprouter.Router, name route, path string, handler httprouter.Handle) {
+func GET(router *httprouter.Router, name Route, path string, handler httprouter.Handle) {
 	register(router, name, path, handler, http.MethodGet)
 }
 
 // POST creates an HTTP POST route handler.
-func POST(router *httprouter.Router, name route, path string, handler httprouter.Handle) {
+func POST(router *httprouter.Router, name Route, path string, handler httprouter.Handle) {
 	register(router, name, path, handler, http.MethodPost)
 }
 
 // ALL creates an HTTP GET and POST route handler.
-func ALL(router *httprouter.Router, name route, path string, handler httprouter.Handle) {
+func ALL(router *httprouter.Router, name Route, path string, handler httprouter.Handle) {
 	register(router, name, path, handler, http.MethodGet, http.MethodPost)
 }
 
 // ReverseRoute looks up routes by name and returns RouteBuilders for
 // them.  The builders can be used in turn to generate full-fledged
 // URIs.
-func ReverseRoute(name route) RouteBuilder {
+func ReverseRoute(name Route) RouteBuilder {
 	builder, found := sitemap[name]
 	if !found {
 		panic(fmt.Sprintf("sitemap: route %q does not exist", name))
@@ -205,6 +206,6 @@ func ReverseRoute(name route) RouteBuilder {
 // ReverseSimple looks up routes by name and returns their paths.
 // This is not safe to use with paths that contain dynamic parameters,
 // use ReverseRoute for those.
-func ReverseSimple(name route) string {
+func ReverseSimple(name Route) string {
 	return ReverseRoute(name).path
 }
