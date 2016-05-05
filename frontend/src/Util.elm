@@ -86,8 +86,8 @@ time : Timezone -> Timestamp -> Html
 time tz = Timestamp.tzFormat tz "h:mmA" >> text
 
 
-hijack : String -> Signal.Message -> Html.Attribute
-hijack event message =
+on' : String -> Signal.Message -> Html.Attribute
+on' event message =
   let
     options = { stopPropagation = True
               , preventDefault = True

@@ -5,6 +5,7 @@ import Effects exposing (Effects)
 import History
 import Task
 
+import Model exposing (..)
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)

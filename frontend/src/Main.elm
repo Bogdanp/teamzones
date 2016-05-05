@@ -6,8 +6,9 @@ import Html exposing (Html, text)
 import StartApp exposing (App, start)
 import Task exposing (Task)
 
+import Model exposing (..)
 import Timestamp exposing (Timestamp, Timezone)
-import Types exposing (..)
+import Types exposing (ContextUser, Company)
 import Update exposing (init, update)
 import View exposing (view)
 
