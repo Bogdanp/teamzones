@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	GET(appRouter, locationRoute, "/api/v1/location", location)
+	GET(appRouter, locationRoute, "/api/location", location)
 }
 
 type locationResponse struct {

@@ -11,7 +11,7 @@ function request(endpoint, userOptions) {
     }
   }
 
-  return fetch("/api/v1/" + endpoint, options).then(function(response) {
+  return fetch("/api/" + endpoint, options).then(function(response) {
     if (response.status < 400) {
       return response.json();
     }
