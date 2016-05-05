@@ -4,23 +4,24 @@ module Components.Invite ( Model, Message(..)
 
 import Effects exposing (Effects)
 import Form exposing (Form)
-import Form.Input as Input
 import Form.Validate as Validate exposing (..)
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import Signal exposing (Address)
 
-import Components.Form exposing (textField)
+import Components.Form as FC exposing (form, submit, textField)
 import Components.Page exposing (page)
-import Util exposing (pure)
+import Util exposing (pure, on')
 
 
 type Message
-  = ToForm Form.Action
+  = Submit
+  | ToForm Form.Action
 
 
 type alias Invite
-  = { email : String }
+  = { name : String
+    , email : String
+    }
 
 
 type alias Model
@@ -29,7 +30,10 @@ type alias Model
 
 validate : Validation () Invite
 validate =
-  form1 Invite (get "email" email)
+  form2
+    Invite
+    (get "name" string)
+    (get "email" email)
 
 
 init : Model
@@ -40,6 +44,10 @@ init =
 update : Message -> Model -> (Model, Effects Message)
 update message ({form} as model) =
   case message of
+    Submit ->
+      -- FIXME: Handle submissions
+      pure { model | form = Form.update Form.Submit form }
+
     ToForm m ->
       pure { model | form = Form.update m form }
 
@@ -51,8 +59,10 @@ view messages {form} =
   in
     page
       "Invite Teammates"
-      [ div
-          [ class "form-group" ]
-          [ textField "Email Address" "email" formMessages form
+      [ p [] [ text "You can use this form to invite members to your team." ]
+      , FC.form (Signal.message messages Submit)
+          [ textField "Name" "name" formMessages form
+          , textField "Email address" "email" formMessages form
+          , submit "Send invite"
           ]
       ]

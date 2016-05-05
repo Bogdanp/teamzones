@@ -1,12 +1,35 @@
-module Components.Form ( textField ) where
+module Components.Form ( form, submit, textField ) where
 
 import Form exposing (Form)
 import Form.Input as Input exposing (Input)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Signal exposing (Address)
+import Signal exposing (Address, Message)
 
-import Util exposing ((=>))
+import Util exposing ((=>), on')
+
+
+form : Message -> List Html -> Html
+form message =
+  Html.form
+    [ class "form-group no-pt"
+    , action ""
+    , on' "submit" message
+    ]
+
+
+submit : String -> Html
+submit label =
+  div
+    [ class "input-group" ]
+    [ div [ class "spacer" ] []
+    , div
+        [ class "input" ]
+        [ input [ type' "submit"
+                , value label
+                ] []
+        ]
+    ]
 
 
 textField : String -> String -> Address Form.Action -> Form e a -> Html
