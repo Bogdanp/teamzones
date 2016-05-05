@@ -45,48 +45,49 @@ view messages {now, company, user, team, route, invite} =
   in
     div
       [ class "app" ]
-      [ toolbar company user.timezone now
+      [ toolbar anchorTo company user.timezone now
       , div
           [ class "content" ]
-          [ lazy (sidebar messages anchorTo) user
+          [ sidebar anchorTo user
           , page
           ]
       ]
 
 
-toolbar : Company -> Timezone -> Timestamp -> Html
-toolbar company timezone now =
+toolbar : AnchorTo -> Company -> Timezone -> Timestamp -> Html
+toolbar anchorTo company timezone now =
   div
     [ class "toolbar" ]
-    [ div [ class "team-name" ] [ a [ href "/" ] [ text company.name ] ]
+    [ div [ class "team-name" ] [ anchorTo (DashboardR ()) company.name ]
     , div [ class "clock" ] [ Util.time timezone now ]
     , div [ class "menu" ] []
     ]
 
 
-sidebar : Address Message -> AnchorTo -> User -> Html
-sidebar messages anchorTo user =
+sidebar : AnchorTo -> User -> Html
+sidebar anchorTo user =
   let
     linkTo uri label =
       li [] [ a [ href uri ] [ text label ] ]
 
     routeTo route label =
       li [] [ anchorTo route label ]
+
+    links =
+      if user.role /= Types.Member then
+        [ routeTo (InviteR ()) "Invite Teammates"
+        , routeTo (SettingsR ()) "Settings"
+        ]
+      else
+        [ ]
   in
     div
       [ class "sidebar" ]
         [ CurrentUser.view user
         , ul
             [ class "menu" ]
-            ( if user.role == Types.Member then
-                [ routeTo (DashboardR ()) "Dashboard"
-                , linkTo "/sign-out" "Sign out"
-                ]
-              else
-                [ routeTo (DashboardR ()) "Dashboard"
-                , routeTo (InviteR ()) "Invite Teammates"
-                , routeTo (SettingsR ()) "Settings"
-                , linkTo "/sign-out" "Sign out"
-                ]
+            ( [ routeTo (DashboardR ()) "Dashboard" ]
+                ++ links
+                ++ [ linkTo "/sign-out" "Sign out" ]
             )
         ]
