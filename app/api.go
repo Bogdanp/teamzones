@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"teamzones/forms"
 	"teamzones/models"
 	"teamzones/utils"
 	"time"
@@ -16,7 +18,8 @@ import (
 )
 
 func init() {
-	GET(appRouter, locationRoute, "/api/location", location)
+	GET(appRouter, locationRoute, "/api/location", locationHandler)
+	POST(appRouter, sendInviteRoute, "/api/invites", sendInviteHandler)
 }
 
 type locationResponse struct {
@@ -26,7 +29,7 @@ type locationResponse struct {
 	Timezone string `json:"timezone"`
 }
 
-func location(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+func locationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	var timezoneID string
 
 	ctx := appengine.NewContext(req)
@@ -58,4 +61,18 @@ func location(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		City:     req.Header.Get("X-AppEngine-City"),
 		Timezone: timezoneID,
 	})
+}
+
+func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	var data struct {
+		Name  string `json:"name" validate:"MinLength:3,MaxLength:50"`
+		Email string `json:"email" validate:"Email"`
+	}
+
+	if err := forms.BindJSON(req, &data); err != nil {
+		badRequest(res, err.Error())
+		return
+	}
+
+	log.Println(data)
 }

@@ -40,6 +40,7 @@ const (
 
 	// API
 	locationRoute
+	sendInviteRoute
 )
 
 const (

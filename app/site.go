@@ -11,15 +11,15 @@ import (
 )
 
 func init() {
-	GET(siteRouter, homeRoute, "/", home)
-	ALL(siteRouter, signUpRoute, "/sign-up/", signUp)
+	GET(siteRouter, homeRoute, "/", homeHandler)
+	ALL(siteRouter, signUpRoute, "/sign-up/", signUpHandler)
 }
 
-func home(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+func homeHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	renderer.HTML(res, http.StatusOK, "index", nil)
 }
 
-func signUp(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+func signUpHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	form := struct {
 		CompanyName      forms.Field
 		CompanySubdomain forms.Field

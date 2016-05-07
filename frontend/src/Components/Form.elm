@@ -1,4 +1,4 @@
-module Components.Form ( form, submit, textField ) where
+module Components.Form ( FieldOptions, form, submit, submitWithOptions, textField ) where
 
 import Form exposing (Form)
 import Form.Input as Input exposing (Input)
@@ -7,6 +7,12 @@ import Html.Attributes exposing (..)
 import Signal exposing (Address, Message)
 
 import Util exposing ((=>), on')
+
+
+type alias FieldOptions
+  = { label : String
+    , disabled : Bool
+    }
 
 
 form : Message -> List Html -> Html
@@ -20,6 +26,11 @@ form message =
 
 submit : String -> Html
 submit label =
+  submitWithOptions { label = label, disabled = False }
+
+
+submitWithOptions : FieldOptions -> Html
+submitWithOptions ({label} as options) =
   div
     [ class "input-group" ]
     [ div [ class "spacer" ] []
@@ -27,9 +38,11 @@ submit label =
         [ class "input" ]
         [ input [ type' "submit"
                 , value label
+                , disabled options.disabled
                 ] []
         ]
     ]
+
 
 
 textField : String -> String -> Address Form.Action -> Form e a -> Html
