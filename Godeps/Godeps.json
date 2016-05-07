@@ -101,6 +101,10 @@
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
 		{
+			"ImportPath": "google.golang.org/appengine/log",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
 			"ImportPath": "google.golang.org/appengine/memcache",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},

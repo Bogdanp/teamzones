@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
@@ -57,7 +58,7 @@ func NewUserKey(
 	ctx context.Context,
 	parent *datastore.Key, email string,
 ) *datastore.Key {
-	return datastore.NewKey(ctx, userKind, email, 0, parent)
+	return datastore.NewKey(ctx, userKind, strings.ToLower(email), 0, parent)
 }
 
 // CreateMainUser transactionally creates the initial Company and User
@@ -140,8 +141,8 @@ func Authenticate(
 	email, password string,
 ) (*User, error) {
 
-	var user User
-	if err := datastore.Get(ctx, NewUserKey(ctx, company, email), &user); err != nil {
+	user, err := GetUser(ctx, company, email)
+	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
 			return nil, ErrInvalidCredentials
 		}
@@ -153,13 +154,24 @@ func Authenticate(
 		return nil, ErrInvalidCredentials
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 // FindUsers returns a query that will retrieve all the users
 // belonging to the given company.
 func FindUsers(company *datastore.Key) *datastore.Query {
 	return datastore.NewQuery(userKind).Ancestor(company)
+}
+
+// GetUser returns a user belonging to a given company by e-mail
+// address.
+func GetUser(ctx context.Context, company *datastore.Key, email string) (*User, error) {
+	var user User
+	if err := datastore.Get(ctx, NewUserKey(ctx, company, email), &user); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 // Load tells datastore how to deserialize Users when reading them.

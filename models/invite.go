@@ -14,6 +14,7 @@ const (
 type Invite struct {
 	Company *datastore.Key
 	Email   string
+	Sent    bool
 
 	Times
 }
@@ -28,7 +29,8 @@ func NewInvite(companyKey *datastore.Key, email string) *Invite {
 	return &invite
 }
 
-// CreateInvite creates an invite entity in the datastore.
+// CreateInvite creates an invite entity in the datastore.  This
+// automatically sends out an e-mail invitation on success.
 func CreateInvite(
 	ctx context.Context,
 	companyKey *datastore.Key, email string,
@@ -41,6 +43,7 @@ func CreateInvite(
 		return nil, nil, err
 	}
 
+	invite.send(ctx, key.IntID())
 	return invite, key, nil
 }
 
@@ -57,4 +60,9 @@ func GetInvite(
 	}
 
 	return &invite, nil
+}
+
+// Send an invite e-mail.
+func (invite *Invite) send(ctx context.Context, inviteID int64) {
+	// FIXME: Send e-mail (https://sendgrid.com/partners/google)
 }

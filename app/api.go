@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"fmt"
-	"log"
+	stdlog "log"
 	"net/http"
 	"teamzones/forms"
 	"teamzones/models"
@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
 
 	"github.com/gorilla/context"
@@ -74,5 +75,18 @@ func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 		return
 	}
 
-	log.Println(data)
+	ctx := appengine.NewContext(req)
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	companyKey := company.Key(ctx)
+	_, err := models.GetUser(ctx, companyKey, data.Email)
+	if err == nil {
+		log.Infof(ctx, "user %q is already a member, skipping invite", data.Email)
+		return
+	}
+
+	_, _, err = models.CreateInvite(ctx, companyKey, data.Email)
+	if err != nil {
+		stdlog.Fatalf("failed to create invite: %v", err)
+		return
+	}
 }
