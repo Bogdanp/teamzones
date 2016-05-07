@@ -17,15 +17,15 @@ import (
 )
 
 func init() {
-	GET(appRouter, dashboardRoute, "/", dashboard)
-	GET(appRouter, inviteRoute, "/invite", dashboard)
-	GET(appRouter, settingsRoute, "/settings", dashboard)
-	ALL(appRouter, teamSignUpRoute, "/sign-up/:invite", teamSignUp)
-	ALL(appRouter, signInRoute, "/sign-in/", signIn)
-	GET(appRouter, signOutRoute, "/sign-out/", signOut)
+	GET(appRouter, dashboardRoute, "/", dashboardHandler)
+	GET(appRouter, inviteRoute, "/invite", dashboardHandler)
+	GET(appRouter, settingsRoute, "/settings", dashboardHandler)
+	ALL(appRouter, teamSignUpRoute, "/sign-up/:invite", teamSignUpHandler)
+	ALL(appRouter, signInRoute, "/sign-in/", signInHandler)
+	GET(appRouter, signOutRoute, "/sign-out/", signOutHandler)
 }
 
-func dashboard(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+func dashboardHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	var users []models.User
 
 	ctx := appengine.NewContext(req)
@@ -51,7 +51,7 @@ func dashboard(res http.ResponseWriter, req *http.Request, _ httprouter.Params) 
 	renderer.HTML(res, http.StatusOK, "dashboard", template.JS(data))
 }
 
-func teamSignUp(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	company := context.Get(req, companyCtxKey).(*models.Company)
 	inviteID, err := strconv.ParseInt(ps.ByName("invite"), 10, 64)
 	if err != nil {
@@ -74,7 +74,7 @@ type signInForm struct {
 	Password forms.Field
 }
 
-func signIn(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+func signInHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	company := context.Get(req, companyCtxKey).(*models.Company)
 	form := signInForm{
 		forms.Field{
@@ -129,7 +129,7 @@ func signIn(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	renderer.HTML(res, http.StatusOK, "sign-in", templateCtx)
 }
 
-func signOut(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+func signOutHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	session := sessions.GetSession(req)
 	session.Delete(uidSessionKey)
 	http.Redirect(res, req, ReverseSimple(signInRoute), http.StatusFound)
