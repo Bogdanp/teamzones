@@ -65,6 +65,12 @@ func locationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Pa
 }
 
 func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	user := context.Get(req, userCtxKey).(*models.User)
+	if user.Role >= models.RoleUser {
+		http.Error(res, "forbidden", http.StatusForbidden)
+		return
+	}
+
 	var data struct {
 		Name  string `json:"name" validate:"MinLength:3,MaxLength:50"`
 		Email string `json:"email" validate:"Email"`

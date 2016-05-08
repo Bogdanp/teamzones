@@ -16,6 +16,8 @@ var (
 	// ErrInvalidCredentials is returned when an authentication
 	// attempt fails.
 	ErrInvalidCredentials = errors.New("Invalid credentials.")
+	// ErrUserExists is returned when an e-mail address is taken.
+	ErrUserExists = errors.New("User already exists.")
 )
 
 const (
@@ -24,9 +26,12 @@ const (
 )
 
 const (
-	roleMain    = iota
-	roleManager = iota
-	roleUser    = iota
+	// RoleMain is the role of Company owners.
+	RoleMain = iota
+	// RoleManager is the role of "admin" users within a Company.
+	RoleManager
+	// RoleUser is the role of standard Company members.
+	RoleUser
 )
 
 // User represents an account belonging to a Company.  Every User has
@@ -48,7 +53,7 @@ type User struct {
 // are initialized correctly.
 func NewUser() *User {
 	user := User{}
-	user.Role = roleUser
+	user.Role = RoleUser
 	user.initTimes()
 	return &user
 }
@@ -84,7 +89,7 @@ func CreateMainUser(
 	user.Email = email
 	user.SetPassword(password)
 	user.Timezone = timezone
-	user.Role = roleMain
+	user.Role = RoleMain
 
 	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		_, err := datastore.Put(ctx, companyKey, company)
