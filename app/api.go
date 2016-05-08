@@ -66,7 +66,7 @@ func locationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Pa
 
 func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	user := context.Get(req, userCtxKey).(*models.User)
-	if user.Role >= models.RoleUser {
+	if user.Role == models.RoleUser {
 		http.Error(res, "forbidden", http.StatusForbidden)
 		return
 	}
