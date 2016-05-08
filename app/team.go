@@ -116,6 +116,7 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 
 		switch err {
 		case nil:
+			models.DeleteInvite(ctx, companyKey, inviteID)
 			location := ReverseRoute(signInRoute).
 				Subdomain(company.Subdomain).
 				Build()

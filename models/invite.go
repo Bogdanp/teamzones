@@ -64,6 +64,18 @@ func GetInvite(
 	return &invite, nil
 }
 
+// DeleteInvite deletes an invite belonging to a Company by its id
+func DeleteInvite(
+	ctx context.Context,
+	companyKey *datastore.Key, inviteID int64,
+) error {
+
+	return datastore.Delete(
+		ctx,
+		datastore.NewKey(ctx, inviteKind, "", inviteID, companyKey),
+	)
+}
+
 // Send an invite e-mail.
 func (invite *Invite) send(ctx context.Context, inviteID int64) {
 	// FIXME: Send e-mail (https://sendgrid.com/partners/google)
