@@ -7,4 +7,6 @@ import Components.Page exposing (page)
 
 view : Html
 view =
-  page "Settings" []
+  page
+    "Settings"
+    [ ]

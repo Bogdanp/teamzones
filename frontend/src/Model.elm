@@ -4,6 +4,7 @@ import Routes exposing (Sitemap)
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (..)
 
+import Components.CurrentProfile as CurrentProfile
 import Components.Invite as Invite
 
 
@@ -14,6 +15,7 @@ type Message
   | PathChanged String
   | RouteTo Sitemap
   | ToInvite Invite.Message
+  | ToCurrentProfile CurrentProfile.Message
 
 
 type alias Model
@@ -23,4 +25,5 @@ type alias Model
     , team : Team
     , route : Sitemap
     , invite : Invite.Model
+    , currentProfile : CurrentProfile.Model
     }

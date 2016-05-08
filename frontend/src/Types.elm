@@ -1,7 +1,9 @@
 module Types where
 
 import Dict exposing (Dict)
+import Html exposing (Html, Attribute)
 
+import Routes exposing (Sitemap)
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 
 
@@ -34,3 +36,7 @@ type alias User
 
 type alias Team
   = Dict (Timezone, TimezoneOffset) (List User)
+
+
+type alias AnchorTo
+  = Sitemap -> List Attribute -> List Html -> Html

@@ -11,6 +11,7 @@ import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
 import Util exposing (pure)
 
+import Components.CurrentProfile as CurrentProfile
 import Components.Invite as Invite
 
 
@@ -27,6 +28,7 @@ init path now company user team =
        , team = prepareTeam team
        , route = Routes.match path
        , invite = Invite.init
+       , currentProfile = CurrentProfile.init
        }
 
 
@@ -61,6 +63,14 @@ update message model =
       in
         ( { model | invite = invite }
         , Effects.map ToInvite fx
+        )
+
+    ToCurrentProfile message ->
+      let
+        (currentProfile, fx) = CurrentProfile.update message model.currentProfile
+      in
+        ( { model | currentProfile = currentProfile }
+        , Effects.map ToCurrentProfile fx
         )
 
 

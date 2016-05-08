@@ -8,27 +8,24 @@ import Signal exposing (Address)
 import Model exposing (Model, Message(..))
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone)
-import Types exposing (Company, User)
+import Types exposing (Company, User, AnchorTo)
 import Util exposing (on')
 
+import Components.CurrentProfile as CurrentProfile
 import Components.CurrentUser as CurrentUser
 import Components.Invite as Invite
 import Components.Settings as Settings
 import Components.Team as Team
 
 
-type alias AnchorTo
-  = Sitemap -> String -> Html
-
-
 view : Address Message -> Model -> Html
-view messages {now, company, user, team, route, invite} =
+view messages {now, company, user, team, route, invite, currentProfile} =
   let
-    anchorTo route label =
-      a [ Signal.message messages (RouteTo route) |> on' "click"
-        , Routes.route route |> href
-        ]
-        [ text label ]
+    anchorTo route attrs content =
+      a ( [ Signal.message messages (RouteTo route) |> on' "click"
+          , Routes.route route |> href
+          ] ++ attrs )
+        content
 
     page =
       case route of
@@ -42,6 +39,11 @@ view messages {now, company, user, team, route, invite} =
 
         SettingsR () ->
           Settings.view
+
+        CurrentProfileR () ->
+          Signal.forwardTo messages ToCurrentProfile
+            |> CurrentProfile.view
+            |> flip lazy currentProfile
   in
     div
       [ class "app" ]
@@ -58,7 +60,7 @@ toolbar : AnchorTo -> Company -> Timezone -> Timestamp -> Html
 toolbar anchorTo company timezone now =
   div
     [ class "toolbar" ]
-    [ div [ class "team-name" ] [ anchorTo (DashboardR ()) company.name ]
+    [ div [ class "team-name" ] [ anchorTo (DashboardR ()) [] [ text company.name ] ]
     , div [ class "clock" ] [ Util.time timezone now ]
     , div [ class "menu" ] []
     ]
@@ -71,7 +73,7 @@ sidebar anchorTo user =
       li [] [ a [ href uri ] [ text label ] ]
 
     routeTo route label =
-      li [] [ anchorTo route label ]
+      li [] [ anchorTo route [] [ text label ] ]
 
     links =
       if user.role /= Types.Member then
@@ -83,11 +85,11 @@ sidebar anchorTo user =
   in
     div
       [ class "sidebar" ]
-        [ CurrentUser.view user
-        , ul
-            [ class "menu" ]
-            ( [ routeTo (DashboardR ()) "Dashboard" ]
-                ++ links
-                ++ [ linkTo "/sign-out" "Sign out" ]
-            )
-        ]
+      [ CurrentUser.view anchorTo user
+      , ul
+          [ class "menu" ]
+          ( [ routeTo (DashboardR ()) "Dashboard" ]
+              ++ links
+              ++ [ linkTo "/sign-out" "Sign out" ]
+          )
+      ]

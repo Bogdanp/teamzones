@@ -3,20 +3,21 @@ module Components.CurrentUser where
 import Html exposing (..)
 import Html.Attributes exposing (..)
 
-import Types exposing (User)
+import Routes exposing (Sitemap(..))
+import Types exposing (User, AnchorTo)
 import Util exposing ((=>), initials, initialsColor)
 
-view : User -> Html
-view user =
+view : AnchorTo -> User -> Html
+view anchorTo user =
   div
     [ class "current-user" ]
-    [ avatar user
+    [ avatar anchorTo user
     , h3 [] [ text user.name ]
     , h6 [] [ text user.timezone ]
     ]
 
-avatar : User -> Html
-avatar user =
+avatar : AnchorTo -> User -> Html
+avatar anchorTo user =
   let
     initials' =
       initials user.name
@@ -24,16 +25,17 @@ avatar user =
     avatar' =
       case user.avatar of
         Nothing ->
-          a
-            [ href ""
-            , class "initials"
+          anchorTo
+            (CurrentProfileR ())
+            [ class "initials"
             , style [ "background" => initialsColor initials' ]
             ]
             [ text initials' ]
 
         Just uri ->
-          a
-            [ href "" ]
+          anchorTo
+            (CurrentProfileR ())
+            []
             [ img
                 [ src uri
                 , title user.name

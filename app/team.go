@@ -21,6 +21,7 @@ func init() {
 	GET(appRouter, dashboardRoute, "/", dashboardHandler)
 	GET(appRouter, inviteRoute, "/invite", dashboardHandler)
 	GET(appRouter, settingsRoute, "/settings", dashboardHandler)
+	GET(appRouter, currentProfileRoute, "/profile", dashboardHandler)
 	ALL(appRouter, teamSignUpRoute, "/sign-up/:invite", teamSignUpHandler)
 	ALL(appRouter, signInRoute, "/sign-in/", signInHandler)
 	GET(appRouter, signOutRoute, "/sign-out/", signOutHandler)

@@ -41,6 +41,7 @@ const (
 	// API
 	locationRoute
 	sendInviteRoute
+	currentProfileRoute
 )
 
 const (
