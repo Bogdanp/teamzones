@@ -69,8 +69,8 @@ prepareUser u =
   let
     role r =
       case r of
-        0 -> Main
-        1 -> Manager
+        "main" -> Main
+        "manager" -> Manager
         _ -> Member
 
     avatar a =

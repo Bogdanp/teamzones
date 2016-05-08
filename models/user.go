@@ -27,11 +27,11 @@ const (
 
 const (
 	// RoleMain is the role of Company owners.
-	RoleMain = iota
+	RoleMain = "main"
 	// RoleManager is the role of "admin" users within a Company.
-	RoleManager
+	RoleManager = "manager"
 	// RoleUser is the role of standard Company members.
-	RoleUser
+	RoleUser = "user"
 )
 
 // User represents an account belonging to a Company.  Every User has
@@ -44,7 +44,7 @@ type User struct {
 	Password string `json:"-"`
 	Avatar   string `json:"avatar"`
 	Timezone string `json:"timezone"`
-	Role     int    `json:"role"`
+	Role     string `json:"role"`
 
 	Times
 }

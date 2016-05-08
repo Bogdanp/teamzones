@@ -16,7 +16,7 @@ type UserRole
   | Member
 
 type alias ContextUser
-  = { role : Int
+  = { role : String
     , name : String
     , email : String
     , avatar : String
