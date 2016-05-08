@@ -9,6 +9,7 @@ import (
 	"teamzones/models"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
 
 	"github.com/goincremental/negroni-sessions"
 	"github.com/gorilla/context"
@@ -60,13 +61,77 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 	}
 
 	ctx := appengine.NewContext(req)
-	_, err = models.GetInvite(ctx, company.Key(ctx), inviteID)
+	companyKey := company.Key(ctx)
+	invite, err := models.GetInvite(ctx, companyKey, inviteID)
 	if err != nil {
 		notFound(res)
 		return
 	}
 
-	// FIXME: Implement team signup.
+	form := struct {
+		Name     forms.Field
+		Email    forms.Field
+		Password forms.Field
+		Timezone forms.Field
+	}{
+		forms.Field{
+			Name:       "name",
+			Label:      "Your name",
+			Value:      invite.Name,
+			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(75)},
+		},
+		forms.Field{
+			Name:       "email",
+			Label:      "E-mail address",
+			Value:      invite.Email,
+			Validators: []forms.Validator{forms.Email, forms.MaxLength(150)},
+		},
+		forms.Field{
+			Name:       "password",
+			Label:      "Password",
+			Validators: []forms.Validator{forms.MinLength(6)},
+		},
+		forms.Field{
+			Name:       "timezone",
+			Label:      "Timezone",
+			Validators: []forms.Validator{},
+		},
+	}
+
+	if req.Method == http.MethodPost {
+		if !forms.Bind(req, &form) {
+			renderer.HTML(res, http.StatusBadRequest, "team-sign-up", form)
+			return
+		}
+
+		ctx := appengine.NewContext(req)
+		_, err := models.CreateUser(
+			ctx,
+			companyKey,
+			form.Name.Value,
+			form.Email.Value,
+			form.Password.Value,
+			form.Timezone.Value,
+		)
+
+		switch err {
+		case nil:
+			location := ReverseRoute(signInRoute).
+				Subdomain(company.Subdomain).
+				Build()
+			http.Redirect(res, req, location, http.StatusTemporaryRedirect)
+			return
+		case models.ErrUserExists:
+			form.Email.Errors = []string{err.Error()}
+			renderer.HTML(res, http.StatusBadRequest, "team-sign-up", form)
+			return
+		default:
+			log.Criticalf(ctx, "failed to create uesr: %v", err)
+		}
+
+	}
+
+	renderer.HTML(res, http.StatusOK, "team-sign-up", form)
 }
 
 type signInForm struct {

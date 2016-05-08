@@ -113,6 +113,10 @@ func CreateUser(
 
 	user := NewUser()
 	userKey := NewUserKey(ctx, companyKey, email)
+	if err := datastore.Get(ctx, userKey, &user); err != datastore.ErrNoSuchEntity {
+		return nil, ErrUserExists
+	}
+
 	user.Company = companyKey
 	user.Name = name
 	user.Email = email
