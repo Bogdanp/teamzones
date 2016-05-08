@@ -90,7 +90,7 @@ func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 		return
 	}
 
-	_, _, err = models.CreateInvite(ctx, companyKey, data.Email)
+	_, _, err = models.CreateInvite(ctx, companyKey, data.Name, data.Email)
 	if err != nil {
 		stdlog.Fatalf("failed to create invite: %v", err)
 		return

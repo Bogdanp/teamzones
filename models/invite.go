@@ -13,6 +13,7 @@ const (
 // User via e-mail.  Invites allow said users to join teams.
 type Invite struct {
 	Company *datastore.Key
+	Name    string
 	Email   string
 	Sent    bool
 
@@ -20,9 +21,10 @@ type Invite struct {
 }
 
 // NewInvite initializes a new Invite struct.
-func NewInvite(companyKey *datastore.Key, email string) *Invite {
+func NewInvite(companyKey *datastore.Key, name, email string) *Invite {
 	invite := Invite{
 		Company: companyKey,
+		Name:    name,
 		Email:   email,
 	}
 	invite.initTimes()
@@ -33,10 +35,10 @@ func NewInvite(companyKey *datastore.Key, email string) *Invite {
 // automatically sends out an e-mail invitation on success.
 func CreateInvite(
 	ctx context.Context,
-	companyKey *datastore.Key, email string,
+	companyKey *datastore.Key, name, email string,
 ) (*Invite, *datastore.Key, error) {
 
-	invite := NewInvite(companyKey, email)
+	invite := NewInvite(companyKey, name, email)
 	key := datastore.NewIncompleteKey(ctx, inviteKind, companyKey)
 	key, err := datastore.Put(ctx, key, invite)
 	if err != nil {
