@@ -2,3 +2,6 @@ secret: betroth-meridian-madden-plaque-filial-arbutus-jabber
 domain:
   host: teamzones.io
   port: 80
+
+cloud_storage:
+  bucket: teamzones-1283.appspot.com

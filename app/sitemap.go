@@ -186,6 +186,11 @@ func POST(router *httprouter.Router, name Route, path string, handler httprouter
 	register(router, name, path, handler, http.MethodPost)
 }
 
+// DELETE creates an HTTP DELETE route handler.
+func DELETE(router *httprouter.Router, name Route, path string, handler httprouter.Handle) {
+	register(router, name, path, handler, http.MethodDelete)
+}
+
 // ALL creates an HTTP GET and POST route handler.
 func ALL(router *httprouter.Router, name Route, path string, handler httprouter.Handle) {
 	register(router, name, path, handler, http.MethodGet, http.MethodPost)

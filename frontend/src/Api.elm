@@ -1,4 +1,4 @@
-module Api ( Errors, send, send', post )  where
+module Api ( Errors, send, send', get, post )  where
 
 import Effects exposing (Effects)
 import Http.Extra as HttpExtra exposing (..)
@@ -35,6 +35,11 @@ prepare f val reader req =
     |> Task.toResult
     |> Task.map f
     |> Effects.task
+
+
+get : String -> RequestBuilder
+get endpoint =
+  HttpExtra.get ("/api/" ++ endpoint)
 
 
 post : String -> RequestBuilder

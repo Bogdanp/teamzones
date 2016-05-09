@@ -2,3 +2,6 @@ secret: daily-volley-vein-barn-rumen-parakeet-tog
 domain:
   host: teamzones.dev
   port: 8080
+
+cloud_storage:
+  bucket: teamzones-1283.appspot.com

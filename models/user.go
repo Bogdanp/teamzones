@@ -6,6 +6,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
+	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
 )
 
@@ -46,6 +47,8 @@ type User struct {
 	Timezone string `json:"timezone"`
 	Role     string `json:"role"`
 
+	AvatarFile appengine.BlobKey `json:"-"`
+
 	Times
 }
 
@@ -64,6 +67,11 @@ func NewUserKey(
 	parent *datastore.Key, email string,
 ) *datastore.Key {
 	return datastore.NewKey(ctx, userKind, strings.ToLower(email), 0, parent)
+}
+
+// Key is a helper function for building a User's key.
+func (u *User) Key(ctx context.Context) *datastore.Key {
+	return NewUserKey(ctx, u.Company, u.Email)
 }
 
 // CreateMainUser transactionally creates the initial Company and User
@@ -194,4 +202,9 @@ func (u *User) Save() ([]datastore.Property, error) {
 	u.updateTimes()
 
 	return datastore.SaveStruct(u)
+}
+
+// Put saves the User to Datastore.
+func (u *User) Put(ctx context.Context) (*datastore.Key, error) {
+	return datastore.Put(ctx, u.Key(ctx), u)
 }

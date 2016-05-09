@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	stdlog "log"
 	"net/http"
 	"teamzones/forms"
 	"teamzones/models"
@@ -11,6 +10,7 @@ import (
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/blobstore"
+	"google.golang.org/appengine/image"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
 
@@ -22,7 +22,8 @@ import (
 func init() {
 	GET(appRouter, locationRoute, "/api/location", locationHandler)
 	POST(appRouter, sendInviteRoute, "/api/invites", sendInviteHandler)
-	ALL(appRouter, uploadRoute, "/api/upload", uploadHandler)
+	ALL(appRouter, avatarUploadRoute, "/api/upload", avatarUploadHandler)
+	DELETE(appRouter, deleteAvatarRoute, "/api/avatar", deleteAvatarHandler)
 }
 
 type locationResponse struct {
@@ -94,22 +95,63 @@ func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 
 	_, _, err = models.CreateInvite(ctx, companyKey, data.Name, data.Email)
 	if err != nil {
-		stdlog.Fatalf("failed to create invite: %v", err)
+		log.Errorf(ctx, "failed to create invite: %v", err)
+		serverError(res)
 		return
 	}
+
+	res.WriteHeader(http.StatusCreated)
 }
 
-func uploadHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+func avatarUploadHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	ctx := appengine.NewContext(req)
 
 	if req.Method == http.MethodPost {
+		redirect := func() {
+			http.Redirect(res, req, ReverseSimple(currentProfileRoute), http.StatusFound)
+		}
+
+		blobs, _, err := blobstore.ParseUpload(req)
+		if err != nil {
+			log.Errorf(ctx, "failed to upload file: %v", err)
+			redirect()
+			return
+		}
+
+		file := blobs["avatar-file"]
+		if len(file) == 0 {
+			redirect()
+			return
+		}
+
+		avatar := file[0]
+		imageURL, err := image.ServingURL(ctx, avatar.BlobKey, &image.ServingURLOptions{
+			Size: 500,
+			Crop: true,
+		})
+		if err != nil {
+			redirect()
+			return
+		}
+
+		user := context.Get(req, userCtxKey).(*models.User)
+		user.Avatar = imageURL.String()
+		user.AvatarFile = avatar.BlobKey
+		user.Put(ctx)
+
+		redirect()
 		return
 	}
 
-	location := ReverseSimple(uploadRoute)
-	uri, err := blobstore.UploadURL(ctx, location, nil)
+	location := ReverseSimple(avatarUploadRoute)
+	uri, err := blobstore.UploadURL(ctx, location, &blobstore.UploadURLOptions{
+		MaxUploadBytesPerBlob: 1024 * 1024 * 8,
+
+		StorageBucket: fmt.Sprintf("%s/avatars", config.CloudStorage.Bucket),
+	})
 	if err != nil {
-		stdlog.Fatalf("failed to create upload url: %v", err)
+		log.Errorf(ctx, "failed to create upload url: %v", err)
+		serverError(res)
 		return
 	}
 
@@ -118,4 +160,13 @@ func uploadHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Para
 	}{
 		URI: uri.String(),
 	})
+}
+
+func deleteAvatarHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	ctx := appengine.NewContext(req)
+	user := context.Get(req, userCtxKey).(*models.User)
+	user.Avatar = ""
+	user.Put(ctx)
+
+	res.WriteHeader(http.StatusNoContent)
 }

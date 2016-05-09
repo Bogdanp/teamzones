@@ -1,4 +1,8 @@
-module Components.Form ( FieldOptions, form, submit, submitWithOptions, textField ) where
+module Components.Form ( FieldOptions, form
+                       , submit, submitWithOptions
+                       , button, buttonWithOptions
+                       , textField
+                       ) where
 
 import Form exposing (Form)
 import Form.Input as Input exposing (Input)
@@ -43,6 +47,25 @@ submitWithOptions ({label} as options) =
         ]
     ]
 
+
+button : String -> Html
+button label =
+  buttonWithOptions { label = label, disabled = False }
+
+
+buttonWithOptions : FieldOptions -> Html
+buttonWithOptions ({label} as options) =
+  div
+    [ class "input-group" ]
+    [ div [ class "spacer" ] []
+    , div
+        [ class "input" ]
+        [ input [ type' "button"
+                , value label
+                , disabled options.disabled
+                ] []
+        ]
+    ]
 
 
 textField : String -> String -> Address Form.Action -> Form e a -> Html

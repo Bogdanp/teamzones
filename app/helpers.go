@@ -23,3 +23,7 @@ func badRequest(res http.ResponseWriter, errors ...string) {
 		log.Fatalf("badRequest: failed to encode errors: %v", err)
 	}
 }
+
+func serverError(res http.ResponseWriter) {
+	http.Error(res, "Internal server error", http.StatusInternalServerError)
+}

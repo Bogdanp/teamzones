@@ -42,7 +42,8 @@ const (
 	// API
 	locationRoute
 	sendInviteRoute
-	uploadRoute
+	avatarUploadRoute
+	deleteAvatarRoute
 )
 
 const (
@@ -112,6 +113,9 @@ type Config struct {
 		Host string
 		Port int
 	}
+	CloudStorage struct {
+		Bucket string
+	} `yaml:"cloud_storage"`
 }
 
 // Host is the full host name according to the configuration.  The

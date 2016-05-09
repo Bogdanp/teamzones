@@ -9,7 +9,7 @@ import Model exposing (Model, Message(..))
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (Company, User, AnchorTo)
-import Util exposing (on')
+import Util exposing ((=>), on')
 
 import Components.CurrentProfile as CurrentProfile
 import Components.CurrentUser as CurrentUser
@@ -19,11 +19,12 @@ import Components.Team as Team
 
 
 view : Address Message -> Model -> Html
-view messages {now, company, user, team, route, invite, currentProfile} =
+view messages ({now, company, user, team, route, invite, currentProfile} as model) =
   let
     anchorTo route attrs content =
       a ( [ Signal.message messages (RouteTo route) |> on' "click"
           , Routes.route route |> href
+          , classList [ "active" => (route == model.route) ]
           ] ++ attrs )
         content
 

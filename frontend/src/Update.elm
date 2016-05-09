@@ -22,14 +22,22 @@ init : String
      -> List ContextUser
      -> (Model, Effects Message)
 init path now company user team =
-  pure { now = now
-       , company = company
-       , user = prepareUser user
-       , team = prepareTeam team
-       , route = Routes.match path
-       , invite = Invite.init
-       , currentProfile = CurrentProfile.init
-       }
+  let
+    currentUser = prepareUser user
+
+    -- TODO: Only run the effects if the route matches current profile?
+    (currentProfile, currentProfileFx) = CurrentProfile.init currentUser
+  in
+    ( { now = now
+      , company = company
+      , user = currentUser
+      , team = prepareTeam team
+      , route = Routes.match path
+      , invite = Invite.init
+      , currentProfile = currentProfile
+      }
+    , Effects.batch [ Effects.map ToCurrentProfile currentProfileFx ]
+    )
 
 
 update : Message -> Model -> (Model, Effects Message)
@@ -46,7 +54,21 @@ update message model =
       pure model
 
     PathChanged path ->
-      pure { model | route = Routes.match path }
+      let
+        route = Routes.match path
+        model' = { model | route = route }
+      in
+        case route of
+          CurrentProfileR () ->
+            let
+              (profile, fx) = CurrentProfile.init model.user
+            in
+              ( { model' | currentProfile = profile }
+              , Effects.map ToCurrentProfile fx
+              )
+
+          _ ->
+            pure model'
 
     RouteTo route ->
       ( model
