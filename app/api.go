@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/blobstore"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
 
@@ -21,6 +22,7 @@ import (
 func init() {
 	GET(appRouter, locationRoute, "/api/location", locationHandler)
 	POST(appRouter, sendInviteRoute, "/api/invites", sendInviteHandler)
+	ALL(appRouter, uploadRoute, "/api/upload", uploadHandler)
 }
 
 type locationResponse struct {
@@ -95,4 +97,25 @@ func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 		stdlog.Fatalf("failed to create invite: %v", err)
 		return
 	}
+}
+
+func uploadHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	ctx := appengine.NewContext(req)
+
+	if req.Method == http.MethodPost {
+		return
+	}
+
+	location := ReverseSimple(uploadRoute)
+	uri, err := blobstore.UploadURL(ctx, location, nil)
+	if err != nil {
+		stdlog.Fatalf("failed to create upload url: %v", err)
+		return
+	}
+
+	renderer.JSON(res, http.StatusOK, struct {
+		URI string `json:"uri"`
+	}{
+		URI: uri.String(),
+	})
 }

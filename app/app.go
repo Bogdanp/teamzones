@@ -32,6 +32,7 @@ const (
 
 	// Application
 	dashboardRoute
+	currentProfileRoute
 	inviteRoute
 	settingsRoute
 	teamSignUpRoute
@@ -41,7 +42,7 @@ const (
 	// API
 	locationRoute
 	sendInviteRoute
-	currentProfileRoute
+	uploadRoute
 )
 
 const (
