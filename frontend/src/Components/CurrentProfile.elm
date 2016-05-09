@@ -6,9 +6,9 @@ import Form.Field exposing (Field(..))
 import Form.Validate as Validate exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import Http.Extra as HttpExtra
 import Json.Decode as Json exposing ((:=))
-import Json.Encode
 import Signal exposing (Address)
 
 import Api exposing (Errors, send)
@@ -18,8 +18,14 @@ import Types exposing (User)
 import Util exposing (pure)
 
 
+type ParentMessage
+  = RemoveAvatar
+
+
 type Message
   = Submit
+  | DeleteAvatar
+  | ToParent ParentMessage
   | ToForm Form.Action
   | UploadUriResponse (Result (HttpExtra.Error Errors) (HttpExtra.Response String))
 
@@ -59,6 +65,12 @@ update message model =
       -- FIXME: implement submit
       pure model
 
+    DeleteAvatar ->
+      (model, deleteAvatar)
+
+    ToParent _ ->
+      pure model
+
     ToForm m ->
       pure { model | form = Form.update m model.form }
 
@@ -94,7 +106,7 @@ view messages {form, pending, uploadUri} =
               [ class "input-group" ]
               [ label
                   [ for "avatar-file" ]
-                  [ text "Profile Picture" ]
+                  [ text "Profile picture" ]
               , div
                   [ class "input" ]
                   [ input [ type' "file"
@@ -113,8 +125,10 @@ view messages {form, pending, uploadUri} =
                           , value "Upload"
                           , disabled uploadPending
                           ] []
-                  , input [ type' "button"
-                          , value "Delete Profile Picture"
+                  , input [ class "sm-ml"
+                          , type' "button"
+                          , value "Delete profile picture"
+                          , onClick messages DeleteAvatar
                           ] []
                   ]
               ]
@@ -128,5 +142,9 @@ view messages {form, pending, uploadUri} =
 
 createUploadUri : Effects Message
 createUploadUri =
-  Api.get "upload"
-    |> send UploadUriResponse Json.Encode.null ("uri" := Json.string)
+  Api.get "upload" UploadUriResponse ("uri" := Json.string)
+
+
+deleteAvatar : Effects Message
+deleteAvatar =
+  Api.delete' "avatar" (always <| ToParent RemoveAvatar)

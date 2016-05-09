@@ -11,7 +11,7 @@ import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
 import Util exposing (pure)
 
-import Components.CurrentProfile as CurrentProfile
+import Components.CurrentProfile as CurrentProfile exposing (ParentMessage(..))
 import Components.Invite as Invite
 
 
@@ -41,7 +41,7 @@ init path now company user team =
 
 
 update : Message -> Model -> (Model, Effects Message)
-update message model =
+update message ({user, team} as model) =
   case message of
     NoOp ->
       pure model
@@ -86,6 +86,22 @@ update message model =
         ( { model | invite = invite }
         , Effects.map ToInvite fx
         )
+
+    ToCurrentProfile (CurrentProfile.ToParent RemoveAvatar) ->
+      let
+        user' =
+          { user | avatar = Nothing }
+
+        team' =
+          Dict.map (always <| List.map update) team
+
+        update u =
+          if u == user then
+            user'
+          else
+            u
+      in
+        pure { model | user = user', team = team' }
 
     ToCurrentProfile message ->
       let
