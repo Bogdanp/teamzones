@@ -3,7 +3,7 @@ module Types exposing (..)
 import Dict exposing (Dict)
 import Html exposing (Html, Attribute)
 import Routes exposing (Sitemap)
-import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
+import Timestamp exposing (Timezone, TimezoneOffset)
 
 
 type alias Company =

@@ -1,6 +1,6 @@
 module Model exposing (Message(..), Model, Flags)
 
-import Components.CurrentProfile as CurrentProfile
+import Components.CurrentProfile as CP
 import Components.Invite as Invite
 import Routes exposing (Sitemap)
 import Timestamp exposing (Timestamp, Timezone)
@@ -14,7 +14,7 @@ type Message
     | PathChanged String
     | RouteTo Sitemap
     | ToInvite Invite.Message
-    | ToCurrentProfile CurrentProfile.Message
+    | ToCurrentProfile CP.Message
 
 
 type alias Model =
@@ -24,7 +24,7 @@ type alias Model =
     , team : Team
     , route : Sitemap
     , invite : Invite.Model
-    , currentProfile : CurrentProfile.Model
+    , currentProfile : CP.Model
     }
 
 

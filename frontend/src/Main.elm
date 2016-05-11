@@ -16,9 +16,9 @@ main =
         , subscriptions =
             \_ ->
                 Sub.batch
-                    [ timestamps Tick
+                    [ path PathChanged
+                    , timestamps Tick
                     , timezones TimezoneChanged
-                    , path PathChanged
                     ]
         }
 

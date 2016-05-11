@@ -1,6 +1,6 @@
 port module Update exposing (init, update)
 
-import Components.CurrentProfile as CurrentProfile exposing (ParentMessage(..))
+import Components.CurrentProfile as CP
 import Components.Invite as Invite
 import Dict exposing (Dict)
 import Model exposing (..)
@@ -18,7 +18,7 @@ init { path, now, company, user, team } =
 
         -- TODO: Only run the effects if the route matches current profile?
         ( currentProfile, currentProfileFx ) =
-            CurrentProfile.init currentUser
+            CP.init currentUser
     in
         ( { now = now
           , company = company
@@ -59,7 +59,7 @@ update message ({ user, team } as model) =
                     CurrentProfileR () ->
                         let
                             ( profile, fx ) =
-                                CurrentProfile.init model.user
+                                CP.init model.user
                         in
                             ( { model' | currentProfile = profile }
                             , Cmd.map ToCurrentProfile fx
@@ -82,7 +82,7 @@ update message ({ user, team } as model) =
                 , Cmd.map ToInvite fx
                 )
 
-        ToCurrentProfile (CurrentProfile.ToParent RemoveAvatar) ->
+        ToCurrentProfile (CP.ToParent CP.RemoveAvatar) ->
             let
                 user' =
                     { user | avatar = Nothing }
@@ -101,7 +101,7 @@ update message ({ user, team } as model) =
         ToCurrentProfile message ->
             let
                 ( currentProfile, fx ) =
-                    CurrentProfile.update message model.currentProfile
+                    CP.update message model.currentProfile
             in
                 ( { model | currentProfile = currentProfile }
                 , Cmd.map ToCurrentProfile fx
