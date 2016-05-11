@@ -10,20 +10,10 @@ var offset = function(timezone) {
   return moment.tz(timezone).utcOffset();
 };
 
-var make = function make(elm) {
-  elm.Native = elm.Native || {};
-  elm.Native.Timestamp = elm.Native.Timestamp || {};
-
-  if (elm.Native.Timestamp.values) {
-    return elm.Native.Timestamp.values;
-  }
-
-  return elm.Native.Timestamp.values = {
+var _Bogdanp$teamzones$Native_Timestamp = function() {
+  return {
     format: F2(format),
     formatWithTimezone: F3(formatWithTimezone),
     offset: offset
   };
-};
-
-Elm.Native.Timestamp = {};
-Elm.Native.Timestamp.make = make;
+}();

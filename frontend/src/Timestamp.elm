@@ -1,17 +1,35 @@
-module Timestamp where
+module Timestamp exposing (..)
 
 import Native.Timestamp
+import Time
 
-type alias Timestamp = Int
-type alias Timezone = String
-type alias TimezoneOffset = Int
-type alias Format = String
+
+type alias Timestamp =
+    Time.Time
+
+
+type alias Timezone =
+    String
+
+
+type alias TimezoneOffset =
+    Int
+
+
+type alias Format =
+    String
+
 
 format : Format -> Timestamp -> String
-format = Native.Timestamp.format
+format =
+    Native.Timestamp.format
+
 
 tzFormat : Timezone -> Format -> Timestamp -> String
-tzFormat = Native.Timestamp.formatWithTimezone
+tzFormat =
+    Native.Timestamp.formatWithTimezone
+
 
 offset : Timezone -> TimezoneOffset
-offset = Native.Timestamp.offset
+offset =
+    Native.Timestamp.offset

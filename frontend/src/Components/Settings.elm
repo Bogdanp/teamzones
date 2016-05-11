@@ -1,12 +1,10 @@
-module Components.Settings where
-
-import Html exposing (..)
-import Html.Attributes exposing (..)
+module Components.Settings exposing (..)
 
 import Components.Page exposing (page)
+import Html exposing (..)
 
-view : Html
+
+view : Html msg
 view =
-  page
-    "Settings"
-    [ ]
+    page "Settings"
+        []

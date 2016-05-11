@@ -1,41 +1,32 @@
-module Main where
+port module Main exposing (..)
 
-import Effects exposing (Never)
-import History
-import Html exposing (Html, text)
-import StartApp exposing (App, start)
-import Task exposing (Task)
-
-import Model exposing (..)
+import Html.App as Html
+import Model exposing (Message(..), Flags)
 import Timestamp exposing (Timestamp, Timezone)
-import Types exposing (ContextUser, Company)
 import Update exposing (init, update)
 import View exposing (view)
 
-app : App Model
-app =
-  start { init = init path now company user team
+
+main : Program Flags
+main =
+    Html.programWithFlags
+        { init = init
         , view = view
         , update = update
-        , inputs = [ Signal.map Tick timestamps
-                   , Signal.map TimezoneChanged timezones
-                   , Signal.map PathChanged History.path
-                   ]
+        , subscriptions =
+            \_ ->
+                Sub.batch
+                    [ timestamps Tick
+                    , timezones TimezoneChanged
+                    , path PathChanged
+                    ]
         }
 
-main : Signal Html
-main = app.html
 
-port tasks : Signal (Task Never ())
-port tasks =
-  app.tasks
+port path : (String -> msg) -> Sub msg
 
-port path : String
 
-port now : Timestamp
-port timestamps : Signal Timestamp
-port timezones : Signal Timezone
+port timestamps : (Timestamp -> msg) -> Sub msg
 
-port company : Company
-port user : ContextUser
-port team : List ContextUser
+
+port timezones : (Timezone -> msg) -> Sub msg

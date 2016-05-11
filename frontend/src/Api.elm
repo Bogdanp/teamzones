@@ -1,101 +1,122 @@
-module Api ( Errors
-           , send, send'
-           , get, get'
-           , post
-           , delete, delete'
-           )  where
+module Api
+    exposing
+        ( Errors
+        , getJson
+        , getPlain
+        , postJson
+        , postPlain
+        , deleteJson
+        , deletePlain
+        )
 
-import Effects exposing (Effects)
-import Http.Extra as HttpExtra exposing (..)
+import HttpBuilder as HB exposing (Error, Response, RequestBuilder, BodyReader)
 import Json.Decode as Json exposing ((:=))
 import Time
 import Task exposing (Task)
 
 
-type alias Errors
-  = { errors : List String }
+type alias Errors =
+    { errors : List String }
 
 
-type alias Mapper a b
-  = Result (Error Errors) (Response a) -> b
+type alias RequestPlain msg =
+    (Error Errors -> msg) -> (Response String -> msg) -> String -> Cmd msg
+
+
+type alias RequestJson a msg =
+    (Error Errors -> msg) -> (Response a -> msg) -> Json.Decoder a -> String -> Cmd msg
+
+
+type alias RequestJsonPlain msg =
+    (Error Errors -> msg) -> (Response String -> msg) -> Json.Value -> String -> Cmd msg
+
+
+type alias RequestJsonJson a msg =
+    (Error Errors -> msg) -> (Response a -> msg) -> Json.Value -> Json.Decoder a -> String -> Cmd msg
 
 
 decodeErrors : Json.Decoder Errors
 decodeErrors =
-  Json.map Errors
-      ("errors" := Json.list Json.string)
+    Json.map Errors
+        ("errors" := Json.list Json.string)
 
 
 timeout : Time.Time
-timeout = 5 * Time.second
+timeout =
+    5 * Time.second
 
 
-prepare : Mapper a b
-        -> Json.Value
-        -> BodyReader a
-        -> RequestBuilder
-        -> Effects b
-prepare f val reader req =
-  req
-    |> withHeader "Content-Type" "application/json"
-    |> withJsonBody val
-    |> withTimeout timeout
-    |> HttpExtra.send reader (jsonReader decodeErrors)
-    |> Task.toResult
-    |> Task.map f
-    |> Effects.task
+prepareJson :
+    (Error Errors -> msg)
+    -> (Response a -> msg)
+    -> Json.Value
+    -> BodyReader a
+    -> RequestBuilder
+    -> Cmd msg
+prepareJson ferr fok val reader req =
+    req
+        |> HB.withHeader "Content-Type" "application/json"
+        |> HB.withJsonBody val
+        |> HB.withTimeout timeout
+        |> HB.send reader (HB.jsonReader decodeErrors)
+        |> Task.perform ferr fok
 
 
-send : Mapper a b -> Json.Value -> Json.Decoder a -> RequestBuilder -> Effects b
-send f val dec req =
-  prepare f val (jsonReader dec) req
+preparePlain :
+    (Error Errors -> msg)
+    -> (Response a -> msg)
+    -> BodyReader a
+    -> RequestBuilder
+    -> Cmd msg
+preparePlain ferr fok reader req =
+    req
+        |> HB.withTimeout timeout
+        |> HB.send reader (HB.jsonReader decodeErrors)
+        |> Task.perform ferr fok
 
 
-send' : Mapper String b -> Json.Value -> RequestBuilder -> Effects b
-send' f val req =
-  prepare f val stringReader req
+prefix : String -> String
+prefix =
+    (++) "/api/"
 
 
-get : String -> Mapper a b -> Json.Decoder a -> Effects b
-get endpoint f dec =
-  HttpExtra.get ("/api/" ++ endpoint)
-    |> withTimeout timeout
-    |> HttpExtra.send (jsonReader dec) (jsonReader decodeErrors)
-    |> Task.toResult
-    |> Task.map f
-    |> Effects.task
+getJson : RequestJson a msg
+getJson ferr fok dec endpoint =
+    prefix endpoint
+        |> HB.get
+        |> preparePlain ferr fok (HB.jsonReader dec)
 
 
-get' : String -> Mapper String b -> Effects b
-get' endpoint f =
-  HttpExtra.get ("/api/" ++ endpoint)
-    |> withTimeout timeout
-    |> HttpExtra.send stringReader (jsonReader decodeErrors)
-    |> Task.toResult
-    |> Task.map f
-    |> Effects.task
+getPlain : RequestPlain msg
+getPlain ferr fok endpoint =
+    prefix endpoint
+        |> HB.get
+        |> preparePlain ferr fok HB.stringReader
 
 
-delete : String -> Mapper a b -> Json.Decoder a -> Effects b
-delete endpoint f dec =
-  HttpExtra.delete ("/api/" ++ endpoint)
-    |> withTimeout timeout
-    |> HttpExtra.send (jsonReader dec) (jsonReader decodeErrors)
-    |> Task.toResult
-    |> Task.map f
-    |> Effects.task
+deleteJson : RequestJson a msg
+deleteJson ferr fok dec endpoint =
+    prefix endpoint
+        |> HB.delete
+        |> preparePlain ferr fok (HB.jsonReader dec)
 
 
-delete' : String -> Mapper String b -> Effects b
-delete' endpoint f =
-  HttpExtra.delete ("/api/" ++ endpoint)
-    |> withTimeout timeout
-    |> HttpExtra.send stringReader (jsonReader decodeErrors)
-    |> Task.toResult
-    |> Task.map f
-    |> Effects.task
+deletePlain : RequestPlain msg
+deletePlain ferr fok endpoint =
+    prefix endpoint
+        |> HB.delete
+        |> preparePlain ferr fok HB.stringReader
 
 
-post : String -> RequestBuilder
-post endpoint =
-  HttpExtra.post ("/api/" ++ endpoint)
+postJson : RequestJsonJson a msg
+postJson ferr fok val dec endpoint =
+    prefix endpoint
+        |> HB.post
+        |> prepareJson ferr fok val (HB.jsonReader dec)
+
+
+postPlain : RequestJsonPlain msg
+postPlain ferr fok val endpoint =
+    prefix endpoint
+        |> HB.post
+        |> prepareJson ferr fok val HB.stringReader
