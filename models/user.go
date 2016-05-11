@@ -35,6 +35,24 @@ const (
 	RoleUser = "user"
 )
 
+// Workday represents a User's working hours on a specific day of the
+// week.  The empty Workday symbolizes a day off.
+type Workday struct {
+	Start int `json:"start"`
+	End   int `json:"end"`
+}
+
+// Workdays represents a User's work week.
+type Workdays struct {
+	Monday    Workday `json:"monday"`
+	Tuesday   Workday `json:"tuesday"`
+	Wednesday Workday `json:"wednesday"`
+	Thursday  Workday `json:"thursday"`
+	Friday    Workday `json:"friday"`
+	Saturday  Workday `json:"saturday"`
+	Sunday    Workday `json:"sunday"`
+}
+
 // User represents an account belonging to a Company.  Every User has
 // a Company as an ancestor in its Key.
 type User struct {
@@ -43,10 +61,12 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"-"`
-	Avatar   string `json:"avatar"`
-	Timezone string `json:"timezone"`
 	Role     string `json:"role"`
 
+	Timezone string   `json:"timezone"`
+	Workdays Workdays `json:"workdays"`
+
+	Avatar     string            `json:"avatar"`
 	AvatarFile appengine.BlobKey `json:"-"`
 
 	Times

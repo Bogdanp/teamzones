@@ -17,12 +17,28 @@ type UserRole
   | Manager
   | Member
 
+type alias Workday
+  = { start : Int
+    , end : Int
+    }
+
+type alias Workdays
+  = { monday : Workday
+    , tuesday : Workday
+    , wednesday : Workday
+    , thursday : Workday
+    , friday : Workday
+    , saturday : Workday
+    , sunday : Workday
+    }
+
 type alias ContextUser
   = { role : String
     , name : String
     , email : String
     , avatar : String
     , timezone : Timezone
+    , workdays : Workdays
     }
 
 type alias User
@@ -31,6 +47,7 @@ type alias User
     , email : String
     , avatar : Maybe String
     , timezone : Timezone
+    , workdays : Workdays
     }
 
 

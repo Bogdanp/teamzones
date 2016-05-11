@@ -12,10 +12,10 @@ import Json.Decode as Json exposing ((:=))
 import Signal exposing (Address)
 
 import Api exposing (Errors, send)
-import Components.Form as FC exposing (form, submitWithOptions, textField)
+import Components.Form as FC
 import Components.Page exposing (page)
 import Types exposing (User)
-import Util exposing (pure)
+import Util exposing (boolFromMaybe, pure)
 
 
 type ParentMessage
@@ -87,12 +87,36 @@ view messages {form, pending, uploadUri} =
     formMessages =
       Signal.forwardTo messages ToForm
 
-    textField' label name =
-      textField label name formMessages form
+    textInput label name =
+      let
+        options = FC.defaultOptions name
+      in
+        FC.textInput { options | label = Just label } formMessages form
+
+    selectInput label name xs =
+      let
+        options = FC.defaultOptions name
+      in
+        FC.selectInput { options | label = Just label } xs formMessages form
 
     uploadPending =
-      Maybe.map (always False) uploadUri
-        |> Maybe.withDefault True
+      not <| boolFromMaybe uploadUri
+
+    workday label name =
+      let
+        options subname =
+          FC.defaultOptions (name ++ "-" ++ subname)
+
+        hours subname =
+          FC.selectInput (options subname) [] formMessages form
+      in
+        div
+          [ class "input-group" ]
+          [ Html.label [ ] [ text label ]
+          , hours "start"
+          , Html.label [ ] [ text "to" ]
+          , hours "end"
+          ]
   in
     page
       "Your Profile"
@@ -134,8 +158,13 @@ view messages {form, pending, uploadUri} =
               ]
           ]
       , FC.form (Signal.message messages Submit)
-          [ textField' "Name" "name"
-          , submitWithOptions { label = "Update", disabled = pending }
+          [ h4 [] [ text "Personal information" ]
+          , textInput "Name" "name"
+          , selectInput "Timezone" "timezone" []
+          , h4 [] [ text "Workdays" ]
+          , workday "Monday" "monday"
+          , workday "Tuesday" "tuesday"
+          , FC.submitWithOptions { label = "Update", disabled = pending }
           ]
       ]
 

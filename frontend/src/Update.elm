@@ -127,7 +127,7 @@ prepareUser u =
       else
         Just a
   in
-    User (role u.role) u.name u.email (avatar u.avatar) u.timezone
+    User (role u.role) u.name u.email (avatar u.avatar) u.timezone u.workdays
 
 
 prepareTeam : List ContextUser -> Team

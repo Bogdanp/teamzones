@@ -98,3 +98,9 @@ on' event message =
 
 pure : a -> (a, Effects b)
 pure = flip (,) Effects.none
+
+
+boolFromMaybe : Maybe a -> Bool
+boolFromMaybe ma =
+  Maybe.map (always True) ma
+    |> Maybe.withDefault False

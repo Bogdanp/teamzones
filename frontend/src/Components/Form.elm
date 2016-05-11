@@ -1,7 +1,10 @@
 module Components.Form ( FieldOptions, form
                        , submit, submitWithOptions
                        , button, buttonWithOptions
-                       , textField
+
+                       , InputOptions, defaultOptions
+                       , textInput, plainTextInput
+                       , selectInput, plainSelectInput
                        ) where
 
 import Form exposing (Form)
@@ -40,10 +43,10 @@ submitWithOptions ({label} as options) =
     [ div [ class "spacer" ] []
     , div
         [ class "input" ]
-        [ input [ type' "submit"
-                , value label
-                , disabled options.disabled
-                ] []
+        [ Html.input [ type' "submit"
+                     , value label
+                     , disabled options.disabled
+                     ] []
         ]
     ]
 
@@ -60,48 +63,92 @@ buttonWithOptions ({label} as options) =
     [ div [ class "spacer" ] []
     , div
         [ class "input" ]
-        [ input [ type' "button"
-                , value label
-                , disabled options.disabled
-                ] []
+        [ Html.input [ type' "button"
+                     , value label
+                     , disabled options.disabled
+                     ] []
         ]
     ]
 
 
-textField : String -> String -> Address Form.Action -> Form e a -> Html
-textField = field Input.textInput
+type alias InputOptions
+  = { name : String
+    , spacer : Bool
+    , label : Maybe String
+    , placeholder : Maybe String
+    , disabled : Bool
+    , classList : List (String, Bool)
+    }
 
 
-field : Input e String -> String -> String -> Address Form.Action -> Form e a -> Html
-field inputFn fieldLabel fieldName messages form =
+defaultOptions : String -> InputOptions
+defaultOptions name =
+  { name = name
+  , spacer = False
+  , label = Nothing
+  , placeholder = Nothing
+  , disabled = False
+  , classList = []
+  }
+
+
+textInput : InputOptions -> Address Form.Action -> Form e a -> Html
+textInput options = input options Input.textInput
+
+
+plainTextInput : String -> Address Form.Action -> Form e a -> Html
+plainTextInput name = textInput <| defaultOptions name
+
+
+selectInput : InputOptions -> List (String, String) -> Address Form.Action -> Form e a -> Html
+selectInput options = Input.selectInput >> input options
+
+
+plainSelectInput : String -> List (String, String) -> Address Form.Action -> Form e a -> Html
+plainSelectInput name values = selectInput (defaultOptions name) values
+
+
+input : InputOptions -> Input e String -> Address Form.Action -> Form e a -> Html
+input options inputFn messages form =
   let
+    field =
+      Form.getFieldAsString options.name form
+
     fieldId =
-      "field-" ++ fieldName
+      "field-" ++ options.name
 
-    field' =
-      Form.getFieldAsString fieldName form
-
-    hasError =
-      Maybe.map (always True) field'.liveError
-        |> Maybe.withDefault False
-
-    errors =
-      case field'.liveError of
+    (hasError, errorsHtml) =
+      case field.liveError of
         Nothing ->
-          text ""
+          (False, text "")
 
         Just error ->
-          span [ class "error" ] [ text <| toString error ]
+          (True, span [ class "error" ] [ text <| toString error ])
+
+    inputHtml =
+      div
+        [ class "input" ]
+        [ inputFn field messages [ id fieldId
+                                 , placeholder (Maybe.withDefault "" options.placeholder)
+                                 , classList ([ "error" => hasError ] ++ options.classList)
+                                 ]
+        , errorsHtml
+        ]
   in
-    div
-      [ class "input-group" ]
-      [ label [ for fieldId ] [ text fieldLabel ]
-      , div
-          [ class "input" ]
-          [ inputFn field' messages [ id fieldId
-                                    , placeholder fieldLabel
-                                    , classList [ "error" => hasError ]
-                                    ]
-          , errors
+    case (options.spacer, options.label) of
+      (True, _) ->
+        div
+          [ class "input-group" ]
+          [ div [ class "spacer" ] [ ]
+          , inputHtml
           ]
-      ]
+
+      (False, Nothing) ->
+        inputHtml
+
+      (False, Just fieldLabel) ->
+        div
+          [ class "input-group" ]
+          [ label [ for fieldId ] [ text fieldLabel ]
+          , inputHtml
+          ]
