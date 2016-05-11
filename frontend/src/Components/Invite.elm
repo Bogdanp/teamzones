@@ -1,7 +1,7 @@
 module Components.Invite
     exposing
         ( Model
-        , Message(..)
+        , Msg(..)
         , init
         , update
         , view
@@ -19,7 +19,7 @@ import Json.Encode
 import Util exposing ((=>), pure, on')
 
 
-type Message
+type Msg
     = Submit
     | ToForm Form.Msg
     | InviteError (HttpBuilder.Error Errors)
@@ -52,9 +52,9 @@ init =
     }
 
 
-update : Message -> Model -> ( Model, Cmd Message )
-update message model =
-    case message of
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
         Submit ->
             let
                 form =
@@ -81,7 +81,7 @@ update message model =
             pure { model | form = Form.initial [] validate, pending = False }
 
 
-view : Model -> Html Message
+view : Model -> Html Msg
 view { form, pending } =
     let
         textField' label name =
@@ -109,6 +109,6 @@ encodeInvite invite =
         ]
 
 
-createInvite : Invite -> Cmd Message
+createInvite : Invite -> Cmd Msg
 createInvite invite =
     postPlain InviteError InviteSuccess (encodeInvite invite) "invites"

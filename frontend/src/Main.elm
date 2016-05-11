@@ -1,7 +1,7 @@
 port module Main exposing (..)
 
 import Html.App as Html
-import Model exposing (Message(..), Flags)
+import Model exposing (Msg(..), Flags)
 import Timestamp exposing (Timestamp, Timezone)
 import Update exposing (init, update)
 import View exposing (view)

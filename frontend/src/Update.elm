@@ -10,7 +10,7 @@ import Types exposing (..)
 import Util exposing (pure)
 
 
-init : Flags -> ( Model, Cmd Message )
+init : Flags -> ( Model, Cmd Msg )
 init { path, now, company, user, team } =
     let
         currentUser =
@@ -34,9 +34,9 @@ init { path, now, company, user, team } =
         )
 
 
-update : Message -> Model -> ( Model, Cmd Message )
-update message ({ user, team } as model) =
-    case message of
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg ({ user, team } as model) =
+    case msg of
         NoOp ->
             pure model
 
@@ -73,10 +73,10 @@ update message ({ user, team } as model) =
             , setPath (Routes.route route)
             )
 
-        ToInvite message ->
+        ToInvite msg ->
             let
                 ( invite, fx ) =
-                    Invite.update message model.invite
+                    Invite.update msg model.invite
             in
                 ( { model | invite = invite }
                 , Cmd.map ToInvite fx
@@ -98,10 +98,10 @@ update message ({ user, team } as model) =
             in
                 pure { model | user = user', team = team' }
 
-        ToCurrentProfile message ->
+        ToCurrentProfile msg ->
             let
                 ( currentProfile, fx ) =
-                    CP.update message model.currentProfile
+                    CP.update msg model.currentProfile
             in
                 ( { model | currentProfile = currentProfile }
                 , Cmd.map ToCurrentProfile fx

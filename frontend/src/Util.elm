@@ -122,14 +122,14 @@ time tz =
 
 
 on' : String -> msg -> Html.Attribute msg
-on' event message =
+on' event msg =
     let
         options =
             { stopPropagation = True
             , preventDefault = True
             }
     in
-        onWithOptions event options (Json.succeed message)
+        onWithOptions event options (Json.succeed msg)
 
 
 pure : a -> ( a, Cmd msg )

@@ -16,14 +16,14 @@ import Types exposing (User)
 import Util exposing (boolFromMaybe, pure)
 
 
-type ParentMessage
+type ParentMsg
     = RemoveAvatar
 
 
-type Message
+type Msg
     = Submit
     | DeleteAvatar
-    | ToParent ParentMessage
+    | ToParent ParentMsg
     | ToForm Form.Msg
     | UploadUriError (HttpBuilder.Error Errors)
     | UploadUriSuccess (HttpBuilder.Response String)
@@ -46,7 +46,7 @@ validate =
         (get "name" string)
 
 
-init : User -> ( Model, Cmd Message )
+init : User -> ( Model, Cmd Msg )
 init user =
     ( { form = Form.initial [ ( "name", Text user.name ) ] validate
       , pending = False
@@ -56,9 +56,9 @@ init user =
     )
 
 
-update : Message -> Model -> ( Model, Cmd Message )
-update message model =
-    case message of
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
         Submit ->
             -- FIXME: implement submit
             pure model
@@ -79,7 +79,7 @@ update message model =
             pure { model | uploadUri = Just response.data }
 
 
-view : Model -> Html Message
+view : Model -> Html Msg
 view { form, pending, uploadUri } =
     let
         textInput label name =
@@ -168,12 +168,12 @@ view { form, pending, uploadUri } =
             ]
 
 
-createUploadUri : Cmd Message
+createUploadUri : Cmd Msg
 createUploadUri =
     getJson UploadUriError UploadUriSuccess ("uri" := Json.string) "upload"
 
 
-deleteAvatar : Cmd Message
+deleteAvatar : Cmd Msg
 deleteAvatar =
     let
         m =

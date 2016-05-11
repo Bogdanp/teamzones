@@ -9,14 +9,14 @@ import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
 import Html.Lazy exposing (lazy)
-import Model exposing (Model, Message(..))
+import Model exposing (Model, Msg(..))
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (Company, User, AnchorTo)
 import Util exposing ((=>), on')
 
 
-view : Model -> Html Message
+view : Model -> Html Msg
 view ({ now, company, user, team, route, invite, currentProfile } as model) =
     let
         anchorTo route attrs content =
@@ -54,7 +54,7 @@ view ({ now, company, user, team, route, invite, currentProfile } as model) =
             ]
 
 
-toolbar : AnchorTo Message -> Company -> Timezone -> Timestamp -> Html Message
+toolbar : AnchorTo Msg -> Company -> Timezone -> Timestamp -> Html Msg
 toolbar anchorTo company timezone now =
     div [ class "toolbar" ]
         [ div [ class "team-name" ] [ anchorTo (DashboardR ()) [] [ text company.name ] ]
@@ -63,7 +63,7 @@ toolbar anchorTo company timezone now =
         ]
 
 
-sidebar : AnchorTo Message -> User -> Html Message
+sidebar : AnchorTo Msg -> User -> Html Msg
 sidebar anchorTo user =
     let
         linkTo uri label =

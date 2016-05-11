@@ -1,4 +1,4 @@
-module Model exposing (Message(..), Model, Flags)
+module Model exposing (Msg(..), Model, Flags)
 
 import Components.CurrentProfile as CP
 import Components.Invite as Invite
@@ -7,14 +7,14 @@ import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (..)
 
 
-type Message
+type Msg
     = NoOp
     | Tick Timestamp
     | TimezoneChanged Timezone
     | PathChanged String
     | RouteTo Sitemap
-    | ToInvite Invite.Message
-    | ToCurrentProfile CP.Message
+    | ToInvite Invite.Msg
+    | ToCurrentProfile CP.Msg
 
 
 type alias Model =

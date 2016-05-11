@@ -28,11 +28,11 @@ type alias FieldOptions =
 
 
 form : msg -> List (Html msg) -> Html msg
-form message =
+form msg =
     Html.form
         [ class "form-group no-pt"
         , action ""
-        , on' "submit" message
+        , on' "submit" msg
         ]
 
 
