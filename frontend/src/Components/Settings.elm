@@ -1,4 +1,4 @@
-module Components.Settings exposing (..)
+module Components.Settings exposing (view)
 
 import Components.Page exposing (page)
 import Html exposing (..)

@@ -1,4 +1,4 @@
-module Components.Team exposing (..)
+module Components.Team exposing (view)
 
 import Dict
 import Html exposing (..)

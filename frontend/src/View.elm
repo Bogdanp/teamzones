@@ -19,16 +19,6 @@ import Util exposing ((=>), on')
 view : Model -> Html Msg
 view ({ now, company, user, team, route, invite, currentProfile } as model) =
     let
-        anchorTo route attrs content =
-            a
-                ([ on' "click" (RouteTo route)
-                 , Routes.route route |> href
-                 , classList [ "active" => (route == model.route) ]
-                 ]
-                    ++ attrs
-                )
-                content
-
         page =
             case route of
                 DashboardR () ->
@@ -46,16 +36,16 @@ view ({ now, company, user, team, route, invite, currentProfile } as model) =
                         |> Html.map ToCurrentProfile
     in
         div [ class "app" ]
-            [ toolbar anchorTo company user.timezone now
+            [ toolbar company user.timezone now
             , div [ class "content" ]
-                [ sidebar anchorTo user
+                [ sidebar user
                 , page
                 ]
             ]
 
 
-toolbar : AnchorTo Msg -> Company -> Timezone -> Timestamp -> Html Msg
-toolbar anchorTo company timezone now =
+toolbar : Company -> Timezone -> Timestamp -> Html Msg
+toolbar company timezone now =
     div [ class "toolbar" ]
         [ div [ class "team-name" ] [ anchorTo (DashboardR ()) [] [ text company.name ] ]
         , div [ class "clock" ] [ Util.time timezone now ]
@@ -63,8 +53,8 @@ toolbar anchorTo company timezone now =
         ]
 
 
-sidebar : AnchorTo Msg -> User -> Html Msg
-sidebar anchorTo user =
+sidebar : User -> Html Msg
+sidebar user =
     let
         linkTo uri label =
             li [] [ a [ href uri ] [ text label ] ]
@@ -88,3 +78,8 @@ sidebar anchorTo user =
                     ++ [ linkTo "/sign-out" "Sign out" ]
                 )
             ]
+
+
+anchorTo : AnchorTo Msg
+anchorTo route attrs =
+    a ([ on' "click" (RouteTo route), href (Routes.route route) ] ++ attrs)

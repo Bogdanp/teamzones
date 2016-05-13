@@ -4,6 +4,7 @@ import Components.CurrentProfile as CP
 import Components.Invite as Invite
 import Dict exposing (Dict)
 import Model exposing (..)
+import Ports exposing (pushPath)
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
@@ -70,7 +71,7 @@ update msg ({ user, team } as model) =
 
         RouteTo route ->
             ( model
-            , setPath (Routes.route route)
+            , pushPath (Routes.route route)
             )
 
         ToInvite msg ->
@@ -146,6 +147,3 @@ prepareTeam xs =
             Dict.update (key cu) (insert <| prepareUser cu) team
     in
         List.foldl group Dict.empty xs
-
-
-port setPath : String -> Cmd msg

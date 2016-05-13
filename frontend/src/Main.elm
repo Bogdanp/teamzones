@@ -2,6 +2,7 @@ port module Main exposing (..)
 
 import Html.App as Html
 import Model exposing (Msg(..), Flags)
+import Ports exposing (path, timestamps, timezones)
 import Timestamp exposing (Timestamp, Timezone)
 import Update exposing (init, update)
 import View exposing (view)
@@ -21,12 +22,3 @@ main =
                     , timezones TimezoneChanged
                     ]
         }
-
-
-port path : (String -> msg) -> Sub msg
-
-
-port timestamps : (Timestamp -> msg) -> Sub msg
-
-
-port timezones : (Timezone -> msg) -> Sub msg

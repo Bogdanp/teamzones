@@ -22,7 +22,7 @@ window.init = function(Elm, el, context) {
     app.ports.path.send(window.location.pathname);
   };
 
-  app.ports.setPath.subscribe(function(path) {
+  app.ports.pushPath.subscribe(function(path) {
     window.history.pushState({}, "", path);
     app.ports.path.send(window.location.pathname);
   });

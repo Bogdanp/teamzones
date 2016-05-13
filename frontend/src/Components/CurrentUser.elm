@@ -1,4 +1,4 @@
-module Components.CurrentUser exposing (..)
+module Components.CurrentUser exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)

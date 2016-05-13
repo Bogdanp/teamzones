@@ -1,7 +1,7 @@
 module Components.Invite
     exposing
         ( Model
-        , Msg(..)
+        , Msg
         , init
         , update
         , view
@@ -84,7 +84,7 @@ update msg model =
 view : Model -> Html Msg
 view { form, pending } =
     let
-        textField' label name =
+        textInput' label name =
             let
                 options =
                     FC.defaultOptions name
@@ -94,8 +94,8 @@ view { form, pending } =
         page "Invite Teammates"
             [ p [] [ text "You can use this form to invite members to your team." ]
             , FC.form Submit
-                [ textField' "Name" "name"
-                , textField' "Email address" "email"
+                [ textInput' "Name" "name"
+                , textInput' "Email address" "email"
                 , submitWithOptions { label = "Send invite", disabled = pending }
                 ]
             ]
