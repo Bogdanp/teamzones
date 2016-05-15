@@ -73,7 +73,7 @@ validateWorkdays =
 validate : Validation () Profile
 validate =
     form3 Profile
-        (get "name" string)
+        (get "name" (string `andThen` minLength 3 `andThen` maxLength 50))
         (get "timezone" string)
         validateWorkdays
 

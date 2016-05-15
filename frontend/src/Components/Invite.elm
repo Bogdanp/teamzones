@@ -41,7 +41,7 @@ type alias Model =
 validate : Validation () Invite
 validate =
     form2 Invite
-        (get "name" string)
+        (get "name" (string `andThen` minLength 3 `andThen` maxLength 50))
         (get "email" email)
 
 
