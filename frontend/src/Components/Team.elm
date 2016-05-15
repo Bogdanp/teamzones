@@ -4,8 +4,9 @@ import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Timestamp exposing (Timestamp, Timezone, showTimezone)
-import Types exposing (Team, User)
+import Types exposing (Workdays, Team, User)
 import Util exposing ((=>), initials, initialsColor)
+import User exposing (isOffline)
 
 
 view : Team -> Timestamp -> Html msg
@@ -50,4 +51,7 @@ user u =
                         ]
                         [ img [ src uri ] [] ]
     in
-        li [] [ avatar ]
+        li
+            [ classList [ "offline" => isOffline u ]
+            ]
+            [ avatar ]

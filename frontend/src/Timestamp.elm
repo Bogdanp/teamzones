@@ -39,3 +39,13 @@ offset =
 showTimezone : Timezone -> String
 showTimezone =
     replace All (regex "_") (\_ -> " ")
+
+
+currentDay : Timezone -> Int
+currentDay =
+    Native.Timestamp.currentDay
+
+
+currentHour : Timezone -> Int
+currentHour =
+    Native.Timestamp.currentHour
