@@ -73,7 +73,9 @@ sidebar user =
         div [ class "sidebar" ]
             [ CurrentUser.view anchorTo user
             , ul [ class "menu" ]
-                ([ routeTo (DashboardR ()) "Dashboard" ]
+                ([ routeTo (DashboardR ()) "Dashboard"
+                 , routeTo (CurrentProfileR ()) "Your Profile"
+                 ]
                     ++ links
                     ++ [ linkTo "/sign-out" "Sign out" ]
                 )
