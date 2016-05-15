@@ -3,7 +3,7 @@ module Components.Team exposing (view)
 import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Timestamp exposing (Timestamp, Timezone)
+import Timestamp exposing (Timestamp, Timezone, showTimezone)
 import Types exposing (Team, User)
 import Util exposing ((=>), initials, initialsColor)
 
@@ -20,7 +20,7 @@ zone : List User -> Timezone -> Timestamp -> Html msg
 zone users timezone now =
     div [ class "zone" ]
         [ div [ class "header" ]
-            [ h6 [] [ text timezone ]
+            [ h6 [] [ text (showTimezone timezone) ]
             , h4 [] [ Util.time timezone now ]
             ]
         , ul [] (List.map user users)

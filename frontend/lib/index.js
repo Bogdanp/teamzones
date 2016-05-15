@@ -11,9 +11,11 @@ function seconds() {
 
 window.moment = moment;
 window.init = function(Elm, el, context) {
-  context.now = context.timestamps = now();
-  context.timezones = context.user.timezone;
+  context.now = now();
   context.path = window.location.pathname;
+  context.timezones = moment.tz.names().filter(function(tz) {
+    return tz.indexOf("/") !== -1 && tz.indexOf("Etc/") !== 0;
+  });
 
   var app = Elm.Main.embed(el, context);
 

@@ -22,6 +22,7 @@ type alias Model =
     , company : Company
     , user : User
     , team : Team
+    , timezones : List Timezone
     , route : Sitemap
     , invite : Invite.Model
     , currentProfile : CP.Model
@@ -34,4 +35,5 @@ type alias Flags =
     , company : Company
     , user : ContextUser
     , team : List ContextUser
+    , timezones : List Timezone
     }

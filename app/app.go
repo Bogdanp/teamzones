@@ -42,6 +42,7 @@ const (
 	// API
 	locationRoute
 	sendInviteRoute
+	updateProfileRoute
 	avatarUploadRoute
 	deleteAvatarRoute
 )

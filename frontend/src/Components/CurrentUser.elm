@@ -3,6 +3,7 @@ module Components.CurrentUser exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Routes exposing (Sitemap(..))
+import Timestamp exposing (showTimezone)
 import Types exposing (User, AnchorTo)
 import Util exposing ((=>), initials, initialsColor)
 
@@ -12,7 +13,7 @@ view anchorTo user =
     div [ class "current-user" ]
         [ avatar anchorTo user
         , h3 [] [ text user.name ]
-        , h6 [] [ text user.timezone ]
+        , h6 [] [ text (showTimezone user.timezone) ]
         ]
 
 

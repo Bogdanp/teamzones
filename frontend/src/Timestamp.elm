@@ -1,6 +1,7 @@
 module Timestamp exposing (..)
 
 import Native.Timestamp
+import Regex exposing (HowMany(..), regex, replace)
 import Time
 
 
@@ -33,3 +34,8 @@ tzFormat =
 offset : Timezone -> TimezoneOffset
 offset =
     Native.Timestamp.offset
+
+
+showTimezone : Timezone -> String
+showTimezone =
+    replace All (regex "_") (\_ -> " ")

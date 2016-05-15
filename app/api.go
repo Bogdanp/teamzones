@@ -22,6 +22,7 @@ import (
 func init() {
 	GET(appRouter, locationRoute, "/api/location", locationHandler)
 	POST(appRouter, sendInviteRoute, "/api/invites", sendInviteHandler)
+	POST(appRouter, updateProfileRoute, "/api/profile", updateProfileHandler)
 	ALL(appRouter, avatarUploadRoute, "/api/upload", avatarUploadHandler)
 	DELETE(appRouter, deleteAvatarRoute, "/api/avatar", deleteAvatarHandler)
 }
@@ -167,6 +168,24 @@ func deleteAvatarHandler(res http.ResponseWriter, req *http.Request, _ httproute
 	user := context.Get(req, userCtxKey).(*models.User)
 	user.Avatar = ""
 	user.Put(ctx)
+
+	res.WriteHeader(http.StatusNoContent)
+}
+
+func updateProfileHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	var data struct {
+		Name     string          `json:"name" validate:"MinLength:3,MaxLength:50"`
+		Timezone string          `json:"timezone"`
+		Workdays models.Workdays `json:"workdays"`
+	}
+
+	if err := forms.BindJSON(req, &data); err != nil {
+		badRequest(res, err.Error())
+		return
+	}
+
+	ctx := appengine.NewContext(req)
+	log.Infof(ctx, "%v", data)
 
 	res.WriteHeader(http.StatusNoContent)
 }

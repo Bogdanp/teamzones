@@ -77,6 +77,11 @@ type User struct {
 func NewUser() *User {
 	user := User{}
 	user.Role = RoleUser
+	user.Workdays.Monday = Workday{9, 17}
+	user.Workdays.Tuesday = Workday{9, 17}
+	user.Workdays.Wednesday = Workday{9, 17}
+	user.Workdays.Thursday = Workday{9, 17}
+	user.Workdays.Friday = Workday{9, 17}
 	user.initTimes()
 	return &user
 }

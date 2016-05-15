@@ -12,19 +12,20 @@ import Util exposing (pure)
 
 
 init : Flags -> ( Model, Cmd Msg )
-init { path, now, company, user, team } =
+init { path, now, company, user, team, timezones } =
     let
         currentUser =
             prepareUser user
 
         -- TODO: Only run the effects if the route matches current profile?
         ( currentProfile, currentProfileFx ) =
-            CP.init currentUser
+            CP.init currentUser timezones
     in
         ( { now = now
           , company = company
           , user = currentUser
           , team = prepareTeam team
+          , timezones = timezones
           , route = Routes.match path
           , invite = Invite.init
           , currentProfile = currentProfile
@@ -60,7 +61,7 @@ update msg ({ user, team } as model) =
                     CurrentProfileR () ->
                         let
                             ( profile, fx ) =
-                                CP.init model.user
+                                CP.init model.user model.timezones
                         in
                             ( { model' | currentProfile = profile }
                             , Cmd.map ToCurrentProfile fx
