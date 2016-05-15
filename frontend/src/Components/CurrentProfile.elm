@@ -13,6 +13,7 @@ import Html.Events exposing (onClick)
 import HttpBuilder
 import Json.Decode as Json exposing ((:=))
 import Json.Encode
+import Task
 import Timestamp exposing (Timezone, showTimezone)
 import Types exposing (Workday, Workdays, User)
 import Util exposing ((=>), boolFromMaybe, pure)
@@ -20,6 +21,7 @@ import Util exposing ((=>), boolFromMaybe, pure)
 
 type ParentMsg
     = RemoveAvatar
+    | UpdateCurrentUser Profile
 
 
 type Msg
@@ -41,7 +43,8 @@ type alias Profile =
 
 
 type alias Model =
-    { form : Form () Profile
+    { profile : Profile
+    , form : Form () Profile
     , pending : Bool
     , uploadUri : Maybe String
     , timezones : List Timezone
@@ -81,6 +84,9 @@ init user timezones =
         select =
             Select << toString
 
+        profile =
+            Profile user.name user.timezone user.workdays
+
         values =
             [ ( "name", Text user.name )
             , ( "timezone", Select user.timezone )
@@ -100,7 +106,8 @@ init user timezones =
             , ( "sunday-end", select user.workdays.sunday.end )
             ]
     in
-        ( { form = Form.initial values validate
+        ( { profile = profile
+          , form = Form.initial values validate
           , pending = False
           , uploadUri = Nothing
           , timezones = timezones
@@ -125,7 +132,9 @@ update msg model =
                         pure { model | form = form }
 
                     Just profile ->
-                        ( { model | form = form, pending = True }, updateProfile profile )
+                        ( { model | form = form, profile = profile, pending = True }
+                        , updateProfile profile
+                        )
 
         DeleteAvatar ->
             ( model, deleteAvatar )
@@ -146,7 +155,11 @@ update msg model =
             pure { model | pending = False }
 
         ProfileSuccess response ->
-            pure { model | pending = False }
+            ( { model | pending = False }
+            , UpdateCurrentUser model.profile
+                |> Task.succeed
+                |> Task.perform ToParent ToParent
+            )
 
 
 hoursInDay : List ( String, String )

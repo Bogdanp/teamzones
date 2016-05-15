@@ -86,17 +86,25 @@ update msg ({ user, team } as model) =
 
         ToCurrentProfile (CP.ToParent CP.RemoveAvatar) ->
             let
-                user' =
-                    { user | avatar = Nothing }
-
-                team' =
-                    Dict.map (always <| List.map update) team
+                ( user', team' ) =
+                    updateUser update user team
 
                 update u =
-                    if u == user then
-                        user'
-                    else
-                        u
+                    { u | avatar = Nothing }
+            in
+                pure { model | user = user', team = team' }
+
+        ToCurrentProfile (CP.ToParent (CP.UpdateCurrentUser profile)) ->
+            let
+                ( user', team' ) =
+                    updateUser update user team
+
+                update u =
+                    { u
+                        | name = profile.name
+                        , timezone = profile.timezone
+                        , workdays = profile.workdays
+                    }
             in
                 pure { model | user = user', team = team' }
 
@@ -130,8 +138,8 @@ prepareUser u =
         User (role u.role) u.name u.email (avatar u.avatar) u.timezone u.workdays
 
 
-prepareTeam : List ContextUser -> Team
-prepareTeam xs =
+groupTeam : List User -> Team
+groupTeam xs =
     let
         key u =
             ( u.timezone, Timestamp.offset u.timezone )
@@ -145,6 +153,34 @@ prepareTeam xs =
                     Just (u :: xs)
 
         group cu team =
-            Dict.update (key cu) (insert <| prepareUser cu) team
+            Dict.update (key cu) (insert cu) team
     in
-        List.foldl group Dict.empty xs
+        List.sortBy .name xs
+            |> List.foldl group Dict.empty
+
+
+prepareTeam : List ContextUser -> Team
+prepareTeam =
+    List.map prepareUser
+        >> groupTeam
+
+
+updateUser : (User -> User) -> User -> Team -> ( User, Team )
+updateUser f user team =
+    let
+        user' =
+            f user
+
+        team' =
+            team
+                |> Dict.toList
+                |> List.concatMap (snd >> List.map update)
+                |> groupTeam
+
+        update u =
+            if u == user then
+                user'
+            else
+                u
+    in
+        ( user', team' )
