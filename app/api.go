@@ -185,7 +185,11 @@ func updateProfileHandler(res http.ResponseWriter, req *http.Request, _ httprout
 	}
 
 	ctx := appengine.NewContext(req)
-	log.Infof(ctx, "%v", data)
+	user := context.Get(req, userCtxKey).(*models.User)
+	user.Name = data.Name
+	user.Timezone = data.Timezone
+	user.Workdays = data.Workdays
+	user.Put(ctx)
 
 	res.WriteHeader(http.StatusNoContent)
 }
