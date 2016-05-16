@@ -132,11 +132,6 @@ on' event msg =
         onWithOptions event options (Json.succeed msg)
 
 
-pure : a -> ( a, Cmd msg )
-pure =
-    flip (,) Cmd.none
-
-
 boolFromMaybe : Maybe a -> Bool
 boolFromMaybe ma =
     Maybe.map (always True) ma

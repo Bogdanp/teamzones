@@ -8,7 +8,6 @@ import Ports exposing (pushPath)
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
-import Util exposing (pure)
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -40,14 +39,14 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ user, team } as model) =
     case msg of
         NoOp ->
-            pure model
+            model ! []
 
         Tick now ->
-            pure { model | now = now }
+            { model | now = now } ! []
 
         TimezoneChanged timezone ->
             -- FIXME: Prompt user to update timezone.
-            pure model
+            model ! []
 
         PathChanged path ->
             let
@@ -63,12 +62,10 @@ update msg ({ user, team } as model) =
                             ( profile, fx ) =
                                 CP.init model.user model.timezones
                         in
-                            ( { model' | currentProfile = profile }
-                            , Cmd.map ToCurrentProfile fx
-                            )
+                            { model' | currentProfile = profile } ! [ Cmd.map ToCurrentProfile fx ]
 
                     _ ->
-                        pure model'
+                        model' ! []
 
         RouteTo route ->
             ( model
@@ -80,9 +77,7 @@ update msg ({ user, team } as model) =
                 ( invite, fx ) =
                     Invite.update msg model.invite
             in
-                ( { model | invite = invite }
-                , Cmd.map ToInvite fx
-                )
+                { model | invite = invite } ! [ Cmd.map ToInvite fx ]
 
         ToCurrentProfile (CP.ToParent CP.RemoveAvatar) ->
             let
@@ -92,7 +87,7 @@ update msg ({ user, team } as model) =
                 update u =
                     { u | avatar = Nothing }
             in
-                pure { model | user = user', team = team' }
+                { model | user = user', team = team' } ! []
 
         ToCurrentProfile (CP.ToParent (CP.UpdateCurrentUser profile)) ->
             let
@@ -106,16 +101,14 @@ update msg ({ user, team } as model) =
                         , workdays = profile.workdays
                     }
             in
-                pure { model | user = user', team = team' }
+                { model | user = user', team = team' } ! []
 
         ToCurrentProfile msg ->
             let
                 ( currentProfile, fx ) =
                     CP.update msg model.currentProfile
             in
-                ( { model | currentProfile = currentProfile }
-                , Cmd.map ToCurrentProfile fx
-                )
+                { model | currentProfile = currentProfile } ! [ Cmd.map ToCurrentProfile fx ]
 
 
 prepareUser : ContextUser -> User

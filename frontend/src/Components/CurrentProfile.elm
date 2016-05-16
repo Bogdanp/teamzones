@@ -16,7 +16,7 @@ import Json.Encode
 import Task
 import Timestamp exposing (Timezone, showTimezone)
 import Types exposing (Workday, Workdays, User)
-import Util exposing ((=>), boolFromMaybe, pure)
+import Util exposing ((=>), boolFromMaybe)
 
 
 type ParentMsg
@@ -129,37 +129,40 @@ update msg model =
             in
                 case profile of
                     Nothing ->
-                        pure { model | form = form }
+                        { model | form = form } ! []
 
                     Just profile ->
-                        ( { model | form = form, profile = profile, pending = True }
-                        , updateProfile profile
-                        )
+                        { model
+                            | form = form
+                            , profile = profile
+                            , pending = True
+                        }
+                            ! [ updateProfile profile ]
 
         DeleteAvatar ->
-            ( model, deleteAvatar )
+            model ! [ deleteAvatar ]
 
         ToParent _ ->
-            pure model
+            model ! []
 
         ToForm m ->
-            pure { model | form = Form.update m model.form }
+            { model | form = Form.update m model.form } ! []
 
         UploadUriError _ ->
-            ( model, createUploadUri )
+            model ! [ createUploadUri ]
 
         UploadUriSuccess response ->
-            pure { model | uploadUri = Just response.data }
+            { model | uploadUri = Just response.data } ! []
 
         ProfileError _ ->
-            pure { model | pending = False }
+            { model | pending = False } ! []
 
         ProfileSuccess response ->
-            ( { model | pending = False }
-            , UpdateCurrentUser model.profile
-                |> Task.succeed
-                |> Task.perform ToParent ToParent
-            )
+            { model | pending = False }
+                ! [ UpdateCurrentUser model.profile
+                        |> Task.succeed
+                        |> Task.perform ToParent ToParent
+                  ]
 
 
 hoursInDay : List ( String, String )

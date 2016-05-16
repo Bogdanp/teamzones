@@ -16,7 +16,7 @@ import Html exposing (..)
 import Html.App as Html
 import HttpBuilder
 import Json.Encode
-import Util exposing ((=>), pure, on')
+import Util exposing ((=>), on')
 
 
 type Msg
@@ -65,20 +65,20 @@ update msg model =
             in
                 case invite of
                     Nothing ->
-                        pure { model | form = form }
+                        { model | form = form } ! []
 
                     Just invite ->
-                        ( { model | form = form, pending = True }, createInvite invite )
+                        { model | form = form, pending = True } ! [ createInvite invite ]
 
         ToForm m ->
-            pure { model | form = Form.update m model.form }
+            { model | form = Form.update m model.form } ! []
 
         InviteError error ->
             -- FIXME: Display real errors
-            pure { model | pending = False }
+            { model | pending = False } ! []
 
         InviteSuccess _ ->
-            pure { model | form = Form.initial [] validate, pending = False }
+            { model | form = Form.initial [] validate, pending = False } ! []
 
 
 view : Model -> Html Msg
