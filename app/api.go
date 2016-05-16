@@ -107,7 +107,8 @@ func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 }
 
 type bulkInviteResponse struct {
-	URI string `json:"uri"`
+	URI string  `json:"uri"`
+	TTL float64 `json:"ttl"`
 }
 
 func createBulkInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
@@ -117,38 +118,43 @@ func createBulkInviteHandler(res http.ResponseWriter, req *http.Request, _ httpr
 		return
 	}
 
+	var inviteIDStr string
+	var invite *models.Invite
+
 	ctx := appengine.NewContext(req)
 	company := context.Get(req, companyCtxKey).(*models.Company)
 	companyKey := company.Key(ctx)
-	cacheKey := fmt.Sprintf("bulk-invite:%d", companyKey.IntID())
-	bulkInviteURI, err := memcache.Get(ctx, cacheKey)
+	cacheKey := fmt.Sprintf("bulk-invites:%d", companyKey.IntID())
+	inviteData, err := memcache.Get(ctx, cacheKey)
 	if err == nil {
-		renderer.JSON(res, http.StatusOK, bulkInviteResponse{
-			URI: string(bulkInviteURI.Value),
-		})
-		return
-	}
+		inviteIDStr = string(inviteData.Value)
+		inviteID, _ := strconv.ParseInt(inviteIDStr, 10, 64)
+		invite, _ = models.GetInvite(ctx, companyKey, inviteID)
+	} else {
+		inviteData, inviteKey, err := models.CreateBulkInvite(ctx, companyKey)
+		if err != nil {
+			log.Errorf(ctx, "failed to create invite: %v", err)
+			serverError(res)
+			return
+		}
 
-	_, inviteKey, err := models.CreateBulkInvite(ctx, companyKey)
-	if err != nil {
-		log.Errorf(ctx, "failed to create invite: %v", err)
-		serverError(res)
-		return
+		invite = inviteData // janky af
+		inviteIDStr = strconv.FormatInt(inviteKey.IntID(), 10)
+		memcache.Set(ctx, &memcache.Item{
+			Key:        cacheKey,
+			Value:      []byte(inviteIDStr),
+			Expiration: models.BulkInviteTTL - 600,
+		})
 	}
 
 	location := ReverseRoute(teamSignUpRoute).
-		Param("invite", strconv.FormatInt(inviteKey.IntID(), 10)).
+		Param("invite", inviteIDStr).
 		Subdomain(company.Subdomain).
 		Build()
 
-	memcache.Set(ctx, &memcache.Item{
-		Key:        cacheKey,
-		Value:      []byte(location),
-		Expiration: models.BulkInviteTTL,
-	})
-
 	renderer.JSON(res, http.StatusCreated, bulkInviteResponse{
 		URI: location,
+		TTL: invite.CreatedAt.Add(models.BulkInviteTTL).Sub(time.Now()).Seconds(),
 	})
 }
 

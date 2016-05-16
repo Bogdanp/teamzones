@@ -19,7 +19,7 @@ import Html.Events exposing (onClick)
 import HttpBuilder
 import Json.Decode as Json exposing ((:=))
 import Json.Encode
-import Util exposing ((=>), on')
+import Util exposing ((=>), on', ttl)
 
 
 type Msg
@@ -39,7 +39,9 @@ type alias Invite =
 
 
 type alias BulkInvite =
-    { uri : String }
+    { uri : String
+    , ttl : Float
+    }
 
 
 type alias Model =
@@ -136,17 +138,17 @@ view { form, pending, bulkInvite } =
                 Nothing ->
                     text ""
 
-                Just { uri } ->
+                Just ({ uri } as bulkInvite) ->
                     div []
                         [ p []
-                            [ text "Share this URL with your teammates so they can join your team without an e-mail invitation: "
+                            [ text "Share this URL with your teammates so they can join your team without an e-mail invitation:"
                             , br [] []
                             , br [] []
                             , a [ href uri ]
                                 [ text uri ]
                             , br [] []
                             , br [] []
-                            , text " This URL will expire in 2 hours."
+                            , text ("This URL will expire in " ++ ttl bulkInvite.ttl ++ ".")
                             ]
                         ]
             ]
@@ -167,8 +169,9 @@ createInvite invite =
 
 decodeBulkInvite : Json.Decoder BulkInvite
 decodeBulkInvite =
-    Json.object1 BulkInvite
+    Json.object2 BulkInvite
         ("uri" := Json.string)
+        ("ttl" := Json.float)
 
 
 createBulkInvite : Cmd Msg

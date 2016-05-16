@@ -136,3 +136,32 @@ boolFromMaybe : Maybe a -> Bool
 boolFromMaybe ma =
     Maybe.map (always True) ma
         |> Maybe.withDefault False
+
+
+ttl : Float -> String
+ttl seconds =
+    let
+        hours =
+            let
+                h =
+                    toString (floor (seconds / 3600))
+            in
+                if h == "1" then
+                    h ++ " hour"
+                else
+                    h ++ " hours"
+
+        minutes =
+            let
+                m =
+                    toString (floor seconds `rem` 3600 // 60)
+            in
+                if m == "1" then
+                    m ++ " minute"
+                else
+                    m ++ " minutes"
+    in
+        if hours == "0 hours" then
+            minutes
+        else
+            hours ++ " and " ++ minutes
