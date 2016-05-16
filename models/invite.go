@@ -1,11 +1,23 @@
 package models
 
 import (
+	"errors"
+	"time"
+
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 )
 
+var (
+	// ErrInviteExpired is returned when attempting to retrieve a Bulk
+	// invite that has expired.
+	ErrInviteExpired = errors.New("Bulk invite has expired.")
+)
+
 const (
+	// BulkInviteTTL is the maximum amount of time that a bulk invite can be valid for.
+	BulkInviteTTL = 2 * time.Hour
+
 	inviteKind = "Invite"
 )
 
@@ -16,6 +28,7 @@ type Invite struct {
 	Name    string
 	Email   string
 	Sent    bool
+	Bulk    bool
 
 	Times
 }
@@ -26,6 +39,17 @@ func NewInvite(companyKey *datastore.Key, name, email string) *Invite {
 		Company: companyKey,
 		Name:    name,
 		Email:   email,
+	}
+	invite.initTimes()
+	return &invite
+}
+
+// NewBulkInvite initializes an Invite struct that can be used to
+// invite multiple team members.
+func NewBulkInvite(companyKey *datastore.Key) *Invite {
+	invite := Invite{
+		Company: companyKey,
+		Bulk:    true,
 	}
 	invite.initTimes()
 	return &invite
@@ -49,6 +73,22 @@ func CreateInvite(
 	return invite, key, nil
 }
 
+// CreateBulkInvite creates a bulk invite entity in the datastore.
+func CreateBulkInvite(
+	ctx context.Context,
+	companyKey *datastore.Key,
+) (*Invite, *datastore.Key, error) {
+
+	invite := NewBulkInvite(companyKey)
+	key := datastore.NewIncompleteKey(ctx, inviteKind, companyKey)
+	key, err := datastore.Put(ctx, key, invite)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return invite, key, nil
+}
+
 // GetInvite gets an invite belonging to a Company by its id.
 func GetInvite(
 	ctx context.Context,
@@ -59,6 +99,10 @@ func GetInvite(
 	inviteKey := datastore.NewKey(ctx, inviteKind, "", inviteID, companyKey)
 	if err := datastore.Get(ctx, inviteKey, &invite); err != nil {
 		return nil, err
+	}
+
+	if invite.Bulk && time.Now().Sub(invite.CreatedAt) >= BulkInviteTTL {
+		return nil, ErrInviteExpired
 	}
 
 	return &invite, nil

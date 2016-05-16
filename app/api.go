@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"teamzones/forms"
 	"teamzones/models"
 	"teamzones/utils"
@@ -22,6 +23,7 @@ import (
 func init() {
 	GET(appRouter, locationRoute, "/api/location", locationHandler)
 	POST(appRouter, sendInviteRoute, "/api/invites", sendInviteHandler)
+	POST(appRouter, createBulkInviteRoute, "/api/bulk-invites", createBulkInviteHandler)
 	POST(appRouter, updateProfileRoute, "/api/profile", updateProfileHandler)
 	ALL(appRouter, avatarUploadRoute, "/api/upload", avatarUploadHandler)
 	DELETE(appRouter, deleteAvatarRoute, "/api/avatar", deleteAvatarHandler)
@@ -102,6 +104,52 @@ func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 	}
 
 	res.WriteHeader(http.StatusCreated)
+}
+
+type bulkInviteResponse struct {
+	URI string `json:"uri"`
+}
+
+func createBulkInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	user := context.Get(req, userCtxKey).(*models.User)
+	if user.Role == models.RoleUser {
+		http.Error(res, "forbidden", http.StatusForbidden)
+		return
+	}
+
+	ctx := appengine.NewContext(req)
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	companyKey := company.Key(ctx)
+	cacheKey := fmt.Sprintf("bulk-invite:%d", companyKey.IntID())
+	bulkInviteURI, err := memcache.Get(ctx, cacheKey)
+	if err == nil {
+		renderer.JSON(res, http.StatusOK, bulkInviteResponse{
+			URI: string(bulkInviteURI.Value),
+		})
+		return
+	}
+
+	_, inviteKey, err := models.CreateBulkInvite(ctx, companyKey)
+	if err != nil {
+		log.Errorf(ctx, "failed to create invite: %v", err)
+		serverError(res)
+		return
+	}
+
+	location := ReverseRoute(teamSignUpRoute).
+		Param("invite", strconv.FormatInt(inviteKey.IntID(), 10)).
+		Subdomain(company.Subdomain).
+		Build()
+
+	memcache.Set(ctx, &memcache.Item{
+		Key:        cacheKey,
+		Value:      []byte(location),
+		Expiration: models.BulkInviteTTL,
+	})
+
+	renderer.JSON(res, http.StatusCreated, bulkInviteResponse{
+		URI: location,
+	})
 }
 
 func avatarUploadHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
