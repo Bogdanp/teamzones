@@ -12,9 +12,17 @@ func TestBuilderStaticParsing(t *testing.T) {
 }
 
 func TestBuilderDynamicParsing(t *testing.T) {
-	b := newBuilder("/hello/:a/b/c/:d/e/f/g")
-	if b.Param("a", "a").Param("d", "d").Build() != "/hello/a/b/c/d/e/f/g" {
-		t.Error("bad build")
+	cases := map[string]RouteBuilder{
+		"/hello/a/b/c/d/e/f/g":                         newBuilder("/hello/:a/b/c/:d/e/f/g").Param("a", "a").Param("d", "d"),
+		"/sign-up/12312312312":                         newBuilder("/sign-up/:invite").Param("invite", "12312312312"),
+		"http://test.teamzones.io/hello/a/b/c/d/e/f/g": newBuilder("/hello/:a/b/c/:d/e/f/g").Param("a", "a").Param("d", "d").Subdomain("test"),
+	}
+
+	for expected, builder := range cases {
+		value := builder.Build()
+		if value != expected {
+			t.Errorf("bad build, expected %q got %q for builder %q", expected, value, builder)
+		}
 	}
 }
 

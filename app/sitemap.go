@@ -140,7 +140,11 @@ func newBuilder(path string) RouteBuilder {
 
 		i = strings.Index(subpath, "/")
 		if i == -1 {
-			segments = append(segments, segment{segmentDynamic, subpath})
+			segments = append(
+				segments,
+				segment{segmentStatic, prefix},
+				segment{segmentDynamic, subpath},
+			)
 			break
 		}
 
