@@ -1,11 +1,9 @@
 module Components.Form
     exposing
-        ( FieldOptions
+        ( ButtonOptions
         , form
         , submit
         , submitWithOptions
-        , button
-        , buttonWithOptions
         , InputOptions
         , defaultOptions
         , textInput
@@ -21,7 +19,7 @@ import Html.Attributes exposing (..)
 import Util exposing ((=>), on')
 
 
-type alias FieldOptions =
+type alias ButtonOptions =
     { label : String
     , disabled : Bool
     }
@@ -41,33 +39,13 @@ submit label =
     submitWithOptions { label = label, disabled = False }
 
 
-submitWithOptions : FieldOptions -> Html msg
+submitWithOptions : ButtonOptions -> Html msg
 submitWithOptions ({ label } as options) =
     div [ class "input-group" ]
         [ div [ class "spacer" ] []
         , div [ class "input" ]
             [ Html.input
                 [ type' "submit"
-                , value label
-                , disabled options.disabled
-                ]
-                []
-            ]
-        ]
-
-
-button : String -> Html msg
-button label =
-    buttonWithOptions { label = label, disabled = False }
-
-
-buttonWithOptions : FieldOptions -> Html msg
-buttonWithOptions ({ label } as options) =
-    div [ class "input-group" ]
-        [ div [ class "spacer" ] []
-        , div [ class "input" ]
-            [ Html.input
-                [ type' "button"
                 , value label
                 , disabled options.disabled
                 ]
