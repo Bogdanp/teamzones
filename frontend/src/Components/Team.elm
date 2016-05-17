@@ -51,7 +51,5 @@ user now u =
                         ]
                         [ img [ src uri ] [] ]
     in
-        li
-            [ classList [ "offline" => isOffline now u ]
-            ]
+        li [ classList [ "offline" => isOffline now u ] ]
             [ avatar ]

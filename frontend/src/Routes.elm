@@ -1,12 +1,39 @@
-module Routes exposing (Sitemap(..), match, route)
+module Routes exposing (Sitemap(..), SettingsMap(..), match, route)
 
 import Route exposing (..)
+
+
+type SettingsMap
+    = TeamR ()
+    | BillingR ()
+
+
+teamR =
+    TeamR := static "team"
+
+
+billingR =
+    BillingR := static "billing"
+
+
+settingsRouter =
+    router [ teamR, billingR ]
+
+
+routeSettings : SettingsMap -> String
+routeSettings r =
+    case r of
+        TeamR () ->
+            reverse teamR []
+
+        BillingR () ->
+            reverse billingR []
 
 
 type Sitemap
     = DashboardR ()
     | InviteR ()
-    | SettingsR ()
+    | SettingsR SettingsMap
     | CurrentProfileR ()
 
 
@@ -19,7 +46,7 @@ inviteR =
 
 
 settingsR =
-    SettingsR := static "settings"
+    "settings" <//> child SettingsR settingsRouter
 
 
 currentProfileR =
@@ -44,8 +71,8 @@ route route =
         InviteR () ->
             reverse inviteR []
 
-        SettingsR () ->
-            reverse settingsR []
+        SettingsR r ->
+            reverse settingsR [] ++ routeSettings r
 
         CurrentProfileR () ->
             reverse currentProfileR []

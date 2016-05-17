@@ -10,14 +10,14 @@ import Html.App as Html
 import Html.Attributes exposing (..)
 import Html.Lazy exposing (lazy)
 import Model exposing (Model, Msg(..))
-import Routes exposing (Sitemap(..))
+import Routes exposing (Sitemap(..), SettingsMap(..))
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (Company, User, AnchorTo)
 import Util exposing ((=>), on')
 
 
 view : Model -> Html Msg
-view ({ now, company, user, team, route, invite, currentProfile } as model) =
+view ({ now, company, user, team, route, invite, settings, currentProfile } as model) =
     let
         page =
             case route of
@@ -28,8 +28,9 @@ view ({ now, company, user, team, route, invite, currentProfile } as model) =
                     lazy Invite.view invite
                         |> Html.map ToInvite
 
-                SettingsR () ->
-                    Settings.view
+                SettingsR _ ->
+                    lazy Settings.view settings
+                        |> Html.map ToSettings
 
                 CurrentProfileR () ->
                     lazy CurrentProfile.view currentProfile
@@ -65,7 +66,7 @@ sidebar user =
         links =
             if user.role /= Types.Member then
                 [ routeTo (InviteR ()) "Invite Teammates"
-                , routeTo (SettingsR ()) "Settings"
+                , routeTo (SettingsR (TeamR ())) "Settings"
                 ]
             else
                 []

@@ -2,18 +2,19 @@ module Model exposing (Msg(..), Model, Flags)
 
 import Components.CurrentProfile as CP
 import Components.Invite as Invite
+import Components.Settings as Settings
 import Routes exposing (Sitemap)
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (..)
 
 
 type Msg
-    = NoOp
-    | Tick Timestamp
+    = Tick Timestamp
     | TimezoneChanged Timezone
     | PathChanged String
     | RouteTo Sitemap
     | ToInvite Invite.Msg
+    | ToSettings Settings.Msg
     | ToCurrentProfile CP.Msg
 
 
@@ -25,6 +26,7 @@ type alias Model =
     , timezones : List Timezone
     , route : Sitemap
     , invite : Invite.Model
+    , settings : Settings.Model
     , currentProfile : CP.Model
     }
 

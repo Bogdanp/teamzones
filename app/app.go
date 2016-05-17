@@ -35,6 +35,8 @@ const (
 	currentProfileRoute
 	inviteRoute
 	settingsRoute
+	settingsTeamRoute
+	settingsBillingRoute
 	teamSignUpRoute
 	signInRoute
 	signOutRoute

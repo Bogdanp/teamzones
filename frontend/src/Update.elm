@@ -2,6 +2,7 @@ port module Update exposing (init, update)
 
 import Components.CurrentProfile as CP
 import Components.Invite as Invite
+import Components.Settings as Settings
 import Dict exposing (Dict)
 import Model exposing (..)
 import Ports exposing (pushPath)
@@ -13,10 +14,12 @@ import Types exposing (..)
 init : Flags -> ( Model, Cmd Msg )
 init { path, now, company, user, team, timezones } =
     let
+        route =
+            Routes.match path
+
         currentUser =
             prepareUser user
 
-        -- TODO: Only run the effects if the route matches current profile?
         ( currentProfile, currentProfileFx ) =
             CP.init currentUser timezones
     in
@@ -25,12 +28,16 @@ init { path, now, company, user, team, timezones } =
           , user = currentUser
           , team = prepareTeam team
           , timezones = timezones
-          , route = Routes.match path
+          , route = route
           , invite = Invite.init
+          , settings = Settings.init
           , currentProfile = currentProfile
           }
         , Cmd.batch
-            [ Cmd.map ToCurrentProfile currentProfileFx
+            [ if route == (CurrentProfileR ()) then
+                  Cmd.map ToCurrentProfile currentProfileFx
+              else
+                  Cmd.none
             ]
         )
 
@@ -38,9 +45,6 @@ init { path, now, company, user, team, timezones } =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ user, team } as model) =
     case msg of
-        NoOp ->
-            model ! []
-
         Tick now ->
             { model | now = now } ! []
 
@@ -68,9 +72,7 @@ update msg ({ user, team } as model) =
                         model' ! []
 
         RouteTo route ->
-            ( model
-            , pushPath (Routes.route route)
-            )
+            model ! [ pushPath (Routes.route route) ]
 
         ToInvite msg ->
             let
@@ -78,6 +80,13 @@ update msg ({ user, team } as model) =
                     Invite.update msg model.invite
             in
                 { model | invite = invite } ! [ Cmd.map ToInvite fx ]
+
+        ToSettings msg ->
+            let
+                ( settings, fx ) =
+                    Settings.update msg model.settings
+            in
+                { model | settings = settings } ! [ Cmd.map ToSettings fx ]
 
         ToCurrentProfile (CP.ToParent CP.RemoveAvatar) ->
             let
@@ -88,7 +97,6 @@ update msg ({ user, team } as model) =
                     { u | avatar = Nothing }
             in
                 { model | user = user', team = team' } ! []
-
         ToCurrentProfile (CP.ToParent (CP.UpdateCurrentUser profile)) ->
             let
                 ( user', team' ) =
