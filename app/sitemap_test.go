@@ -12,16 +12,19 @@ func TestBuilderStaticParsing(t *testing.T) {
 }
 
 func TestBuilderDynamicParsing(t *testing.T) {
-	cases := map[string]RouteBuilder{
-		"/hello/a/b/c/d/e/f/g":                         newBuilder("/hello/:a/b/c/:d/e/f/g").Param("a", "a").Param("d", "d"),
-		"/sign-up/12312312312":                         newBuilder("/sign-up/:invite").Param("invite", "12312312312"),
-		"http://test.teamzones.io/hello/a/b/c/d/e/f/g": newBuilder("/hello/:a/b/c/:d/e/f/g").Param("a", "a").Param("d", "d").Subdomain("test"),
+	cases := []struct {
+		builder  RouteBuilder
+		expected string
+	}{
+		{newBuilder("/sign-up/:invite").Param("invite", "12312312312"), "/sign-up/12312312312"},
+		{newBuilder("/hello/:a/b/c/:d/e/f/g").Param("a", "a").Param("d", "d"), "/hello/a/b/c/d/e/f/g"},
+		{newBuilder("/hello/:a/b/c/:d/e/f/g").Param("a", "a").Param("d", "d").Subdomain("test"), "http://test.teamzones.io/hello/a/b/c/d/e/f/g"},
 	}
 
-	for expected, builder := range cases {
-		value := builder.Build()
-		if value != expected {
-			t.Errorf("bad build, expected %q got %q for builder %q", expected, value, builder)
+	for _, test := range cases {
+		value := test.builder.Build()
+		if value != test.expected {
+			t.Errorf("bad build, expected %q got %q for builder %q", test.expected, value, test.builder)
 		}
 	}
 }
