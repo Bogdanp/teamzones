@@ -12,13 +12,16 @@ import Types exposing (..)
 
 
 init : Flags -> ( Model, Cmd Msg )
-init { path, now, company, user, team, timezones } =
+init ({ path, now, company, user, team, timezones } as flags) =
     let
         route =
             Routes.match path
 
         currentUser =
             prepareUser user
+
+        teamMembers =
+            List.map prepareUser team
 
         ( currentProfile, _ ) =
             CP.init currentUser timezones
@@ -28,11 +31,12 @@ init { path, now, company, user, team, timezones } =
                 { now = now
                 , company = company
                 , user = currentUser
-                , team = prepareTeam team
+                , team = groupTeam teamMembers
+                , teamMembers = teamMembers
                 , timezones = timezones
                 , route = route
                 , invite = Invite.init
-                , settings = Settings.init route (TeamR ())
+                , settings = Settings.init route (TeamR ()) teamMembers
                 , currentProfile = currentProfile
                 }
     in
@@ -40,10 +44,10 @@ init { path, now, company, user, team, timezones } =
 
 
 handleRoute : Model -> ( Model, Cmd Msg )
-handleRoute ({ route } as model) =
+handleRoute ({ route, teamMembers } as model) =
     case route of
         SettingsR subRoute ->
-            { model | settings = Settings.init route subRoute } ! []
+            { model | settings = Settings.init route subRoute teamMembers } ! []
 
         CurrentProfileR () ->
             let
@@ -158,12 +162,6 @@ groupTeam xs =
     in
         List.sortBy .name xs
             |> List.foldl group Dict.empty
-
-
-prepareTeam : List ContextUser -> Team
-prepareTeam =
-    List.map prepareUser
-        >> groupTeam
 
 
 updateUser : (User -> User) -> User -> Team -> ( User, Team )

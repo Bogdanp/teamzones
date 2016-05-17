@@ -23,6 +23,7 @@ type alias Model =
     , company : Company
     , user : User
     , team : Team
+    , teamMembers : List User
     , timezones : List Timezone
     , route : Sitemap
     , invite : Invite.Model
