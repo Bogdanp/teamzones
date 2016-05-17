@@ -1,23 +1,25 @@
 module Components.Settings exposing (Model, Msg, init, update, view)
 
-import Components.Page exposing (page)
+import Components.Page exposing (pageWithTabs)
 import Html exposing (..)
-import Routes exposing (SettingsMap(..))
+import Ports exposing (pushPath)
+import Routes exposing (Sitemap(..), SettingsMap(..))
 
 
 type Msg
     = Submit
+    | RouteTo Sitemap
 
 
 type alias Model =
-    { route : SettingsMap
+    { fullRoute : Sitemap
+    , subRoute : SettingsMap
     }
 
 
-init : Model
+init : Sitemap -> SettingsMap -> Model
 init =
-    { route = TeamR ()
-    }
+    Model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -26,8 +28,15 @@ update msg model =
         Submit ->
             model ! []
 
+        RouteTo route ->
+            model ! [ pushPath (Routes.route route) ]
 
-view : Model -> Html msg
-view ({ route } as model) =
-    page "Settings"
+
+view : Model -> Html Msg
+view ({ fullRoute, subRoute } as model) =
+    pageWithTabs RouteTo
+        fullRoute
+        [ ( SettingsR (TeamR ()), "Team" )
+        , ( SettingsR (BillingR ()), "Billing" )
+        ]
         []

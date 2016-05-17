@@ -258,15 +258,48 @@ input:focus {
     .page-header {
       flex: 0 1 auto;
 
-      h1 {
+      h1, ul.tabs {
         border-bottom: 1px solid #F9F9F9;
 
         cursor: default;
-        font-size: 1.2em;
         text-transform: uppercase;
 
         margin: 0;
         padding: 5px;
+      }
+
+      h1 {
+        font-size: 1.2em;
+      }
+
+      ul.tabs {
+        list-style-type: none;
+
+        padding: 0;
+
+        overflow: hidden;
+
+        li {
+          margin-right: 10px;
+
+          float: left;
+
+          a {
+            display: block;
+
+            padding: 5px;
+
+            font-weight: 300;
+          }
+
+          &.active {
+            a {
+              font-weight: 700;
+            }
+
+            border-bottom: 1px solid rgb(154, 204, 104);
+          }
+        }
       }
     }
 
