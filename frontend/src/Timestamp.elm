@@ -41,11 +41,11 @@ showTimezone =
     replace All (regex "_") (\_ -> " ")
 
 
-currentDay : Timezone -> Int
+currentDay : Timezone -> Timestamp -> Int
 currentDay =
     Native.Timestamp.currentDay
 
 
-currentHour : Timezone -> Int
+currentHour : Timezone -> Timestamp -> Int
 currentHour =
     Native.Timestamp.currentHour

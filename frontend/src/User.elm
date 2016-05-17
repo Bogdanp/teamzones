@@ -1,42 +1,39 @@
 module User exposing (isOffline)
 
-import Timestamp exposing (Timezone, currentHour, currentDay)
+import Timestamp exposing (Timestamp, Timezone, currentHour, currentDay)
 import Types exposing (User)
 
 
-isOffline : User -> Bool
-isOffline { timezone, workdays } =
+isOffline : Timestamp -> User -> Bool
+isOffline now { timezone, workdays } =
     let
-        accessor =
-            case currentDay timezone of
+        day =
+            case currentDay timezone now of
                 1 ->
-                    .monday
+                    workdays.monday
 
                 2 ->
-                    .tuesday
+                    workdays.tuesday
 
                 3 ->
-                    .wednesday
+                    workdays.wednesday
 
                 4 ->
-                    .thursday
+                    workdays.thursday
 
                 5 ->
-                    .friday
+                    workdays.friday
 
                 6 ->
-                    .saturday
+                    workdays.saturday
 
                 7 ->
-                    .sunday
+                    workdays.sunday
 
                 _ ->
-                    Debug.crash "invalid day"
-
-        day =
-            accessor workdays
+                    Debug.crash "isOffline: invalid day"
 
         hour =
-            currentHour timezone
+            currentHour timezone now
     in
         day.start == 0 || day.end == 0 || not (hour >= day.start && hour < day.end)

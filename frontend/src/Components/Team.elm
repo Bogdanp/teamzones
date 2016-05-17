@@ -24,12 +24,12 @@ zone users timezone now =
             [ h6 [] [ text (showTimezone timezone) ]
             , h4 [] [ Util.time timezone now ]
             ]
-        , ul [] (List.map user users)
+        , ul [] (List.map (user now) users)
         ]
 
 
-user : User -> Html msg
-user u =
+user : Timestamp -> User -> Html msg
+user now u =
     let
         initials' =
             initials u.name
@@ -52,6 +52,6 @@ user u =
                         [ img [ src uri ] [] ]
     in
         li
-            [ classList [ "offline" => isOffline u ]
+            [ classList [ "offline" => isOffline now u ]
             ]
             [ avatar ]
