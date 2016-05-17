@@ -6,7 +6,7 @@ import Components.Settings as Settings
 import Dict exposing (Dict)
 import Model exposing (..)
 import Ports exposing (pushPath)
-import Routes exposing (Sitemap(..))
+import Routes exposing (Sitemap(..), SettingsMap(..))
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
 
@@ -20,26 +20,40 @@ init { path, now, company, user, team, timezones } =
         currentUser =
             prepareUser user
 
-        ( currentProfile, currentProfileFx ) =
+        ( currentProfile, _ ) =
             CP.init currentUser timezones
+
+        ( model, fx ) =
+            handleRoute
+                { now = now
+                , company = company
+                , user = currentUser
+                , team = prepareTeam team
+                , timezones = timezones
+                , route = route
+                , invite = Invite.init
+                , settings = Settings.init route (TeamR ())
+                , currentProfile = currentProfile
+                }
     in
-        ( { now = now
-          , company = company
-          , user = currentUser
-          , team = prepareTeam team
-          , timezones = timezones
-          , route = route
-          , invite = Invite.init
-          , settings = Settings.init
-          , currentProfile = currentProfile
-          }
-        , Cmd.batch
-            [ if route == (CurrentProfileR ()) then
-                  Cmd.map ToCurrentProfile currentProfileFx
-              else
-                  Cmd.none
-            ]
-        )
+        model ! [ fx ]
+
+
+handleRoute : Model -> ( Model, Cmd Msg )
+handleRoute ({ route } as model) =
+    case route of
+        SettingsR subRoute ->
+            { model | settings = Settings.init route subRoute } ! []
+
+        CurrentProfileR () ->
+            let
+                ( profile, fx ) =
+                    CP.init model.user model.timezones
+            in
+                { model | currentProfile = profile } ! [ Cmd.map ToCurrentProfile fx ]
+
+        _ ->
+            model ! []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -53,23 +67,7 @@ update msg ({ user, team } as model) =
             model ! []
 
         PathChanged path ->
-            let
-                route =
-                    Routes.match path
-
-                model' =
-                    { model | route = route }
-            in
-                case route of
-                    CurrentProfileR () ->
-                        let
-                            ( profile, fx ) =
-                                CP.init model.user model.timezones
-                        in
-                            { model' | currentProfile = profile } ! [ Cmd.map ToCurrentProfile fx ]
-
-                    _ ->
-                        model' ! []
+            handleRoute { model | route = Routes.match path }
 
         RouteTo route ->
             model ! [ pushPath (Routes.route route) ]
@@ -88,7 +86,8 @@ update msg ({ user, team } as model) =
             in
                 { model | settings = settings } ! [ Cmd.map ToSettings fx ]
 
-        ToCurrentProfile (CP.ToParent CP.RemoveAvatar) ->
+        -- (CP.RemoveAvatar) to satisfy elm-format
+        ToCurrentProfile (CP.ToParent (CP.RemoveAvatar)) ->
             let
                 ( user', team' ) =
                     updateUser update user team
@@ -97,6 +96,7 @@ update msg ({ user, team } as model) =
                     { u | avatar = Nothing }
             in
                 { model | user = user', team = team' } ! []
+
         ToCurrentProfile (CP.ToParent (CP.UpdateCurrentUser profile)) ->
             let
                 ( user', team' ) =
