@@ -48,6 +48,9 @@ const (
 	updateProfileRoute
 	avatarUploadRoute
 	deleteAvatarRoute
+
+	// Tools
+	provisionRoute
 )
 
 const (
@@ -112,6 +115,7 @@ func loadMetadata() *Metadata {
 // Config contains information read from environment-specific
 // configuration files.
 type Config struct {
+	Debug  bool
 	Secret string
 	Domain struct {
 		Host string
