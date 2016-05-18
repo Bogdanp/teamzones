@@ -9,6 +9,7 @@ import Ports exposing (pushPath)
 import Routes exposing (Sitemap(..), SettingsMap(..))
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
+import User exposing (isOffline)
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -31,7 +32,7 @@ init ({ path, now, company, user, team, timezones } as flags) =
                 { now = now
                 , company = company
                 , user = currentUser
-                , team = groupTeam teamMembers
+                , team = groupTeam now teamMembers
                 , teamMembers = teamMembers
                 , timezones = timezones
                 , route = route
@@ -61,7 +62,7 @@ handleRoute ({ route, teamMembers } as model) =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ user, team } as model) =
+update msg ({ now, user, team } as model) =
     case msg of
         Tick now ->
             { model | now = now } ! []
@@ -94,7 +95,7 @@ update msg ({ user, team } as model) =
         ToCurrentProfile (CP.ToParent (CP.RemoveAvatar)) ->
             let
                 ( user', team' ) =
-                    updateUser update user team
+                    updateUser now update user team
 
                 update u =
                     { u | avatar = Nothing }
@@ -104,7 +105,7 @@ update msg ({ user, team } as model) =
         ToCurrentProfile (CP.ToParent (CP.UpdateCurrentUser profile)) ->
             let
                 ( user', team' ) =
-                    updateUser update user team
+                    updateUser now update user team
 
                 update u =
                     { u
@@ -143,8 +144,8 @@ prepareUser u =
         User (role u.role) u.name u.email (avatar u.avatar) u.timezone u.workdays
 
 
-groupTeam : List User -> Team
-groupTeam xs =
+groupTeam : Timestamp -> List User -> Team
+groupTeam now xs =
     let
         key u =
             ( u.timezone, Timestamp.offset u.timezone )
@@ -159,13 +160,24 @@ groupTeam xs =
 
         group cu team =
             Dict.update (key cu) (insert cu) team
+
+        order u =
+            if isOffline now u then
+                1
+            else
+                0
+
+        -- This sorts in reverse to account for the foldl
+        sort u =
+            ( order u, u.name )
     in
-        List.sortBy .name xs
+        List.sortBy sort xs
+            |> List.reverse
             |> List.foldl group Dict.empty
 
 
-updateUser : (User -> User) -> User -> Team -> ( User, Team )
-updateUser f user team =
+updateUser : Timestamp -> (User -> User) -> User -> Team -> ( User, Team )
+updateUser now f user team =
     let
         user' =
             f user
@@ -174,7 +186,7 @@ updateUser f user team =
             team
                 |> Dict.toList
                 |> List.concatMap (snd >> List.map update)
-                |> groupTeam
+                |> groupTeam now
 
         update u =
             if u == user then
