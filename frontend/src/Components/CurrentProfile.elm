@@ -1,6 +1,7 @@
 module Components.CurrentProfile exposing (..)
 
 import Api exposing (Errors, getJson, deletePlain, postPlain)
+import Components.ConfirmationButton as CB
 import Components.Form as FC
 import Components.Page exposing (page)
 import Form exposing (Form)
@@ -9,7 +10,6 @@ import Form.Validate as Validate exposing (..)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
 import HttpBuilder
 import Json.Decode as Json exposing ((:=))
 import Json.Encode
@@ -26,9 +26,9 @@ type ParentMsg
 
 type Msg
     = Submit
-    | DeleteAvatar
     | ToParent ParentMsg
     | ToForm Form.Msg
+    | ToDeleteAvatarButton CB.Msg
     | UploadUriError (HttpBuilder.Error Errors)
     | UploadUriSuccess (HttpBuilder.Response String)
     | ProfileError (HttpBuilder.Error Errors)
@@ -45,6 +45,7 @@ type alias Profile =
 type alias Model =
     { profile : Profile
     , form : Form () Profile
+    , deleteAvatarButton : CB.Model
     , pending : Bool
     , uploadUri : Maybe String
     , timezones : List Timezone
@@ -108,6 +109,7 @@ init user timezones =
     in
         ( { profile = profile
           , form = Form.initial values validate
+          , deleteAvatarButton = CB.init "Delete profile picture"
           , pending = False
           , uploadUri = Nothing
           , timezones = timezones
@@ -139,14 +141,17 @@ update msg model =
                         }
                             ! [ updateProfile profile ]
 
-        DeleteAvatar ->
-            model ! [ deleteAvatar ]
-
         ToParent _ ->
             model ! []
 
         ToForm m ->
             { model | form = Form.update m model.form } ! []
+
+        ToDeleteAvatarButton ((CB.ToParent (CB.Confirm)) as msg) ->
+            { model | deleteAvatarButton = CB.update msg model.deleteAvatarButton } ! [ deleteAvatar ]
+
+        ToDeleteAvatarButton msg ->
+            { model | deleteAvatarButton = CB.update msg model.deleteAvatarButton } ! []
 
         UploadUriError _ ->
             model ! [ createUploadUri ]
@@ -196,7 +201,7 @@ hoursInDay =
 
 
 view : Model -> Html Msg
-view { form, pending, uploadUri, timezones } =
+view { form, deleteAvatarButton, pending, uploadUri, timezones } =
     let
         textInput label name =
             let
@@ -269,13 +274,7 @@ view { form, pending, uploadUri, timezones } =
                             , disabled uploadPending
                             ]
                             []
-                        , input
-                            [ class "sm-ml"
-                            , type' "button"
-                            , value "Delete profile picture"
-                            , onClick DeleteAvatar
-                            ]
-                            []
+                        , CB.view deleteAvatarButton |> Html.map ToDeleteAvatarButton
                         ]
                     ]
                 ]
