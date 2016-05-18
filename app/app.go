@@ -48,6 +48,7 @@ const (
 	updateProfileRoute
 	avatarUploadRoute
 	deleteAvatarRoute
+	deleteUserRoute
 
 	// Tools
 	provisionRoute

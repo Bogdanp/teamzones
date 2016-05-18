@@ -1,4 +1,4 @@
-module Components.Settings exposing (Model, Msg, init, update, view)
+module Components.Settings exposing (Model, Msg, ParentMsg(..), init, update, view)
 
 import Components.Page exposing (pageWithTabs)
 import Components.Settings.Billing as Billing
@@ -8,6 +8,10 @@ import Html.App as Html
 import Ports exposing (pushPath)
 import Routes exposing (Sitemap(..), SettingsSitemap(..))
 import Types exposing (User)
+
+
+type ParentMsg
+    = DeleteUser String
 
 
 type Msg
@@ -23,23 +27,32 @@ type alias Model =
     }
 
 
-init : Sitemap -> SettingsSitemap -> List User -> Model
-init fullRoute subRoute teamMembers =
-    Model fullRoute subRoute teamMembers (Team.init teamMembers)
+init : Sitemap -> SettingsSitemap -> User -> List User -> Model
+init fullRoute subRoute currentUser teamMembers =
+    Model fullRoute subRoute teamMembers (Team.init currentUser teamMembers)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg, Maybe ParentMsg )
 update msg ({ team } as model) =
     case msg of
         RouteTo route ->
-            model ! [ pushPath (Routes.route route) ]
+            ( model, pushPath (Routes.route route), Nothing )
 
         ToTeam msg ->
             let
-                ( team, fx ) =
+                ( team, fx, pmsg ) =
                     Team.update msg team
+
+                parentMsg =
+                    Maybe.map
+                        (\pmsg ->
+                            case pmsg of
+                                Team.DeleteUser email ->
+                                    DeleteUser email
+                        )
+                        pmsg
             in
-                { model | team = team } ! [ Cmd.map ToTeam fx ]
+                ( { model | team = team }, Cmd.map ToTeam fx, parentMsg )
 
 
 view : Model -> Html Msg

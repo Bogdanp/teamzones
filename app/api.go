@@ -11,6 +11,7 @@ import (
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/blobstore"
+	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/image"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
@@ -27,6 +28,7 @@ func init() {
 	POST(appRouter, updateProfileRoute, "/api/profile", updateProfileHandler)
 	ALL(appRouter, avatarUploadRoute, "/api/upload", avatarUploadHandler)
 	DELETE(appRouter, deleteAvatarRoute, "/api/avatar", deleteAvatarHandler)
+	DELETE(appRouter, deleteUserRoute, "/api/users/:email", deleteUserHandler)
 }
 
 type locationResponse struct {
@@ -73,7 +75,7 @@ func locationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Pa
 func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	user := context.Get(req, userCtxKey).(*models.User)
 	if user.Role == models.RoleUser {
-		http.Error(res, "forbidden", http.StatusForbidden)
+		forbidden(res)
 		return
 	}
 
@@ -244,6 +246,30 @@ func updateProfileHandler(res http.ResponseWriter, req *http.Request, _ httprout
 	user.Timezone = data.Timezone
 	user.Workdays = data.Workdays
 	user.Put(ctx)
+
+	res.WriteHeader(http.StatusNoContent)
+}
+
+func deleteUserHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	user := context.Get(req, userCtxKey).(*models.User)
+	email := params.ByName("email")
+	if user.Role == models.RoleUser || user.Email == email {
+		forbidden(res)
+		return
+	}
+
+	ctx := appengine.NewContext(req)
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	user, err := models.GetUser(ctx, company.Key(ctx), email)
+	if err != nil || user.Role == models.RoleMain {
+		notFound(res)
+		return
+	}
+
+	if err := datastore.Delete(ctx, user.Key(ctx)); err != nil {
+		serverError(res)
+		return
+	}
 
 	res.WriteHeader(http.StatusNoContent)
 }

@@ -111,11 +111,6 @@ hexFromInt n =
         hexFromInt' n ""
 
 
-(=>) : a -> b -> ( a, b )
-(=>) =
-    (,)
-
-
 time : Timezone -> Timestamp -> Html msg
 time tz =
     Timestamp.tzFormat tz "h:mmA" >> text
@@ -165,3 +160,8 @@ ttl seconds =
             minutes
         else
             hours ++ " and " ++ minutes
+
+
+(=>) : a -> b -> ( a, b )
+(=>) =
+    (,)

@@ -37,7 +37,7 @@ init ({ path, now, company, user, team, timezones } as flags) =
                 , timezones = timezones
                 , route = route
                 , invite = Invite.init
-                , settings = Settings.init route (TeamR ()) teamMembers
+                , settings = Settings.init route (TeamR ()) currentUser teamMembers
                 , currentProfile = currentProfile
                 }
     in
@@ -45,10 +45,10 @@ init ({ path, now, company, user, team, timezones } as flags) =
 
 
 handleRoute : Model -> ( Model, Cmd Msg )
-handleRoute ({ route, teamMembers } as model) =
+handleRoute ({ route, user, teamMembers } as model) =
     case route of
         SettingsR subRoute ->
-            { model | settings = Settings.init route subRoute teamMembers } ! []
+            { model | settings = Settings.init route subRoute user teamMembers } ! []
 
         CurrentProfileR () ->
             let
@@ -86,10 +86,18 @@ update msg ({ now, user, team } as model) =
 
         ToSettings msg ->
             let
-                ( settings, fx ) =
+                ( settings, fx, pmsg ) =
                     Settings.update msg model.settings
+
+                team =
+                    case pmsg of
+                        Just (Settings.DeleteUser email) ->
+                            deleteUser email model.team
+
+                        Nothing ->
+                            model.team
             in
-                { model | settings = settings } ! [ Cmd.map ToSettings fx ]
+                { model | settings = settings, team = team } ! [ Cmd.map ToSettings fx ]
 
         -- (CP.RemoveAvatar) to satisfy elm-format
         ToCurrentProfile (CP.ToParent (CP.RemoveAvatar)) ->
@@ -195,3 +203,14 @@ updateUser now f user team =
                 u
     in
         ( user', team' )
+
+
+deleteUser : String -> Team -> Team
+deleteUser email team =
+    let
+        remove ( k, xs ) =
+            ( k, List.filter (\u -> u.email /= email) xs )
+    in
+        Dict.toList team
+            |> List.map remove
+            |> Dict.fromList

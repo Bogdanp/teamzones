@@ -1,38 +1,47 @@
-module Components.Settings.Team exposing (Model, Msg, init, update, view)
+module Components.Settings.Team exposing (Model, Msg, ParentMsg(..), init, update, view)
 
+import Api exposing (Errors, deletePlain)
 import Components.ConfirmationButton as CB
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
+import HttpBuilder
 import Types exposing (User, UserRole(..))
 
 
+type ParentMsg
+    = DeleteUser String
+
+
 type Msg
-    = Submit
-    | ToDeleteButton String CB.Msg
+    = ToDeleteButton String CB.Msg
+    | DeleteError String (HttpBuilder.Error Errors)
+    | DeleteSuccess String (HttpBuilder.Response String)
 
 
 type alias Model =
-    { teamMembers : List User
+    { currentUser : User
+    , teamMembers : List User
     , deleteMemberButtons : Dict String CB.Model
     }
 
 
-init : List User -> Model
-init members =
+init : User -> List User -> Model
+init user members =
     let
         deleteMemberButtons =
             List.map (\u -> ( u.email, CB.init "Delete" )) members
                 |> Dict.fromList
     in
-        { teamMembers = members
+        { currentUser = user
+        , teamMembers = members
         , deleteMemberButtons = deleteMemberButtons
         }
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ deleteMemberButtons } as model) =
+update : Msg -> Model -> ( Model, Cmd Msg, Maybe ParentMsg )
+update msg ({ teamMembers, deleteMemberButtons } as model) =
     let
         updateButtons email msg =
             Dict.map
@@ -45,19 +54,29 @@ update msg ({ deleteMemberButtons } as model) =
                 deleteMemberButtons
     in
         case msg of
-            Submit ->
-                model ! []
-
             ToDeleteButton email ((CB.ToParent (CB.Confirm)) as msg) ->
-                -- FIXME: Delete members
-                { model | deleteMemberButtons = updateButtons email msg } ! []
+                ( { model | deleteMemberButtons = updateButtons email msg }, deleteUser email, Nothing )
 
             ToDeleteButton email msg ->
-                { model | deleteMemberButtons = updateButtons email msg } ! []
+                ( { model | deleteMemberButtons = updateButtons email msg }, Cmd.none, Nothing )
+
+            DeleteError email erorr ->
+                -- FIXME: Display errors
+                ( model, Cmd.none, Nothing )
+
+            DeleteSuccess email _ ->
+                let
+                    members =
+                        List.filter ((/=) email << .email) teamMembers
+
+                    buttons =
+                        Dict.remove email deleteMemberButtons
+                in
+                    ( { model | teamMembers = members, deleteMemberButtons = buttons }, Cmd.none, Just (DeleteUser email) )
 
 
 view : Model -> Html Msg
-view { teamMembers, deleteMemberButtons } =
+view { currentUser, teamMembers, deleteMemberButtons } =
     let
         members =
             List.sortBy (.role >> toString) teamMembers
@@ -73,13 +92,13 @@ view { teamMembers, deleteMemberButtons } =
                         , td [] []
                         ]
                     ]
-                , tbody [] (List.map (memberRow deleteMemberButtons) members)
+                , tbody [] (List.map (memberRow currentUser deleteMemberButtons) members)
                 ]
             ]
 
 
-memberRow : Dict String CB.Model -> User -> Html Msg
-memberRow buttons { name, email, role } =
+memberRow : User -> Dict String CB.Model -> User -> Html Msg
+memberRow currentUser buttons { name, email, role } =
     let
         deleteButton =
             case Dict.get email buttons of
@@ -95,9 +114,14 @@ memberRow buttons { name, email, role } =
             , td [] [ text email ]
             , td [] [ text (toString role) ]
             , td []
-                [ if role /= Main then
+                [ if role /= Main && currentUser.email /= email then
                     deleteButton
                   else
                     text ""
                 ]
             ]
+
+
+deleteUser : String -> Cmd Msg
+deleteUser email =
+    deletePlain (DeleteError email) (DeleteSuccess email) ("/users/" ++ email)

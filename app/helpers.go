@@ -10,6 +10,10 @@ func notFound(res http.ResponseWriter) {
 	http.Error(res, "not found", http.StatusNotFound)
 }
 
+func forbidden(res http.ResponseWriter) {
+	http.Error(res, "forbidden", http.StatusForbidden)
+}
+
 func badRequest(res http.ResponseWriter, errors ...string) {
 	data := struct {
 		Errors []string `json:"errors"`
