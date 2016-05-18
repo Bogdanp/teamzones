@@ -232,6 +232,7 @@ deleteUser email teamMembers team =
             Dict.toList team
                 |> List.map remove
                 |> Dict.fromList
+                |> Dict.filter (\_ xs -> not (List.isEmpty xs))
 
         teamMembers' =
             Dict.toList team
