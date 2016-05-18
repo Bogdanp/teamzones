@@ -6,7 +6,7 @@ import Components.Settings as Settings
 import Dict exposing (Dict)
 import Model exposing (..)
 import Ports exposing (pushPath)
-import Routes exposing (Sitemap(..), SettingsMap(..))
+import Routes exposing (Sitemap(..), SettingsSitemap(..))
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
 import User exposing (isOffline)

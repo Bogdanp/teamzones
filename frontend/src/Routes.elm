@@ -1,9 +1,9 @@
-module Routes exposing (Sitemap(..), SettingsMap(..), match, route)
+module Routes exposing (Sitemap(..), SettingsSitemap(..), match, route)
 
 import Route exposing (..)
 
 
-type SettingsMap
+type SettingsSitemap
     = TeamR ()
     | BillingR ()
 
@@ -20,7 +20,7 @@ settingsRouter =
     router [ teamR, billingR ]
 
 
-routeSettings : SettingsMap -> String
+routeSettings : SettingsSitemap -> String
 routeSettings r =
     case r of
         TeamR () ->
@@ -33,7 +33,7 @@ routeSettings r =
 type Sitemap
     = DashboardR ()
     | InviteR ()
-    | SettingsR SettingsMap
+    | SettingsR SettingsSitemap
     | CurrentProfileR ()
 
 

@@ -6,7 +6,7 @@ import Components.Settings.Team as Team
 import Html exposing (..)
 import Html.App as Html
 import Ports exposing (pushPath)
-import Routes exposing (Sitemap(..), SettingsMap(..))
+import Routes exposing (Sitemap(..), SettingsSitemap(..))
 import Types exposing (User)
 
 
@@ -17,13 +17,13 @@ type Msg
 
 type alias Model =
     { fullRoute : Sitemap
-    , subRoute : SettingsMap
+    , subRoute : SettingsSitemap
     , teamMembers : List User
     , team : Team.Model
     }
 
 
-init : Sitemap -> SettingsMap -> List User -> Model
+init : Sitemap -> SettingsSitemap -> List User -> Model
 init fullRoute subRoute teamMembers =
     Model fullRoute subRoute teamMembers (Team.init teamMembers)
 

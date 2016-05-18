@@ -9,7 +9,7 @@ import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
 import Model exposing (Model, Msg(..))
-import Routes exposing (Sitemap(..), SettingsMap(..))
+import Routes exposing (Sitemap(..), SettingsSitemap(..))
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (Company, User, AnchorTo)
 import Util exposing ((=>), on')
