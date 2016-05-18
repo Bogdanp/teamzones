@@ -106,15 +106,15 @@ update msg ({ now, user, team } as model) =
                 ( settings, fx, pmsg ) =
                     Settings.update msg model.settings
 
-                team =
+                ( teamMembers, team ) =
                     case pmsg of
                         Just (DeleteUser email) ->
-                            deleteUser email model.team
+                            deleteUser email model.teamMembers model.team
 
                         Nothing ->
-                            model.team
+                            ( model.teamMembers, model.team )
             in
-                { model | settings = settings, team = team } ! [ Cmd.map ToSettings fx ]
+                { model | settings = settings, team = team, teamMembers = teamMembers } ! [ Cmd.map ToSettings fx ]
 
         -- (CP.RemoveAvatar) to satisfy elm-format
         ToCurrentProfile (CP.ToParent (CP.RemoveAvatar)) ->
@@ -222,12 +222,19 @@ updateUser now f user team =
         ( user', team' )
 
 
-deleteUser : String -> Team -> Team
-deleteUser email team =
+deleteUser : String -> List User -> Team -> ( List User, Team )
+deleteUser email teamMembers team =
     let
         remove ( k, xs ) =
             ( k, List.filter (\u -> u.email /= email) xs )
+
+        team' =
+            Dict.toList team
+                |> List.map remove
+                |> Dict.fromList
+
+        teamMembers' =
+            Dict.toList team
+                |> List.concatMap snd
     in
-        Dict.toList team
-            |> List.map remove
-            |> Dict.fromList
+        ( teamMembers', team' )
