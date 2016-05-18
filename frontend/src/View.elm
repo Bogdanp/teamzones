@@ -8,7 +8,6 @@ import Components.Team as Team
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
-import Html.Lazy exposing (lazy)
 import Model exposing (Model, Msg(..))
 import Routes exposing (Sitemap(..), SettingsMap(..))
 import Timestamp exposing (Timestamp, Timezone)
@@ -25,15 +24,15 @@ view ({ now, company, user, team, route, invite, settings, currentProfile } as m
                     Team.view team now
 
                 InviteR () ->
-                    lazy Invite.view invite
+                    Invite.view invite
                         |> Html.map ToInvite
 
                 SettingsR _ ->
-                    lazy Settings.view settings
+                    Settings.view settings
                         |> Html.map ToSettings
 
                 CurrentProfileR () ->
-                    lazy CurrentProfile.view currentProfile
+                    CurrentProfile.view currentProfile
                         |> Html.map ToCurrentProfile
     in
         div [ class "app" ]

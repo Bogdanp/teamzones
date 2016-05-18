@@ -5,7 +5,6 @@ import Components.Settings.Billing as Billing
 import Components.Settings.Team as Team
 import Html exposing (..)
 import Html.App as Html
-import Html.Lazy exposing (lazy)
 import Ports exposing (pushPath)
 import Routes exposing (Sitemap(..), SettingsMap(..))
 import Types exposing (User)
@@ -55,6 +54,6 @@ view ({ fullRoute, subRoute, team } as model) =
                 Billing.view
 
             TeamR () ->
-                lazy Team.view team
+                Team.view team
                     |> Html.map ToTeam
         ]
