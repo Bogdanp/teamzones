@@ -37,7 +37,14 @@ init ({ path, now, company, user, team, timezones } as flags) =
                 , timezones = timezones
                 , route = route
                 , invite = Invite.init
-                , settings = Settings.init route (TeamR ()) currentUser teamMembers
+                , settings =
+                    Settings.init
+                        { deleteUser = DeleteUser
+                        , fullRoute = route
+                        , subRoute = Nothing
+                        , currentUser = currentUser
+                        , teamMembers = teamMembers
+                        }
                 , currentProfile = currentProfile
                 }
     in
@@ -48,7 +55,17 @@ handleRoute : Model -> ( Model, Cmd Msg )
 handleRoute ({ route, user, teamMembers } as model) =
     case route of
         SettingsR subRoute ->
-            { model | settings = Settings.init route subRoute user teamMembers } ! []
+            { model
+                | settings =
+                    Settings.init
+                        { deleteUser = DeleteUser
+                        , fullRoute = route
+                        , subRoute = Just subRoute
+                        , currentUser = user
+                        , teamMembers = teamMembers
+                        }
+            }
+                ! []
 
         CurrentProfileR () ->
             let
@@ -91,7 +108,7 @@ update msg ({ now, user, team } as model) =
 
                 team =
                     case pmsg of
-                        Just (Settings.DeleteUser email) ->
+                        Just (DeleteUser email) ->
                             deleteUser email model.team
 
                         Nothing ->

@@ -1,4 +1,4 @@
-module Components.Settings exposing (Model, Msg, ParentMsg(..), init, update, view)
+module Components.Settings exposing (Model, Msg, init, update, view)
 
 import Components.Page exposing (pageWithTabs)
 import Components.Settings.Billing as Billing
@@ -10,8 +10,13 @@ import Routes exposing (Sitemap(..), SettingsSitemap(..))
 import Types exposing (User)
 
 
-type ParentMsg
-    = DeleteUser String
+type alias Context pmsg =
+    { deleteUser : String -> pmsg
+    , fullRoute : Sitemap
+    , subRoute : Maybe SettingsSitemap
+    , currentUser : User
+    , teamMembers : List User
+    }
 
 
 type Msg
@@ -19,20 +24,28 @@ type Msg
     | ToTeam Team.Msg
 
 
-type alias Model =
+type alias Model pmsg =
     { fullRoute : Sitemap
     , subRoute : SettingsSitemap
     , teamMembers : List User
-    , team : Team.Model
+    , team : Team.Model pmsg
     }
 
 
-init : Sitemap -> SettingsSitemap -> User -> List User -> Model
-init fullRoute subRoute currentUser teamMembers =
-    Model fullRoute subRoute teamMembers (Team.init currentUser teamMembers)
+init : Context pmsg -> Model pmsg
+init { deleteUser, fullRoute, subRoute, currentUser, teamMembers } =
+    let
+        team =
+            Team.init
+                { deleteUser = deleteUser
+                , currentUser = currentUser
+                , teamMembers = teamMembers
+                }
+    in
+        Model fullRoute (Maybe.withDefault (TeamR ()) subRoute) teamMembers team
 
 
-update : Msg -> Model -> ( Model, Cmd Msg, Maybe ParentMsg )
+update : Msg -> Model pmsg -> ( Model pmsg, Cmd Msg, Maybe pmsg )
 update msg ({ team } as model) =
     case msg of
         RouteTo route ->
@@ -42,20 +55,11 @@ update msg ({ team } as model) =
             let
                 ( team, fx, pmsg ) =
                     Team.update msg team
-
-                parentMsg =
-                    Maybe.map
-                        (\pmsg ->
-                            case pmsg of
-                                Team.DeleteUser email ->
-                                    DeleteUser email
-                        )
-                        pmsg
             in
-                ( { model | team = team }, Cmd.map ToTeam fx, parentMsg )
+                ( { model | team = team }, Cmd.map ToTeam fx, pmsg )
 
 
-view : Model -> Html Msg
+view : Model pmsg -> Html Msg
 view ({ fullRoute, subRoute, team } as model) =
     pageWithTabs RouteTo
         fullRoute

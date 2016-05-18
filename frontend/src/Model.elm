@@ -1,4 +1,4 @@
-module Model exposing (Msg(..), Model, Flags)
+module Model exposing (ContextMsg(..), Msg(..), Model, Flags)
 
 import Components.CurrentProfile as CP
 import Components.Invite as Invite
@@ -6,6 +6,10 @@ import Components.Settings as Settings
 import Routes exposing (Sitemap)
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (..)
+
+
+type ContextMsg
+    = DeleteUser String
 
 
 type Msg
@@ -27,7 +31,7 @@ type alias Model =
     , timezones : List Timezone
     , route : Sitemap
     , invite : Invite.Model
-    , settings : Settings.Model
+    , settings : Settings.Model ContextMsg
     , currentProfile : CP.Model
     }
 

@@ -1,4 +1,4 @@
-module Components.Settings.Team exposing (Model, Msg, ParentMsg(..), init, update, view)
+module Components.Settings.Team exposing (Model, Msg, init, update, view)
 
 import Api exposing (Errors, deletePlain)
 import Components.ConfirmationButton as CB
@@ -10,8 +10,11 @@ import HttpBuilder
 import Types exposing (User, UserRole(..))
 
 
-type ParentMsg
-    = DeleteUser String
+type alias Context pmsg =
+    { deleteUser : String -> pmsg
+    , currentUser : User
+    , teamMembers : List User
+    }
 
 
 type Msg
@@ -20,28 +23,30 @@ type Msg
     | DeleteSuccess String (HttpBuilder.Response String)
 
 
-type alias Model =
-    { currentUser : User
+type alias Model pmsg =
+    { rootDeleteUser : String -> pmsg
+    , currentUser : User
     , teamMembers : List User
     , deleteMemberButtons : Dict String CB.Model
     }
 
 
-init : User -> List User -> Model
-init user members =
+init : Context pmsg -> Model pmsg
+init { deleteUser, currentUser, teamMembers } =
     let
         deleteMemberButtons =
-            List.map (\u -> ( u.email, CB.init "Delete" )) members
+            List.map (\u -> ( u.email, CB.init "Delete" )) teamMembers
                 |> Dict.fromList
     in
-        { currentUser = user
-        , teamMembers = members
+        { rootDeleteUser = deleteUser
+        , currentUser = currentUser
+        , teamMembers = teamMembers
         , deleteMemberButtons = deleteMemberButtons
         }
 
 
-update : Msg -> Model -> ( Model, Cmd Msg, Maybe ParentMsg )
-update msg ({ teamMembers, deleteMemberButtons } as model) =
+update : Msg -> Model pmsg -> ( Model pmsg, Cmd Msg, Maybe pmsg )
+update msg ({ rootDeleteUser, teamMembers, deleteMemberButtons } as model) =
     let
         updateButtons email msg =
             Dict.map
@@ -72,10 +77,10 @@ update msg ({ teamMembers, deleteMemberButtons } as model) =
                     buttons =
                         Dict.remove email deleteMemberButtons
                 in
-                    ( { model | teamMembers = members, deleteMemberButtons = buttons }, Cmd.none, Just (DeleteUser email) )
+                    ( { model | teamMembers = members, deleteMemberButtons = buttons }, Cmd.none, Just (rootDeleteUser email) )
 
 
-view : Model -> Html Msg
+view : Model pmsg -> Html Msg
 view { currentUser, teamMembers, deleteMemberButtons } =
     let
         members =
