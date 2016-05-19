@@ -57,6 +57,42 @@
 			"Rev": "fb93926129b8ec0056f2f458b1f519654814edf0"
 		},
 		{
+			"ImportPath": "golang.org/x/oauth2",
+			"Rev": "e86e2718db89775a4604abc10a5d3a5672e7336e"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2/google",
+			"Rev": "e86e2718db89775a4604abc10a5d3a5672e7336e"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2/internal",
+			"Rev": "e86e2718db89775a4604abc10a5d3a5672e7336e"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2/jws",
+			"Rev": "e86e2718db89775a4604abc10a5d3a5672e7336e"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2/jwt",
+			"Rev": "e86e2718db89775a4604abc10a5d3a5672e7336e"
+		},
+		{
+			"ImportPath": "google.golang.org/api/calendar/v3",
+			"Rev": "7059a7f3d456870ff1e8424a6b1f62abe5f95f36"
+		},
+		{
+			"ImportPath": "google.golang.org/api/gensupport",
+			"Rev": "7059a7f3d456870ff1e8424a6b1f62abe5f95f36"
+		},
+		{
+			"ImportPath": "google.golang.org/api/googleapi",
+			"Rev": "7059a7f3d456870ff1e8424a6b1f62abe5f95f36"
+		},
+		{
+			"ImportPath": "google.golang.org/api/googleapi/internal/uritemplates",
+			"Rev": "7059a7f3d456870ff1e8424a6b1f62abe5f95f36"
+		},
+		{
 			"ImportPath": "google.golang.org/appengine",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
@@ -127,6 +163,14 @@
 		{
 			"ImportPath": "google.golang.org/appengine/urlfetch",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/cloud/compute/metadata",
+			"Rev": "426f71cccabdf34d0fd67fc49e25038c8f49a0bb"
+		},
+		{
+			"ImportPath": "google.golang.org/cloud/internal",
+			"Rev": "426f71cccabdf34d0fd67fc49e25038c8f49a0bb"
 		},
 		{
 			"ImportPath": "googlemaps.github.io/maps",
