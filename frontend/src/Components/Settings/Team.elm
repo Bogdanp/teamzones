@@ -7,8 +7,10 @@ import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
 import HttpBuilder
-import Types exposing (User, UserRole(..))
-import Util exposing ((=>))
+import Ports exposing (pushPath)
+import Routes exposing (Sitemap(..))
+import Types exposing (AnchorTo, User, UserRole(..))
+import Util exposing ((=>), on')
 
 
 type alias Context pmsg =
@@ -19,7 +21,8 @@ type alias Context pmsg =
 
 
 type Msg
-    = ToDeleteButton String CB.Msg
+    = RouteTo Sitemap
+    | ToDeleteButton String CB.Msg
     | DeleteError String (HttpBuilder.Error Errors)
     | DeleteSuccess String (HttpBuilder.Response String)
 
@@ -60,6 +63,9 @@ update msg ({ rootDeleteUser, teamMembers, deleteMemberButtons } as model) =
                 deleteMemberButtons
     in
         case msg of
+            RouteTo route ->
+                ( model, pushPath (Routes.route route), Nothing )
+
             ToDeleteButton email ((CB.ToParent (CB.Confirm)) as msg) ->
                 ( { model | deleteMemberButtons = updateButtons email msg }, deleteUser email, Nothing )
 
@@ -116,7 +122,7 @@ memberRow currentUser buttons { name, email, role } =
                     Debug.crash "impossible"
     in
         tr []
-            [ td [] [ text name ]
+            [ td [] [ anchorTo (ProfileR email) [] [ text name ] ]
             , td [] [ text email ]
             , td [] [ text (toString role) ]
             , td []
@@ -131,3 +137,8 @@ memberRow currentUser buttons { name, email, role } =
 deleteUser : String -> Cmd Msg
 deleteUser email =
     deletePlain (DeleteError email) (DeleteSuccess email) ("/users/" ++ email)
+
+
+anchorTo : AnchorTo Msg
+anchorTo route attrs =
+    a ([ on' "click" (RouteTo route), href (Routes.route route) ] ++ attrs)
