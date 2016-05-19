@@ -61,6 +61,9 @@ init ({ path, now, company, user, team, timezones } as flags) =
 handleRoute : Model -> ( Model, Cmd Msg )
 handleRoute ({ route, user, teamMembers } as model) =
     case route of
+        ProfileR email ->
+            model ! []
+
         IntegrationsR subRoute ->
             { model
                 | integrations =

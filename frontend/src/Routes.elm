@@ -10,6 +10,7 @@ type Sitemap
     | IntegrationsR IntegrationsSitemap
     | SettingsR SettingsSitemap
     | CurrentProfileR ()
+    | NotFoundR
 
 
 homeR =
@@ -65,6 +66,9 @@ route route =
 
         CurrentProfileR () ->
             reverse currentProfileR []
+
+        NotFoundR ->
+            Debug.crash "Cannot route to NotFoundR"
 
 
 type IntegrationsSitemap

@@ -4,6 +4,7 @@ import Components.CurrentProfile as CurrentProfile
 import Components.CurrentUser as CurrentUser
 import Components.Invite as Invite
 import Components.Integrations as Integrations
+import Components.NotFound as NotFound
 import Components.Profile as Profile
 import Components.Settings as Settings
 import Components.Team as Team
@@ -43,6 +44,9 @@ view ({ now, company, user, team, route, invite, integrations, settings, current
                 CurrentProfileR () ->
                     CurrentProfile.view currentProfile
                         |> Html.map ToCurrentProfile
+
+                NotFoundR ->
+                    NotFound.view
     in
         div [ class "app" ]
             [ toolbar company user.timezone now
