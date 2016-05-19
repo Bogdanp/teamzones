@@ -114,7 +114,7 @@ func (b RouteBuilder) Build() string {
 			for i, value := range values {
 				buffer.WriteString(fmt.Sprintf("%s=%s", param, url.QueryEscape(value)))
 
-				if i < len(values)-1 {
+				if i < len(values) {
 					buffer.WriteString("&")
 				}
 			}

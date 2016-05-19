@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"teamzones/forms"
+	"teamzones/integrations"
 	"teamzones/models"
 	"teamzones/utils"
 	"time"
@@ -29,6 +30,7 @@ func init() {
 	ALL(appRouter, avatarUploadRoute, "/api/upload", avatarUploadHandler)
 	DELETE(appRouter, deleteAvatarRoute, "/api/avatar", deleteAvatarHandler)
 	DELETE(appRouter, deleteUserRoute, "/api/users/:email", deleteUserHandler)
+	POST(appRouter, authorizeIntegrationRoute, "/api/integrations/authorize", authorizeIntegrationHandler)
 }
 
 type locationResponse struct {
@@ -282,4 +284,35 @@ func deleteUserHandler(res http.ResponseWriter, req *http.Request, params httpro
 	}
 
 	res.WriteHeader(http.StatusNoContent)
+}
+
+func authorizeIntegrationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	var data struct {
+		Integration string `json:"integration"`
+	}
+
+	if err := forms.BindJSON(req, &data); err != nil {
+		badRequest(res, err.Error())
+		return
+	}
+
+	var redirectURL string
+
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	user := context.Get(req, userCtxKey).(*models.User)
+	state := fmt.Sprintf("%s,%s", company.Subdomain, user.Email)
+
+	switch data.Integration {
+	case "gcalendar":
+		redirectURL = integrations.GetCalendarAuthURL(state)
+	default:
+		badRequest(res, "invalid integration")
+		return
+	}
+
+	renderer.JSON(res, http.StatusOK, struct {
+		RedirectURL string `json:"redirectUrl"`
+	}{
+		RedirectURL: redirectURL,
+	})
 }

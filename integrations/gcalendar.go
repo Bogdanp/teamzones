@@ -31,6 +31,12 @@ func loadCalendarConfig() *oauth2.Config {
 	return config
 }
 
+// SetCalendarRedirectURL should be called to update the OAuth2
+// redirect URL on app initialization.
+func SetCalendarRedirectURL(URL string) {
+	calendarConfig.RedirectURL = URL
+}
+
 // NewCalendarService instantiates a new Google Calendar client and returns it.
 func NewCalendarService(ctx context.Context, token *oauth2.Token) (*calendar.Service, error) {
 	client := calendarConfig.Client(ctx, token)
@@ -40,6 +46,16 @@ func NewCalendarService(ctx context.Context, token *oauth2.Token) (*calendar.Ser
 	}
 
 	return service, nil
+}
+
+// GetCalendarAuthURL returns an OAuth2 authorization URL.
+func GetCalendarAuthURL(state string) string {
+	return calendarConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
+}
+
+// ExchangeCalendarCode exchanges an authorization code for a Token.
+func ExchangeCalendarCode(ctx context.Context, code string) (*oauth2.Token, error) {
+	return calendarConfig.Exchange(ctx, code)
 }
 
 // TokenToJSON converts and OAuth2 Token instance to a JSON bytestring.

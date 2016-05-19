@@ -25,6 +25,13 @@ init ({ path, now, company, user, team, timezones } as flags) =
         teamMembers =
             List.map prepareUser team
 
+        ( integrations, _ ) =
+            Integrations.init
+                { fullRoute = route
+                , subRoute = Nothing
+                , currentUser = currentUser
+                }
+
         ( currentProfile, _ ) =
             CP.init currentUser timezones
 
@@ -39,12 +46,7 @@ init ({ path, now, company, user, team, timezones } as flags) =
                 , route = route
                 , invite = Invite.init
                 , profile = currentUser
-                , integrations =
-                    Integrations.init
-                        { fullRoute = route
-                        , subRoute = Nothing
-                        , currentUser = currentUser
-                        }
+                , integrations = integrations
                 , settings =
                     Settings.init
                         { deleteUser = DeleteUser
@@ -71,15 +73,16 @@ handleRoute ({ route, user, teamMembers } as model) =
                     { model | route = NotFoundR } ! []
 
         IntegrationsR subRoute ->
-            { model
-                | integrations =
+            let
+                ( integrations, fx ) =
                     Integrations.init
                         { fullRoute = route
-                        , subRoute = (Just subRoute)
+                        , subRoute = Just subRoute
                         , currentUser = user
                         }
-            }
-                ! []
+            in
+                { model | integrations = integrations }
+                    ! [ Cmd.map ToIntegrations fx ]
 
         SettingsR subRoute ->
             { model

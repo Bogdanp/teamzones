@@ -32,6 +32,10 @@ const (
 	siteSignInRoute
 	findTeamRoute
 
+	// Integrations
+	gcalendarOAuthRoute
+	gcalendarOAuthTeamRoute
+
 	// Application
 	dashboardRoute
 	currentProfileRoute
@@ -54,6 +58,7 @@ const (
 	avatarUploadRoute
 	deleteAvatarRoute
 	deleteUserRoute
+	authorizeIntegrationRoute
 
 	// Tools
 	provisionRoute
