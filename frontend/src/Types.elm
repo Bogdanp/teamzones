@@ -39,6 +39,7 @@ type alias ContextUser =
     , name : String
     , email : String
     , avatar : String
+    , smallAvatar : String
     , timezone : Timezone
     , workdays : Workdays
     }
@@ -49,6 +50,7 @@ type alias User =
     , name : String
     , email : String
     , avatar : Maybe String
+    , smallAvatar : Maybe String
     , timezone : Timezone
     , workdays : Workdays
     }

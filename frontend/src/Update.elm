@@ -185,13 +185,19 @@ prepareUser u =
             else
                 Member
 
-        avatar a =
-            if a == "" then
+        maybeFromZero s =
+            if s == "" then
                 Nothing
             else
-                Just a
+                Just s
+
+        avatar =
+            maybeFromZero u.avatar
+
+        smallAvatar =
+            maybeFromZero u.smallAvatar
     in
-        User (role u.role) u.name u.email (avatar u.avatar) u.timezone u.workdays
+        User (role u.role) u.name u.email avatar smallAvatar u.timezone u.workdays
 
 
 groupTeam : Timestamp -> List User -> Team

@@ -191,8 +191,18 @@ func avatarUploadHandler(res http.ResponseWriter, req *http.Request, _ httproute
 			return
 		}
 
+		smImageURL, err := image.ServingURL(ctx, avatar.BlobKey, &image.ServingURLOptions{
+			Size: 100,
+			Crop: true,
+		})
+		if err != nil {
+			redirect()
+			return
+		}
+
 		user := context.Get(req, userCtxKey).(*models.User)
 		user.Avatar = imageURL.String()
+		user.AvatarSm = smImageURL.String()
 		user.AvatarFile = avatar.BlobKey
 		user.Put(ctx)
 

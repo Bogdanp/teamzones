@@ -32,7 +32,7 @@ user : Timestamp -> User -> Html msg
 user now u =
     let
         avatar =
-            Maybe.map pictureAvatar u.avatar
+            Maybe.map pictureAvatar u.smallAvatar
                 |> Maybe.withDefault (initialsAvatar <| initials u.name)
     in
         li [ classList [ "offline" => isOffline now u ] ]

@@ -73,6 +73,7 @@ type User struct {
 	Workdays Workdays `json:"workdays"`
 
 	Avatar     string            `json:"avatar"`
+	AvatarSm   string            `json:"smallAvatar"`
 	AvatarFile appengine.BlobKey `json:"-"`
 
 	Times
