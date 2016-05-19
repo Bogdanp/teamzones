@@ -1,7 +1,6 @@
 package integrations
 
 import (
-	"encoding/json"
 	"log"
 	"os"
 	"testing"
@@ -21,8 +20,7 @@ func init() {
 		log.Fatalf("Fixture not found: %v", err)
 	}
 
-	calendarToken = &oauth2.Token{}
-	err = json.NewDecoder(f).Decode(calendarToken)
+	calendarToken, err = TokenFromJSON(f)
 	if err != nil {
 		log.Fatalf("Failed to read fixture: %v", err)
 	}
