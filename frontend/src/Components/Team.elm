@@ -31,25 +31,30 @@ zone users timezone now =
 user : Timestamp -> User -> Html msg
 user now u =
     let
-        initials' =
-            initials u.name
-
         avatar =
-            case u.avatar of
-                Nothing ->
-                    a
-                        [ href ""
-                        , class "initials"
-                        , style [ "background" => initialsColor initials' ]
-                        ]
-                        [ text initials' ]
-
-                Just uri ->
-                    a
-                        [ href ""
-                        , class "avatar"
-                        ]
-                        [ img [ src uri ] [] ]
+            Maybe.map pictureAvatar u.avatar
+                |> Maybe.withDefault (initialsAvatar <| initials u.name)
     in
         li [ classList [ "offline" => isOffline now u ] ]
-            [ avatar ]
+            [ avatar
+            , div [ class "overlay" ] [ span [] [ text u.name ] ]
+            ]
+
+
+initialsAvatar : String -> Html msg
+initialsAvatar initials =
+    a
+        [ href ""
+        , class "initials"
+        , style [ "background" => initialsColor initials ]
+        ]
+        [ text initials ]
+
+
+pictureAvatar : String -> Html msg
+pictureAvatar uri =
+    a
+        [ href ""
+        , class "avatar"
+        ]
+        [ img [ src uri ] [] ]

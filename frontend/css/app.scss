@@ -426,6 +426,33 @@ table {
             vertical-align: middle;
           }
 
+          div.overlay {
+            position: absolute;
+            display: none;
+
+            color: #000;
+            cursor: default;
+            font-size: 0.6em;
+            text-align: center;
+            text-transform: uppercase;
+
+            width: 150px;
+            margin-left: -50px;
+            margin-top: -10px;
+          }
+
+          &:hover {
+            div.overlay {
+              display: block;
+
+              span {
+                background: white;
+
+                padding: 2px 3px;
+              }
+            }
+          }
+
           &.offline {
             opacity: 0.25;
 
