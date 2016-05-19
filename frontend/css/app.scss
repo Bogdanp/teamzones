@@ -430,9 +430,10 @@ table {
             position: absolute;
             display: none;
 
-            color: #000;
+            color: #333;
             cursor: default;
             font-size: 0.6em;
+            font-weight: 300;
             text-align: center;
             text-transform: uppercase;
 
@@ -449,6 +450,8 @@ table {
                 background: white;
 
                 padding: 2px 3px;
+
+                border-radius: 2px;
               }
             }
           }

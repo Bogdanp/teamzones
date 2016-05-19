@@ -30,6 +30,16 @@ func NewCompanyKey(ctx context.Context, subdomain string) *datastore.Key {
 	return datastore.NewKey(ctx, companyKind, subdomain, 0, nil)
 }
 
+// GetCompany returns a company by its subdomain.
+func GetCompany(ctx context.Context, subdomain string) (*Company, error) {
+	var company Company
+	if err := datastore.Get(ctx, NewCompanyKey(ctx, subdomain), &company); err != nil {
+		return nil, err
+	}
+
+	return &company, nil
+}
+
 // Key is a helper function for building a Company's key.
 func (c *Company) Key(ctx context.Context) *datastore.Key {
 	return NewCompanyKey(ctx, c.Subdomain)

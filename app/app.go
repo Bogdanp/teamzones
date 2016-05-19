@@ -29,6 +29,7 @@ const (
 	// Site
 	homeRoute = iota
 	signUpRoute
+	siteSignInRoute
 
 	// Application
 	dashboardRoute

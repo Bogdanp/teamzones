@@ -13,6 +13,7 @@ import (
 func init() {
 	GET(siteRouter, homeRoute, "/", homeHandler)
 	ALL(siteRouter, signUpRoute, "/sign-up/", signUpHandler)
+	ALL(siteRouter, siteSignInRoute, "/sign-in/", siteSignInHandler)
 }
 
 func homeHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
@@ -95,4 +96,40 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Para
 	}
 
 	renderer.HTML(res, http.StatusOK, "sign-up", form)
+}
+
+func siteSignInHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	form := struct {
+		Subdomain forms.Field
+	}{
+		forms.Field{
+			Name:       "subdomain",
+			Label:      "Subdomain",
+			Validators: []forms.Validator{forms.MinLength(3), forms.MaxLength(15)},
+		},
+	}
+
+	if req.Method == http.MethodPost {
+		if !forms.Bind(req, &form) {
+			renderer.HTML(res, http.StatusOK, "site-sign-in", form)
+			return
+		}
+
+		ctx := appengine.NewContext(req)
+		company, err := models.GetCompany(ctx, form.Subdomain.Value)
+		if err != nil {
+			form.Subdomain.Errors = []string{"We couldn't find your team."}
+			renderer.HTML(res, http.StatusOK, "site-sign-in", form)
+			return
+		}
+
+		location := ReverseRoute(signInRoute).
+			Subdomain(company.Subdomain).
+			Build()
+
+		http.Redirect(res, req, location, http.StatusFound)
+		return
+	}
+
+	renderer.HTML(res, http.StatusOK, "site-sign-in", form)
 }
