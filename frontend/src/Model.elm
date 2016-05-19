@@ -2,6 +2,7 @@ module Model exposing (ContextMsg(..), Msg(..), Model, Flags)
 
 import Components.CurrentProfile as CP
 import Components.Invite as Invite
+import Components.Integrations as Integrations
 import Components.Settings as Settings
 import Routes exposing (Sitemap)
 import Timestamp exposing (Timestamp, Timezone)
@@ -18,6 +19,7 @@ type Msg
     | PathChanged String
     | RouteTo Sitemap
     | ToInvite Invite.Msg
+    | ToIntegrations Integrations.Msg
     | ToSettings Settings.Msg
     | ToCurrentProfile CP.Msg
 
@@ -31,6 +33,7 @@ type alias Model =
     , timezones : List Timezone
     , route : Sitemap
     , invite : Invite.Model
+    , integrations : Integrations.Model
     , settings : Settings.Model ContextMsg
     , currentProfile : CP.Model
     }

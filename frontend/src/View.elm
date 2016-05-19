@@ -3,20 +3,21 @@ module View exposing (view)
 import Components.CurrentProfile as CurrentProfile
 import Components.CurrentUser as CurrentUser
 import Components.Invite as Invite
+import Components.Integrations as Integrations
 import Components.Settings as Settings
 import Components.Team as Team
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
 import Model exposing (Model, Msg(..))
-import Routes exposing (Sitemap(..), SettingsSitemap(..))
+import Routes exposing (Sitemap(..), IntegrationsSitemap(..), SettingsSitemap(..))
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (Company, User, AnchorTo)
 import Util exposing ((=>), on')
 
 
 view : Model -> Html Msg
-view ({ now, company, user, team, route, invite, settings, currentProfile } as model) =
+view ({ now, company, user, team, route, invite, integrations, settings, currentProfile } as model) =
     let
         page =
             case route of
@@ -26,6 +27,10 @@ view ({ now, company, user, team, route, invite, settings, currentProfile } as m
                 InviteR () ->
                     Invite.view invite
                         |> Html.map ToInvite
+
+                IntegrationsR _ ->
+                    Integrations.view integrations
+                        |> Html.map ToIntegrations
 
                 SettingsR _ ->
                     Settings.view settings
@@ -75,6 +80,7 @@ sidebar user =
             , ul [ class "menu" ]
                 ([ routeTo (DashboardR ()) "Dashboard"
                  , routeTo (CurrentProfileR ()) "Your Profile"
+                 , routeTo (IntegrationsR (GCalendarR ())) "Integrations"
                  ]
                     ++ links
                     ++ [ linkTo "/sign-out" "Sign out" ]

@@ -2,11 +2,12 @@ port module Update exposing (init, update)
 
 import Components.CurrentProfile as CP
 import Components.Invite as Invite
+import Components.Integrations as Integrations
 import Components.Settings as Settings
 import Dict exposing (Dict)
 import Model exposing (..)
 import Ports exposing (pushPath)
-import Routes exposing (Sitemap(..), SettingsSitemap(..))
+import Routes exposing (Sitemap(..), IntegrationsSitemap(..), SettingsSitemap(..))
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
 import User exposing (isOffline)
@@ -37,6 +38,12 @@ init ({ path, now, company, user, team, timezones } as flags) =
                 , timezones = timezones
                 , route = route
                 , invite = Invite.init
+                , integrations =
+                    Integrations.init
+                        { fullRoute = route
+                        , subRoute = Nothing
+                        , currentUser = currentUser
+                        }
                 , settings =
                     Settings.init
                         { deleteUser = DeleteUser
@@ -54,6 +61,17 @@ init ({ path, now, company, user, team, timezones } as flags) =
 handleRoute : Model -> ( Model, Cmd Msg )
 handleRoute ({ route, user, teamMembers } as model) =
     case route of
+        IntegrationsR subRoute ->
+            { model
+                | integrations =
+                    Integrations.init
+                        { fullRoute = route
+                        , subRoute = (Just subRoute)
+                        , currentUser = user
+                        }
+            }
+                ! []
+
         SettingsR subRoute ->
             { model
                 | settings =
@@ -100,6 +118,13 @@ update msg ({ now, user, team } as model) =
                     Invite.update msg model.invite
             in
                 { model | invite = invite } ! [ Cmd.map ToInvite fx ]
+
+        ToIntegrations msg ->
+            let
+                ( integrations, fx ) =
+                    Integrations.update msg model.integrations
+            in
+                { model | integrations = integrations } ! [ Cmd.map ToIntegrations fx ]
 
         ToSettings msg ->
             let

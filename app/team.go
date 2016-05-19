@@ -21,7 +21,7 @@ import (
 func init() {
 	GET(appRouter, dashboardRoute, "/", dashboardHandler)
 	GET(appRouter, inviteRoute, "/invite", dashboardHandler)
-	GET(appRouter, settingsRoute, "/settings", dashboardHandler)
+	GET(appRouter, integrationsGCalRoute, "/integrations/google-calendar", dashboardHandler)
 	GET(appRouter, settingsTeamRoute, "/settings/team", dashboardHandler)
 	GET(appRouter, settingsBillingRoute, "/settings/billing", dashboardHandler)
 	GET(appRouter, currentProfileRoute, "/profile", dashboardHandler)
