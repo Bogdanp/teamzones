@@ -8,6 +8,7 @@ import Html.App as Html
 import Html.Attributes exposing (..)
 import HttpBuilder
 import Types exposing (User, UserRole(..))
+import Util exposing ((=>))
 
 
 type alias Context pmsg =
@@ -88,13 +89,13 @@ view { currentUser, teamMembers, deleteMemberButtons } =
     in
         div []
             [ br [] []
-            , table [ class "sm-ml" ]
+            , table []
                 [ thead []
                     [ tr []
-                        [ td [] [ text "Name" ]
-                        , td [] [ text "Email" ]
-                        , td [] [ text "Role" ]
-                        , td [] []
+                        [ td [ style [ "width" => "30%" ] ] [ text "Name" ]
+                        , td [ style [ "width" => "30%" ] ] [ text "Email" ]
+                        , td [ style [ "width" => "20%" ] ] [ text "Role" ]
+                        , td [ style [ "width" => "20%" ] ] []
                         ]
                     ]
                 , tbody [] (List.map (memberRow currentUser deleteMemberButtons) members)
