@@ -106,10 +106,10 @@ handleRoute ({ route, user, teamMembers } as model) =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ now, user, team } as model) =
+update msg ({ now, user, team, teamMembers } as model) =
     case msg of
         Tick now ->
-            { model | now = now } ! []
+            { model | now = now, team = groupTeam now teamMembers } ! []
 
         TimezoneChanged timezone ->
             -- FIXME: Prompt user to update timezone.
