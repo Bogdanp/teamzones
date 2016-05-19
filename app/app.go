@@ -30,6 +30,7 @@ const (
 	homeRoute = iota
 	signUpRoute
 	siteSignInRoute
+	findTeamRoute
 
 	// Application
 	dashboardRoute

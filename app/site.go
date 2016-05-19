@@ -14,6 +14,7 @@ func init() {
 	GET(siteRouter, homeRoute, "/", homeHandler)
 	ALL(siteRouter, signUpRoute, "/sign-up/", signUpHandler)
 	ALL(siteRouter, siteSignInRoute, "/sign-in/", siteSignInHandler)
+	ALL(siteRouter, findTeamRoute, "/find-team/", findTeamHandler)
 }
 
 func homeHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
@@ -132,4 +133,29 @@ func siteSignInHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 	}
 
 	renderer.HTML(res, http.StatusOK, "site-sign-in", form)
+}
+
+func findTeamHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	form := struct {
+		Email forms.Field
+	}{
+		forms.Field{
+			Name:       "email",
+			Label:      "Email",
+			Validators: []forms.Validator{forms.Email},
+		},
+	}
+
+	if req.Method == http.MethodPost {
+		if !forms.Bind(req, &form) {
+			renderer.HTML(res, http.StatusOK, "find-team", form)
+			return
+		}
+
+		// FIXME: Send out notifications
+		renderer.HTML(res, http.StatusOK, "find-team-success", nil)
+		return
+	}
+
+	renderer.HTML(res, http.StatusOK, "find-team", form)
 }

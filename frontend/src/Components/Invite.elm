@@ -127,6 +127,7 @@ view { form, pending, bulkInvite } =
                 [ div [ class "input" ]
                     [ input
                         [ type' "button"
+                        , class "sm-ml"
                         , value "Generate bulk invite URL"
                         , disabled pending
                         , onClick CreateBulkInvite
