@@ -9,6 +9,7 @@ import (
 	"teamzones/models"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 
 	"github.com/goincremental/negroni-sessions"
@@ -27,6 +28,8 @@ func init() {
 	ALL(appRouter, teamSignUpRoute, "/sign-up/:invite", teamSignUpHandler)
 	ALL(appRouter, signInRoute, "/sign-in/", signInHandler)
 	GET(appRouter, signOutRoute, "/sign-out/", signOutHandler)
+	ALL(appRouter, recoverPasswordRoute, "/recover-password/", recoverPasswordHandler)
+	ALL(appRouter, resetPasswordRoute, "/reset-password/:token", resetPasswordHandler)
 }
 
 func dashboardHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
@@ -205,4 +208,86 @@ func signOutHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Par
 	session := sessions.GetSession(req)
 	session.Delete(uidSessionKey)
 	http.Redirect(res, req, ReverseSimple(signInRoute), http.StatusFound)
+}
+
+func recoverPasswordHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	form := struct {
+		Email forms.Field
+	}{
+		forms.Field{
+			Name:       "email",
+			Label:      "Email",
+			Validators: []forms.Validator{forms.Email},
+		},
+	}
+
+	if req.Method == http.MethodPost {
+		if !forms.Bind(req, &form) {
+			renderer.HTML(res, http.StatusBadRequest, "recover-password", form)
+			return
+		}
+
+		ctx := appengine.NewContext(req)
+		company := context.Get(req, companyCtxKey).(*models.Company)
+		companyKey := company.Key(ctx)
+		user, err := models.GetUser(ctx, companyKey, form.Email.Value)
+		if err == nil {
+			_, _, err := models.CreateRecoveryToken(ctx, companyKey, user.Key(ctx))
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		renderer.HTML(res, http.StatusOK, "recover-password-success", nil)
+		return
+	}
+
+	renderer.HTML(res, http.StatusOK, "recover-password", form)
+}
+
+func resetPasswordHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	ctx := appengine.NewContext(req)
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	companyKey := company.Key(ctx)
+	tokenID := params.ByName("token")
+	token, err := models.GetRecoveryToken(ctx, companyKey, tokenID)
+	if err != nil {
+		notFound(res)
+		return
+	}
+
+	var user models.User
+	if err := datastore.Get(ctx, token.User, &user); err != nil {
+		notFound(res)
+		return
+	}
+
+	form := struct {
+		Password forms.Field
+	}{
+		forms.Field{
+			Name:       "password",
+			Label:      "Password",
+			Validators: []forms.Validator{forms.MinLength(6)},
+		},
+	}
+
+	if req.Method == http.MethodPost {
+		if !forms.Bind(req, &form) {
+			renderer.HTML(res, http.StatusBadRequest, "reset-password", form)
+			return
+		}
+
+		user.SetPassword(form.Password.Value)
+		if _, err := user.Put(ctx); err != nil {
+			panic(err)
+		}
+
+		datastore.Delete(ctx, models.NewRecoveryTokenKey(ctx, companyKey, tokenID))
+		location := ReverseRoute(signInRoute).Build()
+		http.Redirect(res, req, location, http.StatusFound)
+		return
+	}
+
+	renderer.HTML(res, http.StatusOK, "reset-password", form)
 }

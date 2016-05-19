@@ -112,7 +112,7 @@ func siteSignInHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 
 	if req.Method == http.MethodPost {
 		if !forms.Bind(req, &form) {
-			renderer.HTML(res, http.StatusOK, "site-sign-in", form)
+			renderer.HTML(res, http.StatusBadRequest, "site-sign-in", form)
 			return
 		}
 
@@ -148,7 +148,7 @@ func findTeamHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Pa
 
 	if req.Method == http.MethodPost {
 		if !forms.Bind(req, &form) {
-			renderer.HTML(res, http.StatusOK, "find-team", form)
+			renderer.HTML(res, http.StatusBadRequest, "find-team", form)
 			return
 		}
 

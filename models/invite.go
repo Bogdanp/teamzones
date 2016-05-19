@@ -69,7 +69,7 @@ func CreateInvite(
 		return nil, nil, err
 	}
 
-	invite.send(ctx, key.IntID())
+	go invite.send(ctx, key.IntID())
 	return invite, key, nil
 }
 
@@ -120,7 +120,6 @@ func DeleteInvite(
 	)
 }
 
-// Send an invite e-mail.
 func (invite *Invite) send(ctx context.Context, inviteID int64) {
 	// FIXME: Send e-mail (https://sendgrid.com/partners/google)
 }

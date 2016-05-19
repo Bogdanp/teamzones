@@ -3,6 +3,8 @@ package models
 import (
 	"errors"
 	"strings"
+	"teamzones/utils"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
@@ -19,11 +21,15 @@ var (
 	ErrInvalidCredentials = errors.New("Invalid credentials.")
 	// ErrUserExists is returned when an e-mail address is taken.
 	ErrUserExists = errors.New("User already exists.")
+	// ErrTokenExpired is returned when a RecoveryToken has expired.
+	ErrTokenExpired = errors.New("Recovery token has expired.")
 )
 
 const (
 	passwordCost = 10
 	userKind     = "User"
+	tokenKind    = "RecoveryToken"
+	tokenTTL     = 2 * time.Hour
 )
 
 const (
@@ -68,6 +74,16 @@ type User struct {
 
 	Avatar     string            `json:"avatar"`
 	AvatarFile appengine.BlobKey `json:"-"`
+
+	Times
+}
+
+// RecoveryToken represents a nonce that can be used to reset a User's
+// password.  Every RecoveryToken has a Company as an ancestor in its
+// Key.
+type RecoveryToken struct {
+	Company *datastore.Key `json:"-"`
+	User    *datastore.Key `json:"-"`
 
 	Times
 }
@@ -232,4 +248,57 @@ func (u *User) Save() ([]datastore.Property, error) {
 // Put saves the User to Datastore.
 func (u *User) Put(ctx context.Context) (*datastore.Key, error) {
 	return datastore.Put(ctx, u.Key(ctx), u)
+}
+
+// NewRecoveryTokenKey creates fully-qualified datastore keys for RecoveryTokens.
+func NewRecoveryTokenKey(
+	ctx context.Context,
+	parent *datastore.Key, tokenID string,
+) *datastore.Key {
+	return datastore.NewKey(ctx, tokenKind, tokenID, 0, parent)
+}
+
+// CreateRecoveryToken stores and returns a new recovery token for the
+// given company, user pair.
+func CreateRecoveryToken(
+	ctx context.Context,
+	company, user *datastore.Key,
+) (*datastore.Key, *RecoveryToken, error) {
+	token := RecoveryToken{}
+	token.Company = company
+	token.User = user
+	token.initTimes()
+	tokenNonce := utils.UUID4()
+
+	tokenKey := NewRecoveryTokenKey(ctx, company, tokenNonce)
+	if _, err := datastore.Put(ctx, tokenKey, &token); err != nil {
+		return nil, nil, err
+	}
+
+	go token.send(ctx, tokenNonce, user.StringID())
+	return tokenKey, &token, nil
+}
+
+// GetRecoveryToken returns a token belonging to a given Company by
+// tokenID address.
+func GetRecoveryToken(
+	ctx context.Context,
+	company *datastore.Key,
+	tokenID string,
+) (*RecoveryToken, error) {
+
+	var token RecoveryToken
+	if err := datastore.Get(ctx, NewRecoveryTokenKey(ctx, company, tokenID), &token); err != nil {
+		return nil, err
+	}
+
+	if time.Now().Sub(token.CreatedAt) >= tokenTTL {
+		return nil, ErrTokenExpired
+	}
+
+	return &token, nil
+}
+
+func (token *RecoveryToken) send(ctx context.Context, tokenID, email string) {
+	// FIXME: Send e-mail
 }

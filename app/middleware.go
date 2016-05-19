@@ -17,6 +17,8 @@ var (
 	guestPaths = []string{
 		"/sign-in",
 		"/sign-up",
+		"/recover-password",
+		"/reset-password",
 	}
 )
 

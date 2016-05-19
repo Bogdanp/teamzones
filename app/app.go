@@ -42,6 +42,8 @@ const (
 	teamSignUpRoute
 	signInRoute
 	signOutRoute
+	recoverPasswordRoute
+	resetPasswordRoute
 
 	// API
 	locationRoute
