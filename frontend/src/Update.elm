@@ -38,6 +38,7 @@ init ({ path, now, company, user, team, timezones } as flags) =
                 , timezones = timezones
                 , route = route
                 , invite = Invite.init
+                , profile = currentUser
                 , integrations =
                     Integrations.init
                         { fullRoute = route
@@ -62,7 +63,12 @@ handleRoute : Model -> ( Model, Cmd Msg )
 handleRoute ({ route, user, teamMembers } as model) =
     case route of
         ProfileR email ->
-            model ! []
+            case findUser teamMembers email of
+                Just user ->
+                    { model | profile = user } ! []
+
+                Nothing ->
+                    { model | route = NotFoundR } ! []
 
         IntegrationsR subRoute ->
             { model
@@ -175,6 +181,12 @@ update msg ({ now, user, team } as model) =
                     CP.update msg model.currentProfile
             in
                 { model | currentProfile = currentProfile } ! [ Cmd.map ToCurrentProfile fx ]
+
+
+findUser : List User -> String -> Maybe User
+findUser teamMembers email =
+    List.filter ((==) email << .email) teamMembers
+        |> List.head
 
 
 prepareUser : ContextUser -> User

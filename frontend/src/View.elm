@@ -31,7 +31,7 @@ view ({ now, company, user, team, route, invite, integrations, settings, current
                         |> Html.map ToInvite
 
                 ProfileR _ ->
-                    Profile.view
+                    Profile.view model.profile
 
                 IntegrationsR _ ->
                     Integrations.view integrations
