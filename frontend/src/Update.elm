@@ -148,7 +148,7 @@ update msg ({ now, user, team } as model) =
                     updateUser now update user team
 
                 update u =
-                    { u | avatar = Nothing }
+                    { u | avatar = Nothing, smallAvatar = Nothing }
             in
                 { model | user = user', team = team' } ! []
 
