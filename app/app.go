@@ -36,6 +36,7 @@ const (
 	dashboardRoute
 	currentProfileRoute
 	inviteRoute
+	profileRoute
 	integrationsGCalRoute
 	settingsTeamRoute
 	settingsBillingRoute

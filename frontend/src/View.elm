@@ -4,6 +4,7 @@ import Components.CurrentProfile as CurrentProfile
 import Components.CurrentUser as CurrentUser
 import Components.Invite as Invite
 import Components.Integrations as Integrations
+import Components.Profile as Profile
 import Components.Settings as Settings
 import Components.Team as Team
 import Html exposing (..)
@@ -22,11 +23,14 @@ view ({ now, company, user, team, route, invite, integrations, settings, current
         page =
             case route of
                 DashboardR () ->
-                    Team.view team now
+                    Team.view RouteTo team now
 
                 InviteR () ->
                     Invite.view invite
                         |> Html.map ToInvite
+
+                ProfileR _ ->
+                    Profile.view
 
                 IntegrationsR _ ->
                     Integrations.view integrations

@@ -6,6 +6,7 @@ import Route exposing (..)
 type Sitemap
     = DashboardR ()
     | InviteR ()
+    | ProfileR String
     | IntegrationsR IntegrationsSitemap
     | SettingsR SettingsSitemap
     | CurrentProfileR ()
@@ -17,6 +18,10 @@ homeR =
 
 inviteR =
     InviteR := static "invite"
+
+
+profileR =
+    ProfileR := "profile" <//> string
 
 
 integrationsR =
@@ -32,7 +37,7 @@ currentProfileR =
 
 
 sitemap =
-    router [ homeR, inviteR, integrationsR, settingsR, currentProfileR ]
+    router [ homeR, inviteR, profileR, integrationsR, settingsR, currentProfileR ]
 
 
 match : String -> Sitemap
@@ -48,6 +53,9 @@ route route =
 
         InviteR () ->
             reverse inviteR []
+
+        ProfileR email ->
+            reverse profileR [ email ]
 
         IntegrationsR r ->
             reverse integrationsR [] ++ routeIntegrations r
