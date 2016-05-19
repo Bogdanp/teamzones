@@ -10,7 +10,7 @@ import HttpBuilder
 import Ports exposing (pushPath)
 import Routes exposing (Sitemap(..))
 import Types exposing (AnchorTo, User, UserRole(..))
-import Util exposing ((=>), on')
+import Util exposing ((=>))
 
 
 type alias Context pmsg =
@@ -140,5 +140,5 @@ deleteUser email =
 
 
 anchorTo : AnchorTo Msg
-anchorTo route attrs =
-    a ([ on' "click" (RouteTo route), href (Routes.route route) ] ++ attrs)
+anchorTo =
+    Util.anchorTo RouteTo

@@ -15,7 +15,7 @@ import Model exposing (Model, Msg(..))
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..), SettingsSitemap(..))
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (Company, User, AnchorTo)
-import Util exposing ((=>), on')
+import Util exposing ((=>))
 
 
 view : Model -> Html Msg
@@ -97,5 +97,5 @@ sidebar user =
 
 
 anchorTo : AnchorTo Msg
-anchorTo route attrs =
-    a ([ on' "click" (RouteTo route), href (Routes.route route) ] ++ attrs)
+anchorTo =
+    Util.anchorTo RouteTo

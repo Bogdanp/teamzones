@@ -2,11 +2,14 @@ module Util exposing (..)
 
 import Bitwise
 import Char
-import Html exposing (Html, text)
+import Html exposing (Html, a, text)
+import Html.Attributes exposing (href)
 import Html.Events exposing (onWithOptions)
 import Json.Decode as Json
 import String
+import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone)
+import Types exposing (AnchorTo)
 
 
 initials : String -> String
@@ -125,6 +128,11 @@ on' event msg =
             }
     in
         onWithOptions event options (Json.succeed msg)
+
+
+anchorTo : (Sitemap -> msg) -> AnchorTo msg
+anchorTo f route attrs =
+    a ([ on' "click" (f route), href (Routes.route route) ] ++ attrs)
 
 
 boolFromMaybe : Maybe a -> Bool
