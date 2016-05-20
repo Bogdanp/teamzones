@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,16 +14,46 @@ import (
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 
 	"gopkg.in/julienschmidt/httprouter.v1"
 )
 
 func init() {
+	GET(appRouter, initiateOAuthRoute, "/integrations/connect/:integration", initiateOAuthHandler)
 	GET(siteRouter, gcalendarOAuthRoute, "/integrations/gcalendar/oauth2-callback", gcalendarOAuthHandler)
 	GET(appRouter, gcalendarOAuthTeamRoute, "/integrations/gcalendar/oauth2-callback", gcalendarOAuthTeamHandler)
 
 	// Hook up the Google Calendar OAuth2 URL.
 	integrations.SetCalendarRedirectURL(ReverseRoute(gcalendarOAuthRoute).Absolute().Build())
+}
+
+func initiateOAuthHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	var redirectURL string
+
+	integration := params.ByName("integration")
+	switch integration {
+	case models.OAuth2GCalendar:
+		ctx := appengine.NewContext(req)
+		user := gcontext.Get(req, userCtxKey).(*models.User)
+		company := gcontext.Get(req, companyCtxKey).(*models.Company)
+		key, _, err := models.CreateOAuth2Token(
+			ctx, company.Key(ctx), user.Key(ctx), integration,
+		)
+		if err != nil {
+			log.Errorf(ctx, "failed to create oauth2 token: %v", err)
+			serverError(res)
+			return
+		}
+
+		state := fmt.Sprintf("%s,%d", company.Subdomain, key.IntID())
+		redirectURL = integrations.GetCalendarAuthURL(state)
+	default:
+		notFound(res)
+		return
+	}
+
+	http.Redirect(res, req, redirectURL, http.StatusFound)
 }
 
 // User hits this with state=SUBDOMAIN,EMAIL at which point they get

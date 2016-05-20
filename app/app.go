@@ -33,6 +33,7 @@ const (
 	findTeamRoute
 
 	// Integrations
+	initiateOAuthRoute
 	gcalendarOAuthRoute
 	gcalendarOAuthTeamRoute
 
@@ -58,7 +59,6 @@ const (
 	avatarUploadRoute
 	deleteAvatarRoute
 	deleteUserRoute
-	authorizeIntegrationRoute
 	disconnectIntegrationRoute
 
 	// Tools

@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 	"teamzones/forms"
-	"teamzones/integrations"
 	"teamzones/models"
 	"teamzones/utils"
 	"time"
@@ -30,7 +29,6 @@ func init() {
 	ALL(appRouter, avatarUploadRoute, "/api/upload", avatarUploadHandler)
 	DELETE(appRouter, deleteAvatarRoute, "/api/avatar", deleteAvatarHandler)
 	DELETE(appRouter, deleteUserRoute, "/api/users/:email", deleteUserHandler)
-	POST(appRouter, authorizeIntegrationRoute, "/api/integrations/authorize", authorizeIntegrationHandler)
 	POST(appRouter, disconnectIntegrationRoute, "/api/integrations/disconnect", disconnectIntegrationHandler)
 }
 
@@ -285,46 +283,6 @@ func deleteUserHandler(res http.ResponseWriter, req *http.Request, params httpro
 	}
 
 	res.WriteHeader(http.StatusNoContent)
-}
-
-func authorizeIntegrationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	var data struct {
-		Integration string `json:"integration"`
-	}
-
-	if err := forms.BindJSON(req, &data); err != nil {
-		badRequest(res, err.Error())
-		return
-	}
-
-	var redirectURL string
-
-	switch data.Integration {
-	case models.OAuth2GCalendar:
-		ctx := appengine.NewContext(req)
-		user := context.Get(req, userCtxKey).(*models.User)
-		company := context.Get(req, companyCtxKey).(*models.Company)
-		key, _, err := models.CreateOAuth2Token(
-			ctx, company.Key(ctx), user.Key(ctx), data.Integration,
-		)
-		if err != nil {
-			log.Errorf(ctx, "failed to create oauth2 token: %v", err)
-			serverError(res)
-			return
-		}
-
-		state := fmt.Sprintf("%s,%d", company.Subdomain, key.IntID())
-		redirectURL = integrations.GetCalendarAuthURL(state)
-	default:
-		badRequest(res, "invalid integration")
-		return
-	}
-
-	renderer.JSON(res, http.StatusOK, struct {
-		RedirectURL string `json:"redirectUrl"`
-	}{
-		RedirectURL: redirectURL,
-	})
 }
 
 func disconnectIntegrationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
