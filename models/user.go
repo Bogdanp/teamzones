@@ -26,7 +26,7 @@ var (
 )
 
 const (
-	passwordCost = 10
+	passwordCost = 12
 	userKind     = "User"
 	tokenKind    = "RecoveryToken"
 	tokenTTL     = 2 * time.Hour
