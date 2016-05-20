@@ -24,6 +24,18 @@
 			"Rev": "f0a097ddac24fb00e07d2ac17f8671423f3ea47c"
 		},
 		{
+			"ImportPath": "github.com/golang/protobuf/ptypes/struct",
+			"Rev": "f0a097ddac24fb00e07d2ac17f8671423f3ea47c"
+		},
+		{
+			"ImportPath": "github.com/golang/protobuf/ptypes/timestamp",
+			"Rev": "f0a097ddac24fb00e07d2ac17f8671423f3ea47c"
+		},
+		{
+			"ImportPath": "github.com/golang/protobuf/ptypes/wrappers",
+			"Rev": "f0a097ddac24fb00e07d2ac17f8671423f3ea47c"
+		},
+		{
 			"ImportPath": "github.com/gorilla/context",
 			"Rev": "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
 		},
@@ -50,11 +62,31 @@
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "fb93926129b8ec0056f2f458b1f519654814edf0"
+			"Rev": "5916dcb167ed985a5b9e6871fbfd74848a4c170b"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context/ctxhttp",
-			"Rev": "fb93926129b8ec0056f2f458b1f519654814edf0"
+			"Rev": "5916dcb167ed985a5b9e6871fbfd74848a4c170b"
+		},
+		{
+			"ImportPath": "golang.org/x/net/http2",
+			"Rev": "5916dcb167ed985a5b9e6871fbfd74848a4c170b"
+		},
+		{
+			"ImportPath": "golang.org/x/net/http2/hpack",
+			"Rev": "5916dcb167ed985a5b9e6871fbfd74848a4c170b"
+		},
+		{
+			"ImportPath": "golang.org/x/net/internal/timeseries",
+			"Rev": "5916dcb167ed985a5b9e6871fbfd74848a4c170b"
+		},
+		{
+			"ImportPath": "golang.org/x/net/lex/httplex",
+			"Rev": "5916dcb167ed985a5b9e6871fbfd74848a4c170b"
+		},
+		{
+			"ImportPath": "golang.org/x/net/trace",
+			"Rev": "5916dcb167ed985a5b9e6871fbfd74848a4c170b"
 		},
 		{
 			"ImportPath": "golang.org/x/oauth2",
@@ -165,12 +197,76 @@
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
 		{
+			"ImportPath": "google.golang.org/cloud",
+			"Rev": "426f71cccabdf34d0fd67fc49e25038c8f49a0bb"
+		},
+		{
 			"ImportPath": "google.golang.org/cloud/compute/metadata",
+			"Rev": "426f71cccabdf34d0fd67fc49e25038c8f49a0bb"
+		},
+		{
+			"ImportPath": "google.golang.org/cloud/datastore",
+			"Rev": "426f71cccabdf34d0fd67fc49e25038c8f49a0bb"
+		},
+		{
+			"ImportPath": "google.golang.org/cloud/datastore/internal/proto",
+			"Rev": "426f71cccabdf34d0fd67fc49e25038c8f49a0bb"
+		},
+		{
+			"ImportPath": "google.golang.org/cloud/datastore/internal/type_proto",
 			"Rev": "426f71cccabdf34d0fd67fc49e25038c8f49a0bb"
 		},
 		{
 			"ImportPath": "google.golang.org/cloud/internal",
 			"Rev": "426f71cccabdf34d0fd67fc49e25038c8f49a0bb"
+		},
+		{
+			"ImportPath": "google.golang.org/cloud/internal/opts",
+			"Rev": "426f71cccabdf34d0fd67fc49e25038c8f49a0bb"
+		},
+		{
+			"ImportPath": "google.golang.org/cloud/internal/transport",
+			"Rev": "426f71cccabdf34d0fd67fc49e25038c8f49a0bb"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc",
+			"Rev": "b0b7afa173ab8030774fdf383cac027c3c5077d2"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/codes",
+			"Rev": "b0b7afa173ab8030774fdf383cac027c3c5077d2"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/credentials",
+			"Rev": "b0b7afa173ab8030774fdf383cac027c3c5077d2"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/credentials/oauth",
+			"Rev": "b0b7afa173ab8030774fdf383cac027c3c5077d2"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/grpclog",
+			"Rev": "b0b7afa173ab8030774fdf383cac027c3c5077d2"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/internal",
+			"Rev": "b0b7afa173ab8030774fdf383cac027c3c5077d2"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/metadata",
+			"Rev": "b0b7afa173ab8030774fdf383cac027c3c5077d2"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/naming",
+			"Rev": "b0b7afa173ab8030774fdf383cac027c3c5077d2"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/peer",
+			"Rev": "b0b7afa173ab8030774fdf383cac027c3c5077d2"
+		},
+		{
+			"ImportPath": "google.golang.org/grpc/transport",
+			"Rev": "b0b7afa173ab8030774fdf383cac027c3c5077d2"
 		},
 		{
 			"ImportPath": "googlemaps.github.io/maps",
@@ -179,11 +275,6 @@
 		{
 			"ImportPath": "googlemaps.github.io/maps/internal",
 			"Rev": "a668f32115fcfc36b306babfaef618868a6ab3b6"
-		},
-		{
-			"ImportPath": "gopkg.in/codegangsta/negroni.v0",
-			"Comment": "v0.1",
-			"Rev": "46a638d98be2af4fa6de146b5d28a9d9904a3949"
 		},
 		{
 			"ImportPath": "gopkg.in/julienschmidt/httprouter.v1",
