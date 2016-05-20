@@ -298,12 +298,21 @@ func authorizeIntegrationHandler(res http.ResponseWriter, req *http.Request, _ h
 
 	var redirectURL string
 
-	company := context.Get(req, companyCtxKey).(*models.Company)
-	user := context.Get(req, userCtxKey).(*models.User)
-	state := fmt.Sprintf("%s,%s", company.Subdomain, user.Email)
-
 	switch data.Integration {
-	case "gcalendar":
+	case models.OAuth2GCalendar:
+		ctx := appengine.NewContext(req)
+		user := context.Get(req, userCtxKey).(*models.User)
+		company := context.Get(req, companyCtxKey).(*models.Company)
+		key, _, err := models.CreateOAuth2Token(
+			ctx, company.Key(ctx), user.Key(ctx), data.Integration,
+		)
+		if err != nil {
+			log.Errorf(ctx, "failed to create oauth2 token: %v", err)
+			serverError(res)
+			return
+		}
+
+		state := fmt.Sprintf("%s,%d", company.Subdomain, key.IntID())
 		redirectURL = integrations.GetCalendarAuthURL(state)
 	default:
 		badRequest(res, "invalid integration")

@@ -1,15 +1,18 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"teamzones/integrations"
 	"teamzones/models"
 
-	"google.golang.org/appengine"
+	"golang.org/x/net/context"
 
-	"github.com/gorilla/context"
+	gcontext "github.com/gorilla/context"
+
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
 
 	"gopkg.in/julienschmidt/httprouter.v1"
 )
@@ -44,26 +47,53 @@ func gcalendarOAuthHandler(res http.ResponseWriter, req *http.Request, _ httprou
 }
 
 func gcalendarOAuthTeamHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	user := context.Get(req, userCtxKey).(*models.User)
-	email := req.FormValue("state")
-	if user.Email != email {
+	ctx := appengine.NewContext(req)
+	user := gcontext.Get(req, userCtxKey).(*models.User)
+	userKey := user.Key(ctx)
+	tokID, err := strconv.ParseInt(req.FormValue("state"), 10, 64)
+	if err != nil {
 		notFound(res)
 		return
 	}
 
-	error := req.FormValue("error")
-	if error != "" {
-		// TODO: Tell the user their shit's fucked
+	tokenKey, token, err := models.GetOAuth2Token(ctx, userKey, tokID)
+	if err != nil {
+		notFound(res)
 		return
 	}
 
-	ctx := appengine.NewContext(req)
-	token, err := integrations.ExchangeCalendarCode(ctx, req.FormValue("code"))
+	errCode := req.FormValue("error")
+	if errCode != "" {
+		// TODO: Tell the user their shit's fucked
+		go datastore.Delete(ctx, tokenKey)
+		return
+	}
+
+	tok, err := integrations.ExchangeCalendarCode(ctx, req.FormValue("code"))
 	if err != nil {
 		// TODO: Tell the user their shit's fucked
+		go datastore.Delete(ctx, tokenKey)
 		return
 	}
 
-	// TODO: Store the token
-	log.Println(token)
+	err = datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		token.Token = *tok
+		user.GCalendarToken = tokenKey
+
+		_, err := datastore.PutMulti(
+			ctx,
+			[]*datastore.Key{tokenKey, userKey},
+			[]interface{}{token, user},
+		)
+
+		return err
+	}, nil)
+	if err != nil {
+		// TODO: Tell the user their shit's fucked
+		go datastore.Delete(ctx, tokenKey)
+		return
+	}
+
+	location := ReverseRoute(integrationsGCalRoute).Build()
+	http.Redirect(res, req, location, http.StatusFound)
 }
