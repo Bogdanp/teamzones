@@ -32,6 +32,7 @@ type alias Model =
     , team : Team
     , teamMembers : List User
     , timezones : List Timezone
+    , integrationStates : IntegrationStates
     , route : Sitemap
     , invite : Invite.Model
     , profile : Profile.Model
@@ -48,4 +49,5 @@ type alias Flags =
     , user : ContextUser
     , team : List ContextUser
     , timezones : List Timezone
+    , integrationStates : IntegrationStates
     }

@@ -33,6 +33,18 @@ func init() {
 	ALL(appRouter, resetPasswordRoute, "/reset-password/:token", resetPasswordHandler)
 }
 
+type integrationsPayload struct {
+	GCalendar bool `json:"gCalendar"`
+}
+
+type dashboardPayload struct {
+	Company *models.Company `json:"company"`
+	User    *models.User    `json:"user"`
+	Team    []models.User   `json:"team"`
+
+	Integrations integrationsPayload `json:"integrationStates"`
+}
+
 func dashboardHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	var users []models.User
 
@@ -43,14 +55,13 @@ func dashboardHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 	}
 
 	user := context.Get(req, userCtxKey).(*models.User)
-	data, err := json.Marshal(struct {
-		Company *models.Company `json:"company"`
-		User    *models.User    `json:"user"`
-		Team    []models.User   `json:"team"`
-	}{
+	data, err := json.Marshal(dashboardPayload{
 		Company: company,
 		User:    user,
 		Team:    users,
+		Integrations: integrationsPayload{
+			GCalendar: user.GCalendarToken != nil,
+		},
 	})
 	if err != nil {
 		panic(err)

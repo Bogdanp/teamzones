@@ -6,7 +6,7 @@ import Html exposing (..)
 import Html.App as Html
 import Ports exposing (pushPath)
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..))
-import Types exposing (User)
+import Types exposing (User, IntegrationStates)
 
 
 type Msg
@@ -18,6 +18,7 @@ type alias Context =
     { fullRoute : Sitemap
     , subRoute : Maybe IntegrationsSitemap
     , currentUser : User
+    , integrationStates : IntegrationStates
     }
 
 
@@ -25,19 +26,21 @@ type alias Model =
     { fullRoute : Sitemap
     , subRoute : IntegrationsSitemap
     , currentUser : User
+    , integrationStates : IntegrationStates
     , gCalendar : GCalendar.Model
     }
 
 
 init : Context -> ( Model, Cmd Msg )
-init { fullRoute, subRoute, currentUser } =
+init { fullRoute, subRoute, currentUser, integrationStates } =
     let
         ( gCalendar, gCalendarFx ) =
-            GCalendar.init
+            GCalendar.init integrationStates.gCalendar
     in
         { fullRoute = fullRoute
         , subRoute = (Maybe.withDefault (GCalendarR ()) subRoute)
         , currentUser = currentUser
+        , integrationStates = integrationStates
         , gCalendar = gCalendar
         }
             ! [ Cmd.map ToGCalendar gCalendarFx ]

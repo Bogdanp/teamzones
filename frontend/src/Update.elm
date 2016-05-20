@@ -14,7 +14,7 @@ import User exposing (isOffline)
 
 
 init : Flags -> ( Model, Cmd Msg )
-init ({ path, now, company, user, team, timezones } as flags) =
+init ({ path, now, company, user, team, timezones, integrationStates } as flags) =
     let
         route =
             Routes.match path
@@ -30,6 +30,7 @@ init ({ path, now, company, user, team, timezones } as flags) =
                 { fullRoute = route
                 , subRoute = Nothing
                 , currentUser = currentUser
+                , integrationStates = integrationStates
                 }
 
         ( currentProfile, _ ) =
@@ -43,6 +44,7 @@ init ({ path, now, company, user, team, timezones } as flags) =
                 , team = groupTeam now teamMembers
                 , teamMembers = teamMembers
                 , timezones = timezones
+                , integrationStates = integrationStates
                 , route = route
                 , invite = Invite.init
                 , profile = currentUser
@@ -62,7 +64,7 @@ init ({ path, now, company, user, team, timezones } as flags) =
 
 
 handleRoute : Model -> ( Model, Cmd Msg )
-handleRoute ({ route, user, teamMembers } as model) =
+handleRoute ({ route, user, teamMembers, integrationStates } as model) =
     case route of
         ProfileR email ->
             case findUser teamMembers email of
@@ -79,6 +81,7 @@ handleRoute ({ route, user, teamMembers } as model) =
                         { fullRoute = route
                         , subRoute = Just subRoute
                         , currentUser = user
+                        , integrationStates = integrationStates
                         }
             in
                 { model | integrations = integrations }

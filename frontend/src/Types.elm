@@ -45,6 +45,10 @@ type alias ContextUser =
     }
 
 
+type alias IntegrationStates =
+    { gCalendar : Bool }
+
+
 type alias User =
     { role : UserRole
     , name : String

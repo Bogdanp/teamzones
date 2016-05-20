@@ -31,6 +31,7 @@ func init() {
 	DELETE(appRouter, deleteAvatarRoute, "/api/avatar", deleteAvatarHandler)
 	DELETE(appRouter, deleteUserRoute, "/api/users/:email", deleteUserHandler)
 	POST(appRouter, authorizeIntegrationRoute, "/api/integrations/authorize", authorizeIntegrationHandler)
+	POST(appRouter, disconnectIntegrationRoute, "/api/integrations/disconnect", disconnectIntegrationHandler)
 }
 
 type locationResponse struct {
@@ -324,4 +325,34 @@ func authorizeIntegrationHandler(res http.ResponseWriter, req *http.Request, _ h
 	}{
 		RedirectURL: redirectURL,
 	})
+}
+
+func disconnectIntegrationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	var data struct {
+		Integration string `json:"integration"`
+	}
+
+	if err := forms.BindJSON(req, &data); err != nil {
+		badRequest(res, err.Error())
+		return
+	}
+
+	switch data.Integration {
+	case models.OAuth2GCalendar:
+		ctx := appengine.NewContext(req)
+		user := context.Get(req, userCtxKey).(*models.User)
+		if user.GCalendarToken == nil {
+			badRequest(res, "integration disconnected")
+			return
+		}
+
+		datastore.Delete(ctx, user.GCalendarToken)
+		user.GCalendarToken = nil
+		user.Put(ctx)
+	default:
+		badRequest(res, "invalid integration")
+		return
+	}
+
+	res.WriteHeader(http.StatusNoContent)
 }

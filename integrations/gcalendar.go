@@ -54,7 +54,7 @@ func NewCalendarService(ctx context.Context, token *oauth2.Token) (*calendar.Ser
 
 // GetCalendarAuthURL returns an OAuth2 authorization URL.
 func GetCalendarAuthURL(state string) string {
-	return calendarConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
+	return calendarConfig.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 }
 
 // ExchangeCalendarCode exchanges an authorization code for a Token.

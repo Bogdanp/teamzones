@@ -30,7 +30,7 @@ func init() {
 // access to their session.
 func gcalendarOAuthHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	state := req.FormValue("state")
-	segments := strings.Split(state, ",")
+	segments := strings.SplitN(state, ",", 2)
 	if len(segments) <= 1 {
 		notFound(res)
 		return

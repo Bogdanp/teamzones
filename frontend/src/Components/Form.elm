@@ -16,6 +16,7 @@ import Form exposing (Form)
 import Form.Input as Input exposing (Input)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import Util exposing ((=>), on')
 
 

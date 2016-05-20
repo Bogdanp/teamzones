@@ -59,6 +59,7 @@ const (
 	deleteAvatarRoute
 	deleteUserRoute
 	authorizeIntegrationRoute
+	disconnectIntegrationRoute
 
 	// Tools
 	provisionRoute

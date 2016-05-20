@@ -114,6 +114,7 @@ table {
       }
     }
 
+    a.button,
     input[type=button],
     input[type=submit] {
       background: white;
@@ -138,6 +139,7 @@ table {
         color: white;
       }
 
+      &.disabled,
       &:disabled {
         opacity: 0.2;
       }

@@ -13,6 +13,7 @@ window.moment = moment;
 window.init = function(Elm, el, context) {
   context.now = now();
   context.path = window.location.pathname;
+  context.user.integrations = context.integrations;
   context.timezones = moment.tz.names().filter(function(tz) {
     return tz.indexOf("/") !== -1 && tz.indexOf("Etc/") !== 0;
   });
