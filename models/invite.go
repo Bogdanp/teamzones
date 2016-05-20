@@ -69,7 +69,7 @@ func CreateInvite(
 		return nil, nil, err
 	}
 
-	go invite.send(ctx, key.IntID())
+	invite.send(ctx, key.IntID())
 	return invite, key, nil
 }
 

@@ -278,7 +278,7 @@ func CreateRecoveryToken(
 		return nil, nil, err
 	}
 
-	go token.send(ctx, tokenNonce, user.StringID())
+	token.send(ctx, tokenNonce, user.StringID())
 	return tokenKey, &token, nil
 }
 

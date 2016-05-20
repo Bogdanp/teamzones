@@ -96,14 +96,14 @@ func gcalendarOAuthTeamHandler(res http.ResponseWriter, req *http.Request, _ htt
 	errCode := req.FormValue("error")
 	if errCode != "" {
 		// TODO: Tell the user their shit's fucked
-		go datastore.Delete(ctx, tokenKey)
+		datastore.Delete(ctx, tokenKey)
 		return
 	}
 
 	tok, err := integrations.ExchangeCalendarCode(ctx, req.FormValue("code"))
 	if err != nil {
 		// TODO: Tell the user their shit's fucked
-		go datastore.Delete(ctx, tokenKey)
+		datastore.Delete(ctx, tokenKey)
 		return
 	}
 
@@ -121,7 +121,7 @@ func gcalendarOAuthTeamHandler(res http.ResponseWriter, req *http.Request, _ htt
 	}, nil)
 	if err != nil {
 		// TODO: Tell the user their shit's fucked
-		go datastore.Delete(ctx, tokenKey)
+		datastore.Delete(ctx, tokenKey)
 		return
 	}
 
