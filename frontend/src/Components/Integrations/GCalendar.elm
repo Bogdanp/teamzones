@@ -19,17 +19,19 @@ type Msg
     | ToDisconnectButton CB.Msg
 
 
-type alias Model =
+type alias Model pmsg =
     { active : Bool
     , authUrl : Maybe String
+    , disconnectMsg : pmsg
     , disconnectButton : CB.Model
     }
 
 
-init : Bool -> ( Model, Cmd Msg )
-init active =
+init : pmsg -> Bool -> ( Model pmsg, Cmd Msg )
+init disconnectMsg active =
     { active = active
     , authUrl = Nothing
+    , disconnectMsg = disconnectMsg
     , disconnectButton = CB.init "Disconnect"
     }
         ! [ if not active then
@@ -39,35 +41,37 @@ init active =
           ]
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ disconnectButton } as model) =
+update : Msg -> Model pmsg -> ( Model pmsg, Cmd Msg, Maybe pmsg )
+update msg ({ disconnectMsg, disconnectButton } as model) =
     case msg of
         AuthURLError _ ->
             -- TODO: Limit attempts
-            model ! [ requestAuthUrl ]
+            ( model, requestAuthUrl, Nothing )
 
         AuthURLSuccess response ->
-            { model | authUrl = Just response.data } ! []
+            ( { model | authUrl = Just response.data }, Cmd.none, Nothing )
 
         DisconnectError error ->
             -- TODO: Handle errors
-            model ! []
+            ( model, Cmd.none, Nothing )
 
         DisconnectSuccess _ ->
-            model ! []
+            ( model, Cmd.none, Just disconnectMsg )
 
         ToDisconnectButton ((CB.ToParent (CB.Confirm)) as msg) ->
-            { model
+            ( { model
                 | active = False
                 , disconnectButton = CB.update msg disconnectButton
-            }
-                ! [ disconnect, requestAuthUrl ]
+              }
+            , Cmd.batch [ disconnect, requestAuthUrl ]
+            , Nothing
+            )
 
         ToDisconnectButton msg ->
-            { model | disconnectButton = CB.update msg disconnectButton } ! []
+            ( { model | disconnectButton = CB.update msg disconnectButton }, Cmd.none, Nothing )
 
 
-view : Model -> Html Msg
+view : Model pmsg -> Html Msg
 view ({ active } as model) =
     if not active then
         authView model
@@ -75,7 +79,7 @@ view ({ active } as model) =
         connectedView model
 
 
-authView : Model -> Html Msg
+authView : Model pmsg -> Html Msg
 authView { authUrl } =
     let
         ( uri, disabled ) =
@@ -103,7 +107,7 @@ authView { authUrl } =
             ]
 
 
-connectedView : Model -> Html Msg
+connectedView : Model pmsg -> Html Msg
 connectedView { disconnectButton } =
     div []
         [ p [] [ text "You have connected your Google Calendar account." ]

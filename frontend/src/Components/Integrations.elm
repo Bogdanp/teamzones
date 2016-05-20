@@ -9,6 +9,10 @@ import Routes exposing (Sitemap(..), IntegrationsSitemap(..))
 import Types exposing (User, IntegrationStates)
 
 
+type ContextMsg
+    = DisconnectGCalendar
+
+
 type Msg
     = RouteTo Sitemap
     | ToGCalendar GCalendar.Msg
@@ -27,7 +31,7 @@ type alias Model =
     , subRoute : IntegrationsSitemap
     , currentUser : User
     , integrationStates : IntegrationStates
-    , gCalendar : GCalendar.Model
+    , gCalendar : GCalendar.Model ContextMsg
     }
 
 
@@ -35,7 +39,7 @@ init : Context -> ( Model, Cmd Msg )
 init { fullRoute, subRoute, currentUser, integrationStates } =
     let
         ( gCalendar, gCalendarFx ) =
-            GCalendar.init integrationStates.gCalendar
+            GCalendar.init DisconnectGCalendar integrationStates.gCalendar
     in
         { fullRoute = fullRoute
         , subRoute = (Maybe.withDefault (GCalendarR ()) subRoute)
@@ -47,17 +51,29 @@ init { fullRoute, subRoute, currentUser, integrationStates } =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ integrationStates } as model) =
     case msg of
         RouteTo route ->
             ( model, pushPath (Routes.route route) )
 
         ToGCalendar msg ->
             let
-                ( gCalendar, fx ) =
+                ( gCalendar, fx, pmsg ) =
                     GCalendar.update msg model.gCalendar
+
+                states =
+                    case pmsg of
+                        Nothing ->
+                            integrationStates
+
+                        Just DisconnectGCalendar ->
+                            { integrationStates | gCalendar = False }
             in
-                { model | gCalendar = gCalendar } ! [ Cmd.map ToGCalendar fx ]
+                { model
+                    | gCalendar = gCalendar
+                    , integrationStates = states
+                }
+                    ! [ Cmd.map ToGCalendar fx ]
 
 
 view : Model -> Html Msg

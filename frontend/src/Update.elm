@@ -139,7 +139,11 @@ update msg ({ now, user, team, teamMembers } as model) =
                 ( integrations, fx ) =
                     Integrations.update msg model.integrations
             in
-                { model | integrations = integrations } ! [ Cmd.map ToIntegrations fx ]
+                { model
+                    | integrations = integrations
+                    , integrationStates = integrations.integrationStates
+                }
+                    ! [ Cmd.map ToIntegrations fx ]
 
         ToSettings msg ->
             let
