@@ -15,10 +15,10 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-var calendarConfig = loadCalendarConfig()
+var calendarConfig = loadDefaultCalendarConfig()
 
-func loadCalendarConfig() *oauth2.Config {
-	data, err := ioutil.ReadFile("credentials/calendar.json")
+func loadCalendarConfigFromFile(filename string) *oauth2.Config {
+	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		panic(err)
 	}
@@ -29,6 +29,10 @@ func loadCalendarConfig() *oauth2.Config {
 	}
 
 	return config
+}
+
+func loadDefaultCalendarConfig() *oauth2.Config {
+	return loadCalendarConfigFromFile("credentials/calendar.json")
 }
 
 // SetCalendarRedirectURL should be called to update the OAuth2

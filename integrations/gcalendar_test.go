@@ -19,7 +19,7 @@ func TestCalendarConfig(t *testing.T) {
 }
 
 func TestCalendarService(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	service, err := NewCalendarService(ctx, calendarToken)
 	if err != nil {
 		t.Fail()
@@ -33,6 +33,9 @@ func TestCalendarService(t *testing.T) {
 
 func TestMain(m *testing.M) {
 	flag.Parse()
+
+	// Load the offline config
+	calendarConfig = loadCalendarConfigFromFile("credentials/calendar_offline.json")
 
 	// Load the token
 	fixture := "fixtures/gcalendar_token.json"
