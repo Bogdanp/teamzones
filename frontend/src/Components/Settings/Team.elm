@@ -1,14 +1,15 @@
 module Components.Settings.Team exposing (Model, Msg, init, update, view)
 
-import Api exposing (Errors, deletePlain)
+import Api exposing (Error, Response)
+import Api.Team as TeamApi exposing (deleteUser)
 import Components.ConfirmationButton as CB
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
-import HttpBuilder
 import Ports exposing (pushPath)
 import Routes exposing (Sitemap(..))
+import Task
 import Types exposing (AnchorTo, User, UserRole(..))
 import Util exposing ((=>))
 
@@ -23,8 +24,8 @@ type alias Context pmsg =
 type Msg
     = RouteTo Sitemap
     | ToDeleteButton String CB.Msg
-    | DeleteError String (HttpBuilder.Error Errors)
-    | DeleteSuccess String (HttpBuilder.Response String)
+    | DeleteError String Error
+    | DeleteSuccess String (Response String)
 
 
 type alias Model pmsg =
@@ -67,7 +68,10 @@ update msg ({ rootDeleteUser, teamMembers, deleteMemberButtons } as model) =
                 ( model, pushPath (Routes.route route), Nothing )
 
             ToDeleteButton email ((CB.ToParent (CB.Confirm)) as msg) ->
-                ( { model | deleteMemberButtons = updateButtons email msg }, deleteUser email, Nothing )
+                ( { model | deleteMemberButtons = updateButtons email msg }
+                , Task.perform (DeleteError email) (DeleteSuccess email) (deleteUser email)
+                , Nothing
+                )
 
             ToDeleteButton email msg ->
                 ( { model | deleteMemberButtons = updateButtons email msg }, Cmd.none, Nothing )
@@ -132,11 +136,6 @@ memberRow currentUser buttons { name, email, role } =
                     text ""
                 ]
             ]
-
-
-deleteUser : String -> Cmd Msg
-deleteUser email =
-    deletePlain (DeleteError email) (DeleteSuccess email) ("/users/" ++ email)
 
 
 anchorTo : AnchorTo Msg

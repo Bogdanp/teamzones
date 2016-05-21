@@ -7,7 +7,8 @@ module Components.Invite
         , view
         )
 
-import Api exposing (Errors, postPlain, postJson)
+import Api exposing (Error, Response)
+import Api.Invite as InviteApi exposing (Invite, BulkInvite, createInvite, createBulkInvite)
 import Components.Form as FC exposing (form, submitWithOptions)
 import Components.Page exposing (page)
 import Form exposing (Form)
@@ -16,9 +17,7 @@ import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
-import HttpBuilder
-import Json.Decode as Json exposing ((:=))
-import Json.Encode
+import Task
 import Util exposing ((=>), on', ttl)
 
 
@@ -26,22 +25,10 @@ type Msg
     = Submit
     | CreateBulkInvite
     | ToForm Form.Msg
-    | InviteError (HttpBuilder.Error Errors)
-    | InviteSuccess (HttpBuilder.Response String)
-    | BulkInviteError (HttpBuilder.Error Errors)
-    | BulkInviteSuccess (HttpBuilder.Response BulkInvite)
-
-
-type alias Invite =
-    { name : String
-    , email : String
-    }
-
-
-type alias BulkInvite =
-    { uri : String
-    , ttl : Float
-    }
+    | InviteError Error
+    | InviteSuccess (Response String)
+    | BulkInviteError Error
+    | BulkInviteSuccess (Response BulkInvite)
 
 
 type alias Model =
@@ -82,10 +69,13 @@ update msg model =
                         { model | form = form } ! []
 
                     Just invite ->
-                        { model | form = form, pending = True } ! [ createInvite invite ]
+                        { model | form = form, pending = True }
+                            ! [ createInvite invite
+                                    |> Task.perform InviteError InviteSuccess
+                              ]
 
         CreateBulkInvite ->
-            model ! [ createBulkInvite ]
+            model ! [ Task.perform BulkInviteError BulkInviteSuccess createBulkInvite ]
 
         ToForm m ->
             { model | form = Form.update m model.form } ! []
@@ -153,28 +143,3 @@ view { form, pending, bulkInvite } =
                             ]
                         ]
             ]
-
-
-encodeInvite : Invite -> Json.Encode.Value
-encodeInvite invite =
-    Json.Encode.object
-        [ "name" => Json.Encode.string invite.name
-        , "email" => Json.Encode.string invite.email
-        ]
-
-
-createInvite : Invite -> Cmd Msg
-createInvite invite =
-    postPlain InviteError InviteSuccess (encodeInvite invite) "invites"
-
-
-decodeBulkInvite : Json.Decoder BulkInvite
-decodeBulkInvite =
-    Json.object2 BulkInvite
-        ("uri" := Json.string)
-        ("ttl" := Json.float)
-
-
-createBulkInvite : Cmd Msg
-createBulkInvite =
-    postJson BulkInviteError BulkInviteSuccess Json.Encode.null decodeBulkInvite "bulk-invites"

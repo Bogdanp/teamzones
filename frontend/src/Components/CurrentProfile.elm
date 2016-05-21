@@ -1,6 +1,7 @@
 module Components.CurrentProfile exposing (..)
 
-import Api exposing (Errors, getJson, deletePlain, postPlain)
+import Api exposing (Error, Response)
+import Api.Profile as ProfileApi exposing (Profile, createUploadUri, deleteAvatar, updateProfile)
 import Components.ConfirmationButton as CB
 import Components.Form as FC
 import Components.Page exposing (page)
@@ -10,9 +11,6 @@ import Form.Validate as Validate exposing (..)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
-import HttpBuilder
-import Json.Decode as Json exposing ((:=))
-import Json.Encode
 import Task
 import Timestamp exposing (Timezone, showTimezone)
 import Types exposing (Workday, Workdays, User)
@@ -29,17 +27,10 @@ type Msg
     | ToParent ParentMsg
     | ToForm Form.Msg
     | ToDeleteAvatarButton CB.Msg
-    | UploadUriError (HttpBuilder.Error Errors)
-    | UploadUriSuccess (HttpBuilder.Response String)
-    | ProfileError (HttpBuilder.Error Errors)
-    | ProfileSuccess (HttpBuilder.Response String)
-
-
-type alias Profile =
-    { name : String
-    , timezone : String
-    , workdays : Workdays
-    }
+    | UploadUriError Error
+    | UploadUriSuccess (Response String)
+    | ProfileError Error
+    | ProfileSuccess (Response String)
 
 
 type alias Model =
@@ -114,7 +105,7 @@ init user timezones =
           , uploadUri = Nothing
           , timezones = timezones
           }
-        , createUploadUri
+        , Task.perform UploadUriError UploadUriSuccess createUploadUri
         )
 
 
@@ -139,7 +130,7 @@ update msg model =
                             , profile = profile
                             , pending = True
                         }
-                            ! [ updateProfile profile ]
+                            ! [ updateProfile profile |> Task.perform ProfileError ProfileSuccess ]
 
         ToParent _ ->
             model ! []
@@ -148,13 +139,18 @@ update msg model =
             { model | form = Form.update m model.form } ! []
 
         ToDeleteAvatarButton ((CB.ToParent (CB.Confirm)) as msg) ->
-            { model | deleteAvatarButton = CB.update msg model.deleteAvatarButton } ! [ deleteAvatar ]
+            let
+                message _ =
+                    ToParent RemoveAvatar
+            in
+                { model | deleteAvatarButton = CB.update msg model.deleteAvatarButton }
+                    ! [ Task.perform message message deleteAvatar ]
 
         ToDeleteAvatarButton msg ->
             { model | deleteAvatarButton = CB.update msg model.deleteAvatarButton } ! []
 
         UploadUriError _ ->
-            model ! [ createUploadUri ]
+            model ! [ Task.perform UploadUriError UploadUriSuccess createUploadUri ]
 
         UploadUriSuccess response ->
             { model | uploadUri = Just response.data } ! []
@@ -293,52 +289,3 @@ view { form, deleteAvatarButton, pending, uploadUri, timezones } =
                 , FC.submitWithOptions { label = "Update", disabled = pending }
                 ]
             ]
-
-
-createUploadUri : Cmd Msg
-createUploadUri =
-    getJson UploadUriError UploadUriSuccess ("uri" := Json.string) "upload"
-
-
-deleteAvatar : Cmd Msg
-deleteAvatar =
-    let
-        m =
-            always <| ToParent RemoveAvatar
-    in
-        deletePlain m m "avatar"
-
-
-encodeWorkday : Workday -> Json.Encode.Value
-encodeWorkday workday =
-    Json.Encode.object
-        [ "start" => Json.Encode.int workday.start
-        , "end" => Json.Encode.int workday.end
-        ]
-
-
-encodeWorkdays : Workdays -> Json.Encode.Value
-encodeWorkdays workdays =
-    Json.Encode.object
-        [ "monday" => encodeWorkday workdays.monday
-        , "tuesday" => encodeWorkday workdays.tuesday
-        , "wednesday" => encodeWorkday workdays.wednesday
-        , "thursday" => encodeWorkday workdays.thursday
-        , "friday" => encodeWorkday workdays.friday
-        , "saturday" => encodeWorkday workdays.saturday
-        , "sunday" => encodeWorkday workdays.sunday
-        ]
-
-
-encodeProfile : Profile -> Json.Encode.Value
-encodeProfile profile =
-    Json.Encode.object
-        [ "name" => Json.Encode.string profile.name
-        , "timezone" => Json.Encode.string profile.timezone
-        , "workdays" => encodeWorkdays profile.workdays
-        ]
-
-
-updateProfile : Profile -> Cmd Msg
-updateProfile profile =
-    postPlain ProfileError ProfileSuccess (encodeProfile profile) "profile"

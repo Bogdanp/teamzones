@@ -1,28 +1,31 @@
 module Components.Integrations.GCalendar exposing (Model, Msg, init, update, view)
 
-import Api exposing (Errors, postPlain)
+import Api exposing (Error, Response)
+import Api.Calendar as CalendarApi exposing (Calendar, Calendars)
 import Components.ConfirmationButton as CB
-import HttpBuilder
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Html.App as Html
-import Json.Encode
-import Util exposing ((=>))
+import Process
+import Task
+import Time
 
 
 type Msg
-    = DisconnectError (HttpBuilder.Error Errors)
-    | DisconnectSuccess (HttpBuilder.Response String)
+    = DisconnectError Error
+    | DisconnectSuccess (Response String)
     | ToDisconnectButton CB.Msg
-    | RefreshError (HttpBuilder.Error Errors)
-    | RefreshSuccess (HttpBuilder.Response String)
+    | RefreshError Error
+    | RefreshSuccess (Response String)
     | Refresh
+    | FetchError Error
+    | FetchSuccess (Response Calendars)
 
 
 type alias Model pmsg =
     { active : Bool
-    , loadingCalendars : Bool
+    , calendars : Calendars
     , refreshing : Bool
     , disconnectMsg : pmsg
     , disconnectButton : CB.Model
@@ -32,12 +35,16 @@ type alias Model pmsg =
 init : pmsg -> Bool -> ( Model pmsg, Cmd Msg )
 init disconnectMsg active =
     { active = active
-    , loadingCalendars = False
+    , calendars = CalendarApi.empty
     , refreshing = False
     , disconnectMsg = disconnectMsg
     , disconnectButton = CB.init "Disconnect"
     }
-        ! []
+        ! [ if active then
+                Task.perform FetchError FetchSuccess CalendarApi.fetchAll
+            else
+                Cmd.none
+          ]
 
 
 update : Msg -> Model pmsg -> ( Model pmsg, Cmd Msg, Maybe pmsg )
@@ -55,7 +62,7 @@ update msg ({ disconnectMsg, disconnectButton } as model) =
                 | active = False
                 , disconnectButton = CB.update msg disconnectButton
               }
-            , disconnect
+            , Task.perform DisconnectError DisconnectSuccess CalendarApi.disconnect
             , Nothing
             )
 
@@ -63,11 +70,8 @@ update msg ({ disconnectMsg, disconnectButton } as model) =
             ( { model | disconnectButton = CB.update msg disconnectButton }, Cmd.none, Nothing )
 
         RefreshSuccess _ ->
-            ( { model
-                | refreshing = False
-                , loadingCalendars = True
-              }
-            , Cmd.none
+            ( { model | refreshing = False }
+            , Task.perform FetchError FetchSuccess CalendarApi.fetchAll
             , Nothing
             )
 
@@ -75,19 +79,40 @@ update msg ({ disconnectMsg, disconnectButton } as model) =
             ( { model | refreshing = False }, Cmd.none, Nothing )
 
         Refresh ->
-            ( { model | refreshing = True }, refresh, Nothing )
+            ( { model | refreshing = True }
+            , Task.perform RefreshError RefreshSuccess CalendarApi.refresh
+            , Nothing
+            )
+
+        FetchError _ ->
+            -- TODO: Handle errors
+            ( model, Cmd.none, Nothing )
+
+        FetchSuccess response ->
+            let
+                calendars =
+                    response.data
+
+                fetchAll =
+                    if calendars.status == CalendarApi.Loading then
+                        (Process.sleep (1 * Time.second) `Task.andThen` (always CalendarApi.fetchAll))
+                            |> Task.perform FetchError FetchSuccess
+                    else
+                        Cmd.none
+            in
+                ( { model | calendars = calendars }, fetchAll, Nothing )
 
 
 view : Model pmsg -> Html Msg
 view ({ active } as model) =
     if not active then
-        authView model
+        auth model
     else
-        connectedView model
+        connected model
 
 
-authView : Model pmsg -> Html Msg
-authView model =
+auth : Model pmsg -> Html Msg
+auth model =
     div []
         [ p [] [ text "It looks like you haven't authorized your Google Calendar account yet. Click the button below to get started." ]
         , div [ class "input-group" ]
@@ -102,38 +127,61 @@ authView model =
         ]
 
 
-connectedView : Model pmsg -> Html Msg
-connectedView { loadingCalendars, refreshing, disconnectButton } =
-    div []
-        [ p [] [ text "You have connected your Google Calendar account." ]
-        , div [ class "input-group" ]
-            [ div [ class "input" ]
-                [ input
-                    [ type' "button"
-                    , value "Refresh Calendars"
-                    , disabled (loadingCalendars || refreshing)
-                    , onClick Refresh
+connected : Model pmsg -> Html Msg
+connected { calendars, refreshing, disconnectButton } =
+    let
+        loading =
+            tr [] [ td [ colspan 3 ] [ text "Loading..." ] ]
+
+        calendar c =
+            let
+                name =
+                    Maybe.withDefault "Unnamed calendar" c.summary
+            in
+                tr []
+                    [ td []
+                        [ if calendars.defaultId == c.id then
+                            strong [] [ text name ]
+                          else
+                            text name
+                        ]
+                    , td [] [ text (Maybe.withDefault "" c.timezone) ]
+                      -- FIXME: use the user's timezone ^
+                    , td [] []
                     ]
-                    []
+    in
+        div []
+            [ p [] [ text "You have connected your Google Calendar account." ]
+            , div [ class "input-group" ]
+                [ div [ class "input" ]
+                    [ CB.view disconnectButton |> Html.map ToDisconnectButton ]
+                ]
+            , div [ class "sm-ml" ]
+                [ h4 [] [ text "Your calendars" ]
+                , table []
+                    [ thead []
+                        [ tr []
+                            [ td [] [ text "Name" ]
+                            , td [] [ text "Timezone" ]
+                            , td [] []
+                            ]
+                        ]
+                    , if calendars.status == CalendarApi.Loading then
+                        tbody [] [ loading ]
+                      else
+                        tbody [] (List.map calendar calendars.calendars)
+                    ]
+                , br [] []
+                , div [ class "input-group" ]
+                    [ div [ class "input" ]
+                        [ input
+                            [ type' "button"
+                            , value "Refresh Calendars"
+                            , disabled refreshing
+                            , onClick Refresh
+                            ]
+                            []
+                        ]
+                    ]
                 ]
             ]
-        , div [ class "input-group" ]
-            [ div [ class "input" ]
-                [ CB.view disconnectButton |> Html.map ToDisconnectButton ]
-            ]
-        ]
-
-
-integrationPayload : Json.Encode.Value
-integrationPayload =
-    Json.Encode.object [ "integration" => Json.Encode.string "gcalendar" ]
-
-
-disconnect : Cmd Msg
-disconnect =
-    postPlain DisconnectError DisconnectSuccess integrationPayload "integrations/disconnect"
-
-
-refresh : Cmd Msg
-refresh =
-    postPlain RefreshError RefreshSuccess integrationPayload "integrations/refresh"
