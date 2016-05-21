@@ -1,9 +1,6 @@
 package integrations
 
 import (
-	"bytes"
-	"encoding/json"
-	"io"
 	"io/ioutil"
 
 	"github.com/pkg/errors"
@@ -62,25 +59,43 @@ func ExchangeCalendarCode(ctx context.Context, code string) (*oauth2.Token, erro
 	return calendarConfig.Exchange(ctx, code)
 }
 
-// TokenToJSON converts and OAuth2 Token instance to a JSON bytestring.
-func TokenToJSON(token *oauth2.Token) ([]byte, error) {
-	var buf bytes.Buffer
-
-	err := json.NewEncoder(&buf).Encode(token)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to encode oauth2 token")
-	}
-
-	return buf.Bytes(), nil
+// Calendar represents a user's Google Calendar data.
+type Calendar struct {
+	ID       string `json:"id"`
+	Summary  string `json:"summary,omitempty"`
+	Timezone string `json:"timezone,omitempty"`
 }
 
-// TokenFromJSON converts a Reader of JSON to an OAuth2 Token.
-func TokenFromJSON(buf io.Reader) (*oauth2.Token, error) {
-	token := &oauth2.Token{}
-	err := json.NewDecoder(buf).Decode(&token)
+// FetchUserCalendars returns all of the visible Google Calendars that
+// a specific user can write to.
+func FetchUserCalendars(ctx context.Context, token *oauth2.Token) ([]Calendar, error) {
+	service, err := NewCalendarService(ctx, token)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to decode oauth2 token from json")
+		return nil, err
 	}
 
-	return token, nil
+	calendarList, err := service.CalendarList.List().Do()
+	if err != nil {
+		return nil, err
+	}
+
+	var calendars []Calendar
+	for _, cal := range calendarList.Items {
+		if cal.Hidden || cal.Deleted || cal.Id == "" || !(cal.AccessRole == "writer" || cal.AccessRole == "owner") {
+			continue
+		}
+
+		summary := cal.Summary
+		if cal.SummaryOverride != "" {
+			summary = cal.SummaryOverride
+		}
+
+		calendars = append(calendars, Calendar{
+			ID:       cal.Id,
+			Summary:  summary,
+			Timezone: cal.TimeZone,
+		})
+	}
+
+	return calendars, nil
 }

@@ -77,6 +77,7 @@ type User struct {
 	AvatarFile appengine.BlobKey `json:"-"`
 
 	GCalendarToken *datastore.Key `json:"-"`
+	GCalendarData  *datastore.Key `json:"-"`
 
 	Times
 }

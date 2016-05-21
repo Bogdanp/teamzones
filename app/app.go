@@ -59,7 +59,9 @@ const (
 	avatarUploadRoute
 	deleteAvatarRoute
 	deleteUserRoute
+	refreshIntegrationRoute
 	disconnectIntegrationRoute
+	gcalendarDataRoute
 
 	// Tools
 	provisionRoute

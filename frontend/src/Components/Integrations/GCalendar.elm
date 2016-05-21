@@ -5,6 +5,7 @@ import Components.ConfirmationButton as CB
 import HttpBuilder
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import Html.App as Html
 import Json.Encode
 import Util exposing ((=>))
@@ -14,10 +15,15 @@ type Msg
     = DisconnectError (HttpBuilder.Error Errors)
     | DisconnectSuccess (HttpBuilder.Response String)
     | ToDisconnectButton CB.Msg
+    | RefreshError (HttpBuilder.Error Errors)
+    | RefreshSuccess (HttpBuilder.Response String)
+    | Refresh
 
 
 type alias Model pmsg =
     { active : Bool
+    , loadingCalendars : Bool
+    , refreshing : Bool
     , disconnectMsg : pmsg
     , disconnectButton : CB.Model
     }
@@ -26,6 +32,8 @@ type alias Model pmsg =
 init : pmsg -> Bool -> ( Model pmsg, Cmd Msg )
 init disconnectMsg active =
     { active = active
+    , loadingCalendars = False
+    , refreshing = False
     , disconnectMsg = disconnectMsg
     , disconnectButton = CB.init "Disconnect"
     }
@@ -47,12 +55,27 @@ update msg ({ disconnectMsg, disconnectButton } as model) =
                 | active = False
                 , disconnectButton = CB.update msg disconnectButton
               }
-            , Cmd.batch [ disconnect ]
+            , disconnect
             , Nothing
             )
 
         ToDisconnectButton msg ->
             ( { model | disconnectButton = CB.update msg disconnectButton }, Cmd.none, Nothing )
+
+        RefreshSuccess _ ->
+            ( { model
+                | refreshing = False
+                , loadingCalendars = True
+              }
+            , Cmd.none
+            , Nothing
+            )
+
+        RefreshError _ ->
+            ( { model | refreshing = False }, Cmd.none, Nothing )
+
+        Refresh ->
+            ( { model | refreshing = True }, refresh, Nothing )
 
 
 view : Model pmsg -> Html Msg
@@ -80,11 +103,23 @@ authView model =
 
 
 connectedView : Model pmsg -> Html Msg
-connectedView { disconnectButton } =
+connectedView { loadingCalendars, refreshing, disconnectButton } =
     div []
         [ p [] [ text "You have connected your Google Calendar account." ]
         , div [ class "input-group" ]
-            [ div [ class "input" ] [ CB.view disconnectButton |> Html.map ToDisconnectButton ]
+            [ div [ class "input" ]
+                [ input
+                    [ type' "button"
+                    , value "Refresh Calendars"
+                    , disabled (loadingCalendars || refreshing)
+                    , onClick Refresh
+                    ]
+                    []
+                ]
+            ]
+        , div [ class "input-group" ]
+            [ div [ class "input" ]
+                [ CB.view disconnectButton |> Html.map ToDisconnectButton ]
             ]
         ]
 
@@ -97,3 +132,8 @@ integrationPayload =
 disconnect : Cmd Msg
 disconnect =
     postPlain DisconnectError DisconnectSuccess integrationPayload "integrations/disconnect"
+
+
+refresh : Cmd Msg
+refresh =
+    postPlain RefreshError RefreshSuccess integrationPayload "integrations/refresh"

@@ -1,7 +1,6 @@
 package integrations
 
 import (
-	"flag"
 	"log"
 	"os"
 	"testing"
@@ -12,28 +11,7 @@ import (
 
 var calendarToken *oauth2.Token
 
-func TestCalendarConfig(t *testing.T) {
-	if calendarConfig == nil {
-		t.Fail()
-	}
-}
-
-func TestCalendarService(t *testing.T) {
-	ctx := context.Background()
-	service, err := NewCalendarService(ctx, calendarToken)
-	if err != nil {
-		t.Fail()
-	}
-
-	_, err = service.CalendarList.List().Do()
-	if err != nil {
-		t.Fatalf("error fetching calendars: %v", err)
-	}
-}
-
-func TestMain(m *testing.M) {
-	flag.Parse()
-
+func init() {
 	// Load the offline config
 	calendarConfig = loadCalendarConfigFromFile("credentials/calendar_offline.json")
 
@@ -49,22 +27,35 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatalf("Failed to read fixture: %v", err)
 	}
+}
 
-	// Run the tests
-	res := m.Run()
-
-	// Re-save the token
-	of, err := os.Create(fixture)
-	if err != nil {
-		log.Fatalf("Failed to recreate fixture: %v", err)
+func TestCalendarConfig(t *testing.T) {
+	if calendarConfig == nil {
+		t.Fail()
 	}
-	defer of.Close()
+}
 
-	json, err := TokenToJSON(calendarToken)
+func TestCalendarService(t *testing.T) {
+	ctx := context.Background()
+	service, err := NewCalendarService(ctx, calendarToken)
 	if err != nil {
-		log.Fatalf("Failed to convert token to JSON: %v", err)
+		t.Fatalf("error creating service: %v", err)
 	}
-	of.Write(json)
 
-	os.Exit(res)
+	_, err = service.CalendarList.List().Do()
+	if err != nil {
+		t.Fatalf("error fetching calendars: %v", err)
+	}
+}
+
+func TestFetchUserCalendars(t *testing.T) {
+	ctx := context.Background()
+	calendars, err := FetchUserCalendars(ctx, calendarToken)
+	if err != nil {
+		t.Fatalf("error fetching calendars: %v", err)
+	}
+
+	if len(calendars) < 1 {
+		t.Fatalf("must have at least one writable calendar")
+	}
 }

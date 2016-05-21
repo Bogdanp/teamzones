@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"teamzones/models"
 
@@ -28,14 +29,15 @@ func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 		return
 	}
 
+	fmt.Println("WTF")
 	user.Workdays = models.Workdays{
-		models.Workday{Start: 15, End: 23},
-		models.Workday{Start: 15, End: 23},
-		models.Workday{Start: 15, End: 23},
-		models.Workday{Start: 15, End: 23},
-		models.Workday{Start: 13, End: 21},
-		models.Workday{Start: 0, End: 0},
-		models.Workday{Start: 0, End: 0},
+		Monday:    models.Workday{Start: 15, End: 23},
+		Tuesday:   models.Workday{Start: 15, End: 23},
+		Wednesday: models.Workday{Start: 15, End: 23},
+		Thursday:  models.Workday{Start: 15, End: 23},
+		Friday:    models.Workday{Start: 13, End: 21},
+		Saturday:  models.Workday{Start: 0, End: 0},
+		Sunday:    models.Workday{Start: 0, End: 0},
 	}
 	user.Put(ctx)
 

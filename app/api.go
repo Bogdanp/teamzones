@@ -29,7 +29,9 @@ func init() {
 	ALL(appRouter, avatarUploadRoute, "/api/upload", avatarUploadHandler)
 	DELETE(appRouter, deleteAvatarRoute, "/api/avatar", deleteAvatarHandler)
 	DELETE(appRouter, deleteUserRoute, "/api/users/:email", deleteUserHandler)
+	POST(appRouter, refreshIntegrationRoute, "/api/integrations/refresh", refreshIntegrationHandler)
 	POST(appRouter, disconnectIntegrationRoute, "/api/integrations/disconnect", disconnectIntegrationHandler)
+	GET(appRouter, gcalendarDataRoute, "/api/integrations/gcalendar/data", gcalendarDataHandler)
 }
 
 type locationResponse struct {
@@ -285,6 +287,54 @@ func deleteUserHandler(res http.ResponseWriter, req *http.Request, params httpro
 	res.WriteHeader(http.StatusNoContent)
 }
 
+func refreshIntegrationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	var data struct {
+		Integration string `json:"integration"`
+	}
+
+	if err := forms.BindJSON(req, &data); err != nil {
+		badRequest(res, err.Error())
+		return
+	}
+
+	switch data.Integration {
+	case models.OAuth2GCalendar:
+		ctx := appengine.NewContext(req)
+		user := context.Get(req, userCtxKey).(*models.User)
+		if user.GCalendarToken == nil {
+			badRequest(res, "integration disconnected")
+			return
+		}
+
+		throttlingKey := fmt.Sprintf("refresh-calendar:%s", user.Email)
+		if throttle(ctx, throttlingKey, 5*time.Minute) {
+			badRequest(res, "throttled")
+			return
+		}
+
+		if user.GCalendarData != nil {
+			var data models.GCalendarData
+			if err := datastore.Get(ctx, user.GCalendarData, &data); err != nil {
+				serverError(res)
+				return
+			}
+
+			data.Status = models.GCalendarStatusLoading
+			if _, err := datastore.Put(ctx, user.GCalendarData, &data); err != nil {
+				serverError(res)
+				return
+			}
+		}
+
+		refreshGCalendar.Call(ctx, user.GCalendarToken)
+		res.WriteHeader(http.StatusAccepted)
+		return
+	default:
+		badRequest(res, "invalid integration")
+		return
+	}
+}
+
 func disconnectIntegrationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	var data struct {
 		Integration string `json:"integration"`
@@ -307,10 +357,27 @@ func disconnectIntegrationHandler(res http.ResponseWriter, req *http.Request, _ 
 		datastore.Delete(ctx, user.GCalendarToken)
 		user.GCalendarToken = nil
 		user.Put(ctx)
+		res.WriteHeader(http.StatusNoContent)
+		return
 	default:
 		badRequest(res, "invalid integration")
 		return
 	}
+}
 
-	res.WriteHeader(http.StatusNoContent)
+func gcalendarDataHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	data := models.GCalendarData{
+		Status: models.GCalendarStatusLoading,
+	}
+
+	user := context.Get(req, userCtxKey).(*models.User)
+	if user.GCalendarToken != nil && user.GCalendarData != nil {
+		ctx := appengine.NewContext(req)
+		if err := datastore.Get(ctx, user.GCalendarData, &data); err != nil {
+			serverError(res)
+			return
+		}
+	}
+
+	renderer.JSON(res, http.StatusOK, data)
 }

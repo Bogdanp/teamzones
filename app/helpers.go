@@ -4,7 +4,28 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
+
+	"google.golang.org/appengine/memcache"
+
+	"golang.org/x/net/context"
 )
+
+// Optimistically "lock" around a key in memcache.  Returns true when
+// execution should halt and false otherwise.
+func throttle(ctx context.Context, key string, duration time.Duration) bool {
+	_, err := memcache.Get(ctx, key)
+	if err == nil {
+		return true
+	}
+
+	memcache.Set(ctx, &memcache.Item{
+		Key:        key,
+		Value:      []byte{},
+		Expiration: duration,
+	})
+	return false
+}
 
 func notFound(res http.ResponseWriter) {
 	http.Error(res, "not found", http.StatusNotFound)
