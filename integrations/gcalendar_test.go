@@ -50,9 +50,13 @@ func TestCalendarService(t *testing.T) {
 
 func TestFetchUserCalendars(t *testing.T) {
 	ctx := context.Background()
-	calendars, err := FetchUserCalendars(ctx, calendarToken)
+	primaryID, calendars, err := FetchUserCalendars(ctx, calendarToken)
 	if err != nil {
 		t.Fatalf("error fetching calendars: %v", err)
+	}
+
+	if primaryID == "" {
+		t.Fatalf("must have a primary calendar")
 	}
 
 	if len(calendars) < 1 {

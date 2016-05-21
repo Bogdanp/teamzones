@@ -68,21 +68,26 @@ type Calendar struct {
 
 // FetchUserCalendars returns all of the visible Google Calendars that
 // a specific user can write to.
-func FetchUserCalendars(ctx context.Context, token *oauth2.Token) ([]Calendar, error) {
+func FetchUserCalendars(ctx context.Context, token *oauth2.Token) (string, []Calendar, error) {
 	service, err := NewCalendarService(ctx, token)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	calendarList, err := service.CalendarList.List().Do()
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	var calendars []Calendar
+	var primaryID string
 	for _, cal := range calendarList.Items {
 		if cal.Hidden || cal.Deleted || cal.Id == "" || !(cal.AccessRole == "writer" || cal.AccessRole == "owner") {
 			continue
+		}
+
+		if cal.Primary {
+			primaryID = cal.Id
 		}
 
 		summary := cal.Summary
@@ -97,5 +102,5 @@ func FetchUserCalendars(ctx context.Context, token *oauth2.Token) ([]Calendar, e
 		})
 	}
 
-	return calendars, nil
+	return primaryID, calendars, nil
 }

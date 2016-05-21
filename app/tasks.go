@@ -20,14 +20,15 @@ var refreshGCalendar = delay.Func(
 		}
 
 		type calendarsResult struct {
+			primaryID string
 			calendars []integrations.Calendar
 			err       error
 		}
 
 		c := make(chan calendarsResult)
 		go func() {
-			calendars, err := integrations.FetchUserCalendars(ctx, &token.Token)
-			c <- calendarsResult{calendars, err}
+			primaryID, calendars, err := integrations.FetchUserCalendars(ctx, &token.Token)
+			c <- calendarsResult{primaryID, calendars, err}
 		}()
 
 		var user models.User
@@ -46,6 +47,10 @@ var refreshGCalendar = delay.Func(
 		res := <-c
 		if res.err != nil {
 			panic(res.err)
+		}
+
+		if calendarData.DefaultID == "" {
+			calendarData.DefaultID = res.primaryID
 		}
 
 		calendarData.Status = models.GCalendarStatusDone
