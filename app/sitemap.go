@@ -110,13 +110,16 @@ func (b RouteBuilder) Build() string {
 	if len(b.query) > 0 {
 		buffer.WriteString("?")
 
+		multi := false
 		for param, values := range b.query {
-			for i, value := range values {
-				buffer.WriteString(fmt.Sprintf("%s=%s", param, url.QueryEscape(value)))
-
-				if i < len(values) {
+			for _, value := range values {
+				if multi {
 					buffer.WriteString("&")
 				}
+
+				buffer.WriteString(fmt.Sprintf("%s=%s", param, url.QueryEscape(value)))
+
+				multi = true
 			}
 		}
 	}
