@@ -11,6 +11,6 @@ var Countries = loadCountries()
 
 func loadCountries() []Country {
 	countries := make([]Country, 249)
-	LoadJSON("config/countries.json", &countries)
+	LoadJSON("data/countries.json", &countries)
 	return countries
 }

@@ -50,7 +50,7 @@ func loadBraintreeConfig() *BraintreeConfiguration {
 
 	c := &BraintreeConfiguration{}
 	utils.LoadYAML(filename, c)
-	utils.LoadYAML("config/plans.yaml", c)
+	utils.LoadYAML("data/plans.yaml", c)
 	return c
 }
 
