@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -97,8 +98,15 @@ func createRouters() (*httprouter.Router, *httprouter.Router) {
 
 // Initializes the renderer.
 func createRenderer() *render.Render {
+	funcs := template.FuncMap{
+		"version": func() string {
+			return metadata.Version
+		},
+	}
+
 	return render.New(render.Options{
 		Layout: "layout",
+		Funcs:  []template.FuncMap{funcs},
 	})
 }
 

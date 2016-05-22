@@ -1,13 +1,12 @@
 {{define "head-dashboard"}}
-  <link rel="stylesheet" type="text/css" href="/static/css/normalize.css" />
-  <link rel="stylesheet" type="text/css" href="/static/css/app.css" />
+  <link rel="stylesheet" type="text/css" href="/static/css/normalize.css?v={{version}}" />
+  <link rel="stylesheet" type="text/css" href="/static/css/app.css?v={{version}}" />
 {{end}}
 
-<div id="app">
-</div>
+<div id="app"></div>
 
-<script src="/static/js/lib.js"></script>
-<script src="/static/js/app.js"></script>
+<script src="/static/js/lib.js?v={{version}}"></script>
+<script src="/static/js/app.js?v={{version}}"></script>
 <script>
   init(Elm, document.getElementById("app"), {{.}});
 </script>

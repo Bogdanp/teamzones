@@ -4,9 +4,9 @@ import Api exposing (Error, Response)
 import Api.Calendar as CalendarApi exposing (Calendar, Calendars)
 import Components.ConfirmationButton as CB
 import Html exposing (..)
+import Html.App as Html
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
-import Html.App as Html
 import Process
 import Task
 import Time
