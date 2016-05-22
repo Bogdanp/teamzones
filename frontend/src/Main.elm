@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Html.App as Html
 import Model exposing (Model, Msg(..), Flags)
-import Ports exposing (path, timestamps, timezones)
+import Ports exposing (path, timestamps, timezones, notifications)
 import Update exposing (init, update)
 import View exposing (view)
 
@@ -23,4 +23,5 @@ subscriptions _ =
         [ path PathChanged
         , timestamps Tick
         , timezones TimezoneChanged
+        , notifications Notified
         ]

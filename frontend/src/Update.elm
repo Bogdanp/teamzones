@@ -3,6 +3,7 @@ port module Update exposing (init, update)
 import Components.CurrentProfile as CP
 import Components.Invite as Invite
 import Components.Integrations as Integrations
+import Components.Notifications as Notifications
 import Components.Profile as Profile
 import Components.Settings as Settings
 import Dict exposing (Dict)
@@ -63,6 +64,7 @@ init ({ path, now, company, user, team, timezones, integrationStates } as flags)
                         , teamMembers = teamMembers
                         }
                 , currentProfile = currentProfile
+                , notifications = Notifications.init
                 }
     in
         model ! [ fx ]
@@ -124,7 +126,7 @@ handleRoute ({ now, route, user, teamMembers, integrationStates } as model) =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ now, user, team, teamMembers } as model) =
+update msg ({ now, user, team, teamMembers, notifications } as model) =
     case msg of
         Tick now ->
             { model | now = now, team = groupTeam now teamMembers } ! []
@@ -138,6 +140,13 @@ update msg ({ now, user, team, teamMembers } as model) =
 
         RouteTo route ->
             model ! [ pushPath (Routes.route route) ]
+
+        Notified notification ->
+            let
+                ( xs, fx ) =
+                    Notifications.append notification notifications
+            in
+                { model | notifications = xs } ! [ Cmd.map ToNotifications fx ]
 
         ToInvite msg ->
             let
@@ -210,6 +219,13 @@ update msg ({ now, user, team, teamMembers } as model) =
                     CP.update msg model.currentProfile
             in
                 { model | currentProfile = currentProfile } ! [ Cmd.map ToCurrentProfile fx ]
+
+        ToNotifications msg ->
+            let
+                ( notifications, fx ) =
+                    Notifications.update msg model.notifications
+            in
+                { model | notifications = notifications } ! [ Cmd.map ToNotifications fx ]
 
 
 findUser : List User -> String -> Maybe User

@@ -3,6 +3,7 @@ module Components.Integrations.GCalendar exposing (Model, Msg, init, update, vie
 import Api exposing (Error, Response)
 import Api.Calendar as CalendarApi exposing (Calendar, Calendars)
 import Components.ConfirmationButton as CB
+import Components.Notifications exposing (error, info)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
@@ -50,12 +51,17 @@ init disconnectMsg active =
 update : Msg -> Model pmsg -> ( Model pmsg, Cmd Msg, Maybe pmsg )
 update msg ({ disconnectMsg, disconnectButton } as model) =
     case msg of
-        DisconnectError error ->
-            -- TODO: Handle errors
-            ( model, Cmd.none, Nothing )
+        DisconnectError _ ->
+            ( model
+            , error "We encountered an issue while trying to disconnect your integration. Please try again later."
+            , Nothing
+            )
 
         DisconnectSuccess _ ->
-            ( model, Cmd.none, Just disconnectMsg )
+            ( model
+            , info "Your Google Calendar integration has been disconnected."
+            , Just disconnectMsg
+            )
 
         ToDisconnectButton ((CB.ToParent (CB.Confirm)) as msg) ->
             ( { model
@@ -76,7 +82,10 @@ update msg ({ disconnectMsg, disconnectButton } as model) =
             )
 
         RefreshError _ ->
-            ( { model | refreshing = False }, Cmd.none, Nothing )
+            ( { model | refreshing = False }
+            , info "You may only refresh your calendars once every few minutes. Please try again later."
+            , Nothing
+            )
 
         Refresh ->
             ( { model | refreshing = True }
@@ -85,8 +94,10 @@ update msg ({ disconnectMsg, disconnectButton } as model) =
             )
 
         FetchError _ ->
-            -- TODO: Handle errors
-            ( model, Cmd.none, Nothing )
+            ( model
+            , error "We encountered an issue while fetching your calendars. Please try again later."
+            , Nothing
+            )
 
         FetchSuccess { data } ->
             let
@@ -142,8 +153,7 @@ connected { calendars, refreshing, disconnectButton } =
                           else
                             text name
                         ]
-                    , td [] [ text (Maybe.withDefault "" c.timezone) ]
-                      -- FIXME: use the user's timezone ^
+                    , td [] [ text (Maybe.withDefault "-" c.timezone) ]
                     , td [] []
                     ]
     in

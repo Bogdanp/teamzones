@@ -6,6 +6,13 @@ import Routes exposing (Sitemap)
 import Timestamp exposing (Timezone, TimezoneOffset)
 
 
+type alias Notification =
+    { hidden : Bool
+    , level : String
+    , message : String
+    }
+
+
 type alias Company =
     { name : String
     }

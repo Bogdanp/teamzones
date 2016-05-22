@@ -37,6 +37,11 @@ window.init = function(Elm, el, context) {
     }
   });
 
+  // Notifications
+  app.ports.notify.subscribe(function(message) {
+    app.ports.notifications.send(message);
+  });
+
   var sendTimestamp = function() {
     app.ports.timestamps.send(now());
   };

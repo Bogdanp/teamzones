@@ -4,6 +4,7 @@ import Components.CurrentProfile as CurrentProfile
 import Components.CurrentUser as CurrentUser
 import Components.Invite as Invite
 import Components.Integrations as Integrations
+import Components.Notifications as Notifications
 import Components.NotFound as NotFound
 import Components.Profile as Profile
 import Components.Settings as Settings
@@ -19,7 +20,7 @@ import Util exposing ((=>))
 
 
 view : Model -> Html Msg
-view ({ now, company, user, team, route, invite, integrations, settings, currentProfile } as model) =
+view ({ now, company, user, team, route, invite, integrations, settings, currentProfile, notifications } as model) =
     let
         page =
             case route of
@@ -49,11 +50,15 @@ view ({ now, company, user, team, route, invite, integrations, settings, current
                 NotFoundR ->
                     NotFound.view
     in
-        div [ class "app" ]
-            [ toolbar company user.timezone now
-            , div [ class "content" ]
-                [ sidebar user
-                , page
+        div [ class "wrapper" ]
+            [ Notifications.view notifications
+                |> Html.map ToNotifications
+            , div [ class "app" ]
+                [ toolbar company user.timezone now
+                , div [ class "content" ]
+                    [ sidebar user
+                    , page
+                    ]
                 ]
             ]
 

@@ -3,6 +3,7 @@ module Model exposing (ContextMsg(..), Msg(..), Model, Flags)
 import Components.CurrentProfile as CP
 import Components.Invite as Invite
 import Components.Integrations as Integrations
+import Components.Notifications as Notifications
 import Components.Profile as Profile
 import Components.Settings as Settings
 import Routes exposing (Sitemap)
@@ -19,11 +20,13 @@ type Msg
     | TimezoneChanged Timezone
     | PathChanged String
     | RouteTo Sitemap
+    | Notified Notification
     | ToInvite Invite.Msg
     | ToProfile Profile.Msg
     | ToIntegrations Integrations.Msg
     | ToSettings Settings.Msg
     | ToCurrentProfile CP.Msg
+    | ToNotifications Notifications.Msg
 
 
 type alias Model =
@@ -40,6 +43,7 @@ type alias Model =
     , integrations : Integrations.Model
     , settings : Settings.Model ContextMsg
     , currentProfile : CP.Model
+    , notifications : Notifications.Model
     }
 
 
