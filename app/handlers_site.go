@@ -111,7 +111,9 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 			form.CompanySubdomain.Value, form.Name.Value, form.Email.Value,
 		)
 		if err != nil {
+			// FIXME: Display an error
 			log.Errorf(ctx, "error while subscribing customer: %v", err)
+			renderer.HTML(res, http.StatusBadRequest, "sign-up", form)
 			return
 		}
 
@@ -217,13 +219,12 @@ func findTeamHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Pa
 
 func braintreeTokenHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	ctx := appengine.NewContext(req)
-	bt := integrations.NewBraintreeService(ctx)
-	tok, err := bt.ClientToken().Generate()
+	t, err := integrations.NewBraintreeService(ctx).ClientToken().Generate()
 	if err != nil {
-		log.Errorf(ctx, "failed to generate client token: %v", tok)
+		log.Errorf(ctx, "failed to generate client token: %v", err)
 		serverError(res)
 		return
 	}
 
-	renderer.JSON(res, http.StatusOK, tok)
+	renderer.JSON(res, http.StatusOK, t)
 }
