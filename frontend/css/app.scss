@@ -450,12 +450,14 @@ table {
   }
 
   .profile-content {
+    min-width: 500px;
+
     flex: 1 1 auto;
     padding: 10px 10px 10px 0;
     box-sizing: border-box;
 
-    >div>h4:first-child {
-      margin-top: 5px;
+    h4 {
+      margin: 5px 0;
     }
   }
 }
