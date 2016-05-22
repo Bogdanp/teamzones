@@ -4,6 +4,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/qedus/nds"
+
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 )
@@ -64,7 +66,7 @@ func CreateInvite(
 
 	invite := NewInvite(companyKey, name, email)
 	key := datastore.NewIncompleteKey(ctx, inviteKind, companyKey)
-	key, err := datastore.Put(ctx, key, invite)
+	key, err := nds.Put(ctx, key, invite)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -81,7 +83,7 @@ func CreateBulkInvite(
 
 	invite := NewBulkInvite(companyKey)
 	key := datastore.NewIncompleteKey(ctx, inviteKind, companyKey)
-	key, err := datastore.Put(ctx, key, invite)
+	key, err := nds.Put(ctx, key, invite)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -97,7 +99,7 @@ func GetInvite(
 
 	invite := Invite{}
 	inviteKey := datastore.NewKey(ctx, inviteKind, "", inviteID, companyKey)
-	if err := datastore.Get(ctx, inviteKey, &invite); err != nil {
+	if err := nds.Get(ctx, inviteKey, &invite); err != nil {
 		return nil, err
 	}
 
@@ -114,7 +116,7 @@ func DeleteInvite(
 	companyKey *datastore.Key, inviteID int64,
 ) error {
 
-	return datastore.Delete(
+	return nds.Delete(
 		ctx,
 		datastore.NewKey(ctx, inviteKind, "", inviteID, companyKey),
 	)

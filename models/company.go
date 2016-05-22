@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/qedus/nds"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 )
@@ -46,7 +47,7 @@ func NewCompanyKey(ctx context.Context, subdomain string) *datastore.Key {
 // GetCompany returns a company by its subdomain.
 func GetCompany(ctx context.Context, subdomain string) (*Company, error) {
 	var company Company
-	if err := datastore.Get(ctx, NewCompanyKey(ctx, subdomain), &company); err != nil {
+	if err := nds.Get(ctx, NewCompanyKey(ctx, subdomain), &company); err != nil {
 		return nil, err
 	}
 

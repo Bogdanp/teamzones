@@ -9,11 +9,11 @@ import (
 	"teamzones/models"
 
 	"google.golang.org/appengine"
-	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 
 	"github.com/goincremental/negroni-sessions"
 	"github.com/gorilla/context"
+	"github.com/qedus/nds"
 
 	"gopkg.in/julienschmidt/httprouter.v1"
 )
@@ -269,7 +269,7 @@ func resetPasswordHandler(res http.ResponseWriter, req *http.Request, params htt
 	}
 
 	var user models.User
-	if err := datastore.Get(ctx, token.User, &user); err != nil {
+	if err := nds.Get(ctx, token.User, &user); err != nil {
 		notFound(res)
 		return
 	}
@@ -295,7 +295,7 @@ func resetPasswordHandler(res http.ResponseWriter, req *http.Request, params htt
 			panic(err)
 		}
 
-		datastore.Delete(ctx, models.NewRecoveryTokenKey(ctx, companyKey, tokenID))
+		nds.Delete(ctx, models.NewRecoveryTokenKey(ctx, companyKey, tokenID))
 		location := ReverseRoute(signInRoute).Build()
 		http.Redirect(res, req, location, http.StatusFound)
 		return

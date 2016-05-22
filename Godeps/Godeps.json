@@ -68,6 +68,10 @@
 			"Rev": "0d62637d0446292fceb852ab68e3ce6e07bddc00"
 		},
 		{
+			"ImportPath": "github.com/qedus/nds",
+			"Rev": "c6f473068fb96c74c0df816ab87fa31f55bc98cf"
+		},
+		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
 			"Rev": "1777f3ba8c1fed80fcaec3317e3aaa4f627764d2"
 		},

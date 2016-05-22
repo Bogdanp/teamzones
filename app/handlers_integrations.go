@@ -11,6 +11,7 @@ import (
 	"golang.org/x/net/context"
 
 	gcontext "github.com/gorilla/context"
+	"github.com/qedus/nds"
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
@@ -96,22 +97,22 @@ func gcalendarOAuthTeamHandler(res http.ResponseWriter, req *http.Request, _ htt
 	errCode := req.FormValue("error")
 	if errCode != "" {
 		// TODO: Tell the user their shit's fucked
-		datastore.Delete(ctx, tokenKey)
+		nds.Delete(ctx, tokenKey)
 		return
 	}
 
 	tok, err := integrations.ExchangeCalendarCode(ctx, req.FormValue("code"))
 	if err != nil {
 		// TODO: Tell the user their shit's fucked
-		datastore.Delete(ctx, tokenKey)
+		nds.Delete(ctx, tokenKey)
 		return
 	}
 
-	err = datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+	err = nds.RunInTransaction(ctx, func(ctx context.Context) error {
 		token.Token = *tok
 		user.GCalendarToken = tokenKey
 
-		_, err := datastore.PutMulti(
+		_, err := nds.PutMulti(
 			ctx,
 			[]*datastore.Key{tokenKey, userKey},
 			[]interface{}{token, user},
@@ -121,7 +122,7 @@ func gcalendarOAuthTeamHandler(res http.ResponseWriter, req *http.Request, _ htt
 	}, nil)
 	if err != nil {
 		// TODO: Tell the user their shit's fucked
-		datastore.Delete(ctx, tokenKey)
+		nds.Delete(ctx, tokenKey)
 		return
 	}
 

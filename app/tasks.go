@@ -4,6 +4,8 @@ import (
 	"teamzones/integrations"
 	"teamzones/models"
 
+	"github.com/qedus/nds"
+
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/delay"
@@ -14,7 +16,7 @@ var refreshGCalendar = delay.Func(
 	"refresh-gcalendar",
 	func(ctx context.Context, tokenKey *datastore.Key) {
 		var token models.OAuth2Token
-		if err := datastore.Get(ctx, tokenKey, &token); err != nil {
+		if err := nds.Get(ctx, tokenKey, &token); err != nil {
 			log.Errorf(ctx, "Token not found: %v", err)
 			return
 		}
@@ -33,14 +35,14 @@ var refreshGCalendar = delay.Func(
 
 		var user models.User
 		userKey := token.User
-		if err := datastore.Get(ctx, userKey, &user); err != nil {
+		if err := nds.Get(ctx, userKey, &user); err != nil {
 			panic(err)
 		}
 
 		calendarData := models.NewGCalendarData(user.Company, userKey)
 		if user.GCalendarData == nil {
 			user.GCalendarData = models.NewGCalendarDataKey(ctx, token.User, user.Email)
-		} else if err := datastore.Get(ctx, user.GCalendarData, calendarData); err != nil {
+		} else if err := nds.Get(ctx, user.GCalendarData, calendarData); err != nil {
 			panic(err)
 		}
 
@@ -55,8 +57,8 @@ var refreshGCalendar = delay.Func(
 
 		calendarData.Status = models.GCalendarStatusDone
 		calendarData.Calendars = res.calendars
-		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-			_, err := datastore.PutMulti(
+		err := nds.RunInTransaction(ctx, func(ctx context.Context) error {
+			_, err := nds.PutMulti(
 				ctx,
 				[]*datastore.Key{userKey, user.GCalendarData},
 				[]interface{}{&user, calendarData},

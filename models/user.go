@@ -6,6 +6,8 @@ import (
 	"teamzones/utils"
 	"time"
 
+	"github.com/qedus/nds"
+
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
@@ -129,7 +131,7 @@ func CreateMainUser(
 
 	company := NewCompany(companyName, companySubdomain, planID, custID, subID, subIP, subCountry)
 	companyKey := NewCompanyKey(ctx, companySubdomain)
-	if err := datastore.Get(ctx, companyKey, &company); err != datastore.ErrNoSuchEntity {
+	if err := nds.Get(ctx, companyKey, &company); err != datastore.ErrNoSuchEntity {
 		return nil, nil, ErrSubdomainTaken
 	}
 
@@ -142,13 +144,13 @@ func CreateMainUser(
 	user.Timezone = timezone
 	user.Role = RoleMain
 
-	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		_, err := datastore.Put(ctx, companyKey, company)
+	err := nds.RunInTransaction(ctx, func(ctx context.Context) error {
+		_, err := nds.Put(ctx, companyKey, company)
 		if err != nil {
 			return err
 		}
 
-		_, err = datastore.Put(ctx, userKey, user)
+		_, err = nds.Put(ctx, userKey, user)
 		return err
 	}, nil)
 
@@ -164,7 +166,7 @@ func CreateUser(
 
 	user := NewUser()
 	userKey := NewUserKey(ctx, companyKey, email)
-	if err := datastore.Get(ctx, userKey, &user); err != datastore.ErrNoSuchEntity {
+	if err := nds.Get(ctx, userKey, &user); err != datastore.ErrNoSuchEntity {
 		return nil, ErrUserExists
 	}
 
@@ -173,7 +175,7 @@ func CreateUser(
 	user.Email = email
 	user.SetPassword(password)
 	user.Timezone = timezone
-	if _, err := datastore.Put(ctx, userKey, user); err != nil {
+	if _, err := nds.Put(ctx, userKey, user); err != nil {
 		return nil, err
 	}
 
@@ -227,7 +229,7 @@ func FindUsers(company *datastore.Key) *datastore.Query {
 // address.
 func GetUser(ctx context.Context, company *datastore.Key, email string) (*User, error) {
 	var user User
-	if err := datastore.Get(ctx, NewUserKey(ctx, company, email), &user); err != nil {
+	if err := nds.Get(ctx, NewUserKey(ctx, company, email), &user); err != nil {
 		return nil, err
 	}
 
@@ -249,7 +251,7 @@ func (u *User) Save() ([]datastore.Property, error) {
 
 // Put saves the User to Datastore.
 func (u *User) Put(ctx context.Context) (*datastore.Key, error) {
-	return datastore.Put(ctx, u.Key(ctx), u)
+	return nds.Put(ctx, u.Key(ctx), u)
 }
 
 // NewRecoveryTokenKey creates fully-qualified datastore keys for RecoveryTokens.
@@ -273,7 +275,7 @@ func CreateRecoveryToken(
 	tokenNonce := utils.UUID4()
 
 	tokenKey := NewRecoveryTokenKey(ctx, company, tokenNonce)
-	if _, err := datastore.Put(ctx, tokenKey, &token); err != nil {
+	if _, err := nds.Put(ctx, tokenKey, &token); err != nil {
 		return nil, nil, err
 	}
 
@@ -290,7 +292,7 @@ func GetRecoveryToken(
 ) (*RecoveryToken, error) {
 
 	var token RecoveryToken
-	if err := datastore.Get(ctx, NewRecoveryTokenKey(ctx, company, tokenID), &token); err != nil {
+	if err := nds.Get(ctx, NewRecoveryTokenKey(ctx, company, tokenID), &token); err != nil {
 		return nil, err
 	}
 

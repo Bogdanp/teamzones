@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/qedus/nds"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"google.golang.org/appengine/datastore"
@@ -53,7 +54,7 @@ func CreateOAuth2Token(
 
 	tok := NewOAuth2Token(company, user, kind)
 	key := NewOAuth2TokenKey(ctx, user)
-	key, err := datastore.Put(ctx, key, tok)
+	key, err := nds.Put(ctx, key, tok)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -69,7 +70,7 @@ func GetOAuth2Token(
 	var tok OAuth2Token
 
 	key := datastore.NewKey(ctx, oauth2TokenKind, "", tokID, user)
-	if err := datastore.Get(ctx, key, &tok); err != nil {
+	if err := nds.Get(ctx, key, &tok); err != nil {
 		return nil, nil, err
 	}
 

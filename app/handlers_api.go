@@ -11,12 +11,12 @@ import (
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/blobstore"
-	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/image"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
 
 	"github.com/gorilla/context"
+	"github.com/qedus/nds"
 
 	"gopkg.in/julienschmidt/httprouter.v1"
 )
@@ -279,7 +279,7 @@ func deleteUserHandler(res http.ResponseWriter, req *http.Request, params httpro
 		return
 	}
 
-	if err := datastore.Delete(ctx, user.Key(ctx)); err != nil {
+	if err := nds.Delete(ctx, user.Key(ctx)); err != nil {
 		serverError(res)
 		return
 	}
@@ -314,13 +314,13 @@ func refreshIntegrationHandler(res http.ResponseWriter, req *http.Request, _ htt
 
 		if user.GCalendarData != nil {
 			var data models.GCalendarData
-			if err := datastore.Get(ctx, user.GCalendarData, &data); err != nil {
+			if err := nds.Get(ctx, user.GCalendarData, &data); err != nil {
 				serverError(res)
 				return
 			}
 
 			data.Status = models.GCalendarStatusLoading
-			if _, err := datastore.Put(ctx, user.GCalendarData, &data); err != nil {
+			if _, err := nds.Put(ctx, user.GCalendarData, &data); err != nil {
 				serverError(res)
 				return
 			}
@@ -354,7 +354,7 @@ func disconnectIntegrationHandler(res http.ResponseWriter, req *http.Request, _ 
 			return
 		}
 
-		datastore.Delete(ctx, user.GCalendarToken)
+		nds.Delete(ctx, user.GCalendarToken)
 		user.GCalendarToken = nil
 		user.Put(ctx)
 		res.WriteHeader(http.StatusNoContent)
@@ -373,7 +373,7 @@ func gcalendarDataHandler(res http.ResponseWriter, req *http.Request, _ httprout
 	user := context.Get(req, userCtxKey).(*models.User)
 	if user.GCalendarToken != nil && user.GCalendarData != nil {
 		ctx := appengine.NewContext(req)
-		if err := datastore.Get(ctx, user.GCalendarData, &data); err != nil {
+		if err := nds.Get(ctx, user.GCalendarData, &data); err != nil {
 			serverError(res)
 			return
 		}

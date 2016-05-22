@@ -9,6 +9,7 @@ import (
 
 	"github.com/goincremental/negroni-sessions"
 	"github.com/gorilla/context"
+	"github.com/qedus/nds"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
 )
@@ -64,7 +65,7 @@ func Auth(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 	company := context.Get(req, companyCtxKey).(*models.Company)
 	ctx := appengine.NewContext(req)
 	key := models.NewUserKey(ctx, company.Key(ctx), email.(string))
-	err := datastore.Get(ctx, key, &user)
+	err := nds.Get(ctx, key, &user)
 
 	switch err {
 	case nil:
@@ -91,7 +92,7 @@ func Subdomain(res http.ResponseWriter, req *http.Request, next http.HandlerFunc
 
 	ctx := appengine.NewContext(req)
 	key := models.NewCompanyKey(ctx, subdomain)
-	err = datastore.Get(ctx, key, &company)
+	err = nds.Get(ctx, key, &company)
 
 	switch err {
 	case nil:
