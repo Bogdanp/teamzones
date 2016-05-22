@@ -84,7 +84,7 @@ disconnect =
 
 fetchAll : Task Error (Response Calendars)
 fetchAll =
-    getJson calendars "/integrations/gcalendar/data"
+    getJson calendars "integrations/gcalendar/data"
 
 
 refresh : Task Error (Response String)

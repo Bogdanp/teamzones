@@ -88,19 +88,16 @@ update msg ({ disconnectMsg, disconnectButton } as model) =
             -- TODO: Handle errors
             ( model, Cmd.none, Nothing )
 
-        FetchSuccess response ->
+        FetchSuccess { data } ->
             let
-                calendars =
-                    response.data
-
                 fetchAll =
-                    if calendars.status == CalendarApi.Loading then
+                    if data.status == CalendarApi.Loading then
                         (Process.sleep (1 * Time.second) `Task.andThen` (always CalendarApi.fetchAll))
                             |> Task.perform FetchError FetchSuccess
                     else
                         Cmd.none
             in
-                ( { model | calendars = calendars }, fetchAll, Nothing )
+                ( { model | calendars = data }, fetchAll, Nothing )
 
 
 view : Model pmsg -> Html Msg
