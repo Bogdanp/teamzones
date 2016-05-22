@@ -22,10 +22,15 @@ function request(endpoint, userOptions) {
   });
 }
 
+function fetchBraintreeToken() {
+  return request("bt-token");
+}
+
 function fetchLocation() {
   return request("location");
 }
 
 module.exports = {
+  fetchBraintreeToken: fetchBraintreeToken,
   fetchLocation: fetchLocation
 };

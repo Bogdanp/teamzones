@@ -3,25 +3,40 @@ package handlers
 import (
 	"net/http"
 	"teamzones/forms"
+	"teamzones/integrations"
 	"teamzones/models"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
 
 	"gopkg.in/julienschmidt/httprouter.v1"
 )
 
 func init() {
 	GET(siteRouter, homeRoute, "/", homeHandler)
-	ALL(siteRouter, signUpRoute, "/sign-up/", signUpHandler)
+	GET(siteRouter, plansRoute, "/plans", plansHandler)
+	ALL(siteRouter, signUpRoute, "/sign-up/:plan", signUpHandler)
 	ALL(siteRouter, siteSignInRoute, "/sign-in/", siteSignInHandler)
 	ALL(siteRouter, findTeamRoute, "/find-team/", findTeamHandler)
+
+	GET(siteRouter, btTokenRoute, "/api/bt-token", braintreeTokenHandler)
 }
 
 func homeHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	renderer.HTML(res, http.StatusOK, "index", nil)
 }
 
-func signUpHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+func plansHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	renderer.HTML(res, http.StatusOK, "plans", config.Plans)
+}
+
+func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	_, err := lookupPlan(params.ByName("plan"))
+	if err != nil {
+		notFound(res)
+		return
+	}
+
 	form := struct {
 		CompanyName      forms.Field
 		CompanySubdomain forms.Field
@@ -158,4 +173,17 @@ func findTeamHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Pa
 	}
 
 	renderer.HTML(res, http.StatusOK, "find-team", form)
+}
+
+func braintreeTokenHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	ctx := appengine.NewContext(req)
+	bt := integrations.NewBraintreeService(ctx)
+	tok, err := bt.ClientToken().Generate()
+	if err != nil {
+		log.Errorf(ctx, "failed to generate client token: %v", tok)
+		serverError(res)
+		return
+	}
+
+	renderer.JSON(res, http.StatusOK, tok)
 }

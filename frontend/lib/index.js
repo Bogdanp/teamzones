@@ -10,6 +10,7 @@ function seconds() {
 }
 
 window.moment = moment;
+window.service = service;
 window.init = function(Elm, el, context) {
   context.now = now();
   context.path = window.location.pathname;

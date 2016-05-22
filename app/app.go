@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"teamzones/utils"
 
 	"github.com/codegangsta/negroni"
 	"github.com/goincremental/negroni-sessions"
@@ -29,6 +30,8 @@ var siteRouter, appRouter = createRouters()
 const (
 	// Site
 	homeRoute = iota
+	plansRoute
+	btTokenRoute
 	signUpRoute
 	siteSignInRoute
 	findTeamRoute
@@ -148,13 +151,7 @@ type Config struct {
 		Bucket string
 	} `yaml:"cloud_storage"`
 
-	Plans []struct {
-		ID      string
-		Label   string
-		Price   int
-		Cycle   string
-		Members int
-	}
+	Plans []Plan
 }
 
 // Host is the full host name according to the configuration.  The
@@ -177,18 +174,7 @@ func loadConfig() *Config {
 	}
 
 	config := &Config{}
-	loadYAML(filename, config)
-	loadYAML("config/plans.yaml", config)
+	utils.LoadYAML(filename, config)
+	utils.LoadYAML("config/plans.yaml", config)
 	return config
-}
-
-func loadYAML(filename string, output interface{}) {
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := yaml.Unmarshal(data, output); err != nil {
-		panic(err)
-	}
 }

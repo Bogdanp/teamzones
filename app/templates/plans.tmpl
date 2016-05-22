@@ -1,0 +1,5 @@
+{{define "title-plans"}} - Plans{{end}}
+
+{{range $plan := .}}
+  <a href="/sign-up/{{$plan.ID}}">{{$plan.Label}} paid {{$plan.Cycle}}ly</a>
+{{end}}

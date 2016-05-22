@@ -1,6 +1,8 @@
 {{define "title-sign-up"}} - Sign Up{{end}}
 
 <form action="" method="post">
+  <h1>Account information</h1>
+
   {{template "_fields/text" .CompanyName}}
   {{template "_fields/text" .CompanySubdomain}}
   {{template "_fields/text" .Name}}
@@ -8,10 +10,21 @@
   {{template "_fields/password" .Password}}
   {{template "_fields/hidden" .Timezone}}
 
-  <input type="submit" />
+  <h1>Payment information</h1>
+  <div id="payment">
+  </div>
+
+  <input type="submit" id="submit-button" disabled="disabled" />
 </form>
 
+<script src="/static/js/braintree-2.24.1.min.js"></script>
 <script src="/static/js/lib.js"></script>
 <script>
   document.getElementById("timezone").value = moment.tz.guess();
+  service.fetchBraintreeToken().then(function(token) {
+    document.getElementById("submit-button").disabled = false;
+    braintree.setup(token, "dropin", {
+      container: "payment"
+    })
+  });
 </script>
