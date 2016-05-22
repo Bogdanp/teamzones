@@ -32,6 +32,7 @@ view ({ now, company, user, team, route, invite, integrations, settings, current
 
                 ProfileR _ ->
                     Profile.view model.profile
+                        |> Html.map ToProfile
 
                 IntegrationsR _ ->
                     Integrations.view integrations

@@ -20,6 +20,7 @@ type Msg
     | PathChanged String
     | RouteTo Sitemap
     | ToInvite Invite.Msg
+    | ToProfile Profile.Msg
     | ToIntegrations Integrations.Msg
     | ToSettings Settings.Msg
     | ToCurrentProfile CP.Msg

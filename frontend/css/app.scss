@@ -7,10 +7,6 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 300;
 }
 
-input:focus {
-  outline: 0;
-}
-
 table {
   width: 100%;
 
@@ -22,12 +18,10 @@ table {
       td {
         padding: 5px;
 
-        text-transform: uppercase;
-
+        cursor: default;
         font-size: 0.7em;
         font-weight: 400;
-
-        cursor: default;
+        text-transform: uppercase;
 
         border-bottom: 1px solid #ddd;
       }
@@ -216,53 +210,6 @@ table {
     border-right: 1px solid #F2F2F2;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 
-    .avatar {
-      background: #CCC;
-      height: 250px;
-      width: 250px;
-
-      transition: all 0.25 ease-in;
-
-      img {
-        height: 250px;
-        width: 250px;
-      }
-
-      .initials {
-        display: table-cell;
-
-        width: 250px;
-        height: 250px;
-
-        color: #FFF;
-        font-size: 4em;
-        text-align: center;
-        vertical-align: middle;
-      }
-    }
-
-    h3, h6 {
-      cursor: default;
-    }
-
-    h3 {
-      margin-bottom: 0;
-
-      color: #000;
-      line-height: 1em;
-      text-align: center;
-      text-transform: uppercase;
-    }
-
-    h6 {
-      margin-top: 0.8em;
-
-      color: #AAA;
-      line-height: 0em;
-      text-align: center;
-      text-transform: uppercase;
-    }
-
     .menu {
       margin: 0;
       padding: 0;
@@ -360,6 +307,11 @@ table {
 
         font-size: 0.9em;
         font-weight: 400;
+      }
+
+      p.small {
+        font-size: 0.7em;
+        font-weight: 300;
       }
     }
   }
@@ -483,6 +435,78 @@ table {
       flex: 1 0 auto;
       text-align: center;
     }
+  }
+}
+
+.profile-page {
+  display: flex;
+
+  .profile-sidebar {
+    flex: 0 1 auto;
+
+    width: 270px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  .profile-content {
+    flex: 1 1 auto;
+    padding: 10px 10px 10px 0;
+    box-sizing: border-box;
+
+    >div>h4:first-child {
+      margin-top: 5px;
+    }
+  }
+}
+
+.user-profile {
+  .avatar {
+    background: #CCC;
+    height: 250px;
+    width: 250px;
+
+    transition: all 0.25 ease-in;
+
+    img {
+      height: 250px;
+      width: 250px;
+    }
+
+    .initials {
+      display: table-cell;
+
+      width: 250px;
+      height: 250px;
+
+      color: #FFF;
+      cursor: default;
+      font-size: 4em;
+      text-align: center;
+      vertical-align: middle;
+    }
+  }
+
+  h3, h6 {
+    cursor: default;
+  }
+
+  h3 {
+    margin-bottom: 0;
+
+    color: #000;
+    line-height: 1em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  h6 {
+    margin-top: 0.8em;
+
+    color: #AAA;
+    line-height: 0em;
+    text-align: center;
+    text-transform: uppercase;
   }
 }
 

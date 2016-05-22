@@ -3,6 +3,7 @@ port module Update exposing (init, update)
 import Components.CurrentProfile as CP
 import Components.Invite as Invite
 import Components.Integrations as Integrations
+import Components.Profile as Profile
 import Components.Settings as Settings
 import Dict exposing (Dict)
 import Model exposing (..)
@@ -47,7 +48,11 @@ init ({ path, now, company, user, team, timezones, integrationStates } as flags)
                 , integrationStates = integrationStates
                 , route = route
                 , invite = Invite.init
-                , profile = currentUser
+                , profile =
+                    { now = now
+                    , user = currentUser
+                    , currentUser = currentUser
+                    }
                 , integrations = integrations
                 , settings =
                     Settings.init
@@ -64,12 +69,19 @@ init ({ path, now, company, user, team, timezones, integrationStates } as flags)
 
 
 handleRoute : Model -> ( Model, Cmd Msg )
-handleRoute ({ route, user, teamMembers, integrationStates } as model) =
+handleRoute ({ now, route, user, teamMembers, integrationStates } as model) =
     case route of
         ProfileR email ->
             case findUser teamMembers email of
-                Just user ->
-                    { model | profile = user } ! []
+                Just profileUser ->
+                    { model
+                        | profile =
+                            { now = now
+                            , user = profileUser
+                            , currentUser = user
+                            }
+                    }
+                        ! []
 
                 Nothing ->
                     { model | route = NotFoundR } ! []
@@ -133,6 +145,13 @@ update msg ({ now, user, team, teamMembers } as model) =
                     Invite.update msg model.invite
             in
                 { model | invite = invite } ! [ Cmd.map ToInvite fx ]
+
+        ToProfile msg ->
+            let
+                ( profile, fx ) =
+                    Profile.update msg model.profile
+            in
+                { model | profile = profile } ! [ Cmd.map ToProfile fx ]
 
         ToIntegrations msg ->
             let

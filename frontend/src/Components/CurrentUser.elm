@@ -10,7 +10,7 @@ import Util exposing ((=>), initials, initialsColor)
 
 view : AnchorTo msg -> User -> Html msg
 view anchorTo user =
-    div [ class "current-user" ]
+    div [ class "user-profile" ]
         [ avatar anchorTo user
         , h3 [] [ text user.name ]
         , h6 [] [ text (showTimezone user.timezone) ]
