@@ -143,9 +143,18 @@ type Config struct {
 		Host string
 		Port int
 	}
+
 	CloudStorage struct {
 		Bucket string
 	} `yaml:"cloud_storage"`
+
+	Plans []struct {
+		ID      string
+		Label   string
+		Price   int
+		Cycle   string
+		Members int
+	}
 }
 
 // Host is the full host name according to the configuration.  The
@@ -160,23 +169,26 @@ func (c *Config) Host() string {
 
 // Reads the configuration file for the current environment.
 func loadConfig() *Config {
-	var config Config
-	var data []byte
-	var err error
-
+	var filename string
 	if strings.Contains(appengine.ServerSoftware(), "Development") {
-		data, err = ioutil.ReadFile("config/local.yaml")
+		filename = "config/local.yaml"
 	} else {
-		data, err = ioutil.ReadFile(fmt.Sprintf("config/%s.yaml", metadata.Application))
+		filename = fmt.Sprintf("config/%s.yaml", metadata.Application)
 	}
 
+	config := &Config{}
+	loadYAML(filename, config)
+	loadYAML("config/plans.yaml", config)
+	return config
+}
+
+func loadYAML(filename string, output interface{}) {
+	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		panic(err)
 	}
 
-	if err := yaml.Unmarshal(data, &config); err != nil {
+	if err := yaml.Unmarshal(data, output); err != nil {
 		panic(err)
 	}
-
-	return &config
 }

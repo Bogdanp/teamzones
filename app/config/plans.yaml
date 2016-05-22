@@ -1,0 +1,42 @@
+plans:
+  - id: free
+    label: Free
+    price: 0
+    cycle: never
+    members: 1000
+
+  - id: teamzones-medium-monthly
+    label: Medium
+    price: 1200
+    cycle: month
+    members: 25
+
+  - id: teamzones-medium-yearly
+    label: Medium
+    price: 10000
+    cycle: year
+    members: 25
+
+  - id: teamzones-large-monthly
+    label: Large
+    price: 2000
+    cycle: month
+    members: 50
+
+  - id: teamzones-large-yearly
+    label: Large
+    price: 20000
+    cycle: year
+    members: 50
+
+  - id: teamzones-enterprise-monthly
+    label: Enterprise
+    price: 4000
+    cycle: month
+    members: 500
+
+  - id: teamzones-enterprise-yearly
+    label: Enterprise
+    price: 40000
+    cycle: year
+    members: 500
