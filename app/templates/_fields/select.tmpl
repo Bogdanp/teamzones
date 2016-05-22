@@ -1,0 +1,9 @@
+{{template "_fields/label" .}}
+<select id="{{.Name}}"
+        name="{{.Name}}"
+        value="{{.Value}}">
+  {{range $option := .Values}}
+    <option value="{{$option.Value}}">{{$option.Label}}</option>
+  {{end}}
+</select>
+{{template "_fields/errors" .}}

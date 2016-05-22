@@ -14,13 +14,26 @@ type Company struct {
 	Name      string `json:"name"`
 	Subdomain string `json:"-"`
 
+	PlanID              string `json:"-"`
+	CustomerID          string `json:"-"`
+	SubscriptionID      string `json:"-"`
+	SubscriptionIP      string `json:"-"`
+	SubscriptionCountry string `json:"-"`
+
 	Times
 }
 
 // NewCompany creates an empty Company, ensuring that its Time
 // properties are initialized correctly.
-func NewCompany() *Company {
+func NewCompany(name, subdomain, planID, custID, subID, subIP, subCountry string) *Company {
 	company := Company{}
+	company.Name = name
+	company.Subdomain = subdomain
+	company.PlanID = planID
+	company.CustomerID = custID
+	company.SubscriptionID = subID
+	company.SubscriptionIP = subIP
+	company.SubscriptionCountry = subCountry
 	company.initTimes()
 	return &company
 }

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"teamzones/models"
 
@@ -22,14 +21,13 @@ func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 
 	ctx := appengine.NewContext(req)
 	company, user, err := models.CreateMainUser(
-		ctx, "defn", "defn",
+		ctx, "defn", "defn", "free", "", "", "127.0.0.1", "RO",
 		"Bogdan Popa", "bogdan@defn.io", "password", "Europe/Bucharest",
 	)
 	if err != nil {
 		return
 	}
 
-	fmt.Println("WTF")
 	user.Workdays = models.Workdays{
 		Monday:    models.Workday{Start: 15, End: 23},
 		Tuesday:   models.Workday{Start: 15, End: 23},

@@ -123,17 +123,15 @@ func (u *User) Key(ctx context.Context) *datastore.Key {
 // pair for a company.
 func CreateMainUser(
 	ctx context.Context,
-	companyName, companySubdomain, name, email, password, timezone string,
+	companyName, companySubdomain, planID, custID, subID, subIP, subCountry,
+	name, email, password, timezone string,
 ) (*Company, *User, error) {
 
-	company := NewCompany()
+	company := NewCompany(companyName, companySubdomain, planID, custID, subID, subIP, subCountry)
 	companyKey := NewCompanyKey(ctx, companySubdomain)
 	if err := datastore.Get(ctx, companyKey, &company); err != datastore.ErrNoSuchEntity {
 		return nil, nil, ErrSubdomainTaken
 	}
-
-	company.Name = companyName
-	company.Subdomain = companySubdomain
 
 	user := NewUser()
 	userKey := NewUserKey(ctx, companyKey, email)

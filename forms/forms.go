@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"teamzones/utils"
 )
 
 // Validator is an alias for functions from string to error.  They are
@@ -16,12 +17,20 @@ import (
 // be.
 type Validator func(string) error
 
+// Option represents a value in a multiple-choice field (eg. a select
+// field).
+type Option struct {
+	Value string
+	Label string
+}
+
 // Field represents a field on a form.  They are used to perform form
 // validation and to make rendering forms easy.
 type Field struct {
 	Name       string
 	Label      string
 	Value      string
+	Values     []Option
 	Optional   bool
 	Errors     []string
 	Validators []Validator
@@ -158,4 +167,26 @@ func dynMaxLength(value interface{}, args []string) error {
 	}
 
 	return MaxLength(n)(value.(string))
+}
+
+// Country validates that the Field's value is a valid ISO country code.
+func Country(value string) error {
+	for _, country := range utils.Countries {
+		if country.Code == value {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("Country %q does not exist.", value)
+}
+
+// CountryValues returns a list of Options representing the set of countries.
+func CountryValues() []Option {
+	options := make([]Option, len(utils.Countries))
+	for i, country := range utils.Countries {
+		options[i].Value = country.Code
+		options[i].Label = country.Name
+	}
+
+	return options
 }

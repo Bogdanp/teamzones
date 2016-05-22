@@ -8,6 +8,7 @@
   {{template "_fields/text" .Name}}
   {{template "_fields/email" .Email}}
   {{template "_fields/password" .Password}}
+  {{template "_fields/select" .Country}}
   {{template "_fields/hidden" .Timezone}}
 
   <h1>Payment information</h1>
@@ -22,9 +23,11 @@
 <script>
   document.getElementById("timezone").value = moment.tz.guess();
   service.fetchBraintreeToken().then(function(token) {
-    document.getElementById("submit-button").disabled = false;
     braintree.setup(token, "dropin", {
-      container: "payment"
+      container: "payment",
+      onReady: function() {
+        document.getElementById("submit-button").disabled = false;
+      }
     })
   });
 </script>

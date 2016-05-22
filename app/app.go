@@ -150,8 +150,6 @@ type Config struct {
 	CloudStorage struct {
 		Bucket string
 	} `yaml:"cloud_storage"`
-
-	Plans []Plan
 }
 
 // Host is the full host name according to the configuration.  The
@@ -166,15 +164,12 @@ func (c *Config) Host() string {
 
 // Reads the configuration file for the current environment.
 func loadConfig() *Config {
-	var filename string
+	c := &Config{}
 	if strings.Contains(appengine.ServerSoftware(), "Development") {
-		filename = "config/local.yaml"
+		utils.LoadYAML("config/local.yaml", c)
 	} else {
-		filename = fmt.Sprintf("config/%s.yaml", metadata.Application)
+		utils.LoadYAML(fmt.Sprintf("config/%s.yaml", metadata.Application), c)
 	}
 
-	config := &Config{}
-	utils.LoadYAML(filename, config)
-	utils.LoadYAML("config/plans.yaml", config)
-	return config
+	return c
 }

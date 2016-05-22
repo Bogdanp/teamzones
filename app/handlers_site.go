@@ -14,8 +14,8 @@ import (
 
 func init() {
 	GET(siteRouter, homeRoute, "/", homeHandler)
-	GET(siteRouter, plansRoute, "/plans", plansHandler)
-	ALL(siteRouter, signUpRoute, "/sign-up/:plan", signUpHandler)
+	GET(siteRouter, plansRoute, "/plans/", plansHandler)
+	ALL(siteRouter, signUpRoute, "/sign-up/:plan/", signUpHandler)
 	ALL(siteRouter, siteSignInRoute, "/sign-in/", siteSignInHandler)
 	ALL(siteRouter, findTeamRoute, "/find-team/", findTeamHandler)
 
@@ -27,22 +27,24 @@ func homeHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params
 }
 
 func plansHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	renderer.HTML(res, http.StatusOK, "plans", config.Plans)
+	renderer.HTML(res, http.StatusOK, "plans", integrations.BraintreePlans())
 }
 
 func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	_, err := lookupPlan(params.ByName("plan"))
+	plan, err := integrations.LookupBraintreePlan(params.ByName("plan"))
 	if err != nil {
 		notFound(res)
 		return
 	}
 
+	country := req.Header.Get("X-AppEngine-Country")
 	form := struct {
 		CompanyName      forms.Field
 		CompanySubdomain forms.Field
 		Name             forms.Field
 		Email            forms.Field
 		Password         forms.Field
+		Country          forms.Field
 		Timezone         forms.Field
 	}{
 		forms.Field{
@@ -72,6 +74,13 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 			Validators: []forms.Validator{forms.MinLength(6)},
 		},
 		forms.Field{
+			Name:       "country",
+			Label:      "Country",
+			Value:      country,
+			Values:     forms.CountryValues(),
+			Validators: []forms.Validator{forms.Country},
+		},
+		forms.Field{
 			Name:       "timezone",
 			Label:      "Timezone",
 			Validators: []forms.Validator{},
@@ -84,11 +93,42 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 			return
 		}
 
+		if country != "ZZ" && country != form.Country.Value {
+			form.Country.Errors = []string{"Your selected country must match your IP address."}
+			renderer.HTML(res, http.StatusBadRequest, "sign-up", form)
+			return
+		}
+
+		nonce := req.PostFormValue("payment_method_nonce")
+		if nonce == "" {
+			renderer.HTML(res, http.StatusBadRequest, "sign-up", form)
+			return
+		}
+
 		ctx := appengine.NewContext(req)
-		_, _, err := models.CreateMainUser(
+		customer, subscription, err := integrations.BraintreeSubscribe(
+			ctx, nonce, plan.ID,
+			form.CompanySubdomain.Value, form.Name.Value, form.Email.Value,
+		)
+		if err != nil {
+			log.Errorf(ctx, "error while subscribing customer: %v", err)
+			return
+		}
+
+		_, _, err = models.CreateMainUser(
 			ctx,
+
 			form.CompanyName.Value,
 			form.CompanySubdomain.Value,
+
+			plan.ID,
+			customer.Id,
+			subscription.Id,
+
+			// Remote address and Country are required for VAT purposes
+			req.RemoteAddr,
+			form.Country.Value,
+
 			form.Name.Value,
 			form.Email.Value,
 			form.Password.Value,
