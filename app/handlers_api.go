@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 	"teamzones/forms"
+	"teamzones/integrations"
 	"teamzones/models"
-	"teamzones/utils"
 	"time"
 
 	"google.golang.org/appengine"
@@ -54,7 +54,7 @@ func locationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Pa
 	} else {
 		location := req.Header.Get("X-AppEngine-CityLatLong")
 		if location != "" {
-			timezoneID, err := utils.GetTimezone(ctx, location)
+			timezoneID, err := integrations.GetTimezone(ctx, location)
 			if err != nil {
 				panic(err)
 			}
