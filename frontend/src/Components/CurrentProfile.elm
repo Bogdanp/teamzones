@@ -4,6 +4,7 @@ import Api exposing (Error, Response)
 import Api.Profile as ProfileApi exposing (Profile, createUploadUri, deleteAvatar, updateProfile)
 import Components.ConfirmationButton as CB
 import Components.Form as FC
+import Components.Notifications exposing (info)
 import Components.Page exposing (page)
 import Form exposing (Form)
 import Form.Field exposing (Field(..))
@@ -160,7 +161,8 @@ update msg model =
 
         ProfileSuccess response ->
             { model | pending = False }
-                ! [ UpdateCurrentUser model.profile
+                ! [ info "Your profile has been updated."
+                  , UpdateCurrentUser model.profile
                         |> Task.succeed
                         |> Task.perform ToParent ToParent
                   ]
