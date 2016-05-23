@@ -5,37 +5,37 @@ plans:
     cycle: never
     members: 1000
 
-  - id: teamzones-medium-monthly
+  - id: t-m1
     label: Medium
     price: 1200
     cycle: month
     members: 25
 
-  - id: teamzones-medium-yearly
+  - id: t-m12
     label: Medium
     price: 10000
     cycle: year
     members: 25
 
-  - id: teamzones-large-monthly
+  - id: t-l1
     label: Large
     price: 2000
     cycle: month
     members: 50
 
-  - id: teamzones-large-yearly
+  - id: t-l12
     label: Large
     price: 20000
     cycle: year
     members: 50
 
-  - id: teamzones-enterprise-monthly
+  - id: t-e1
     label: Enterprise
     price: 4000
     cycle: month
     members: 500
 
-  - id: teamzones-enterprise-yearly
+  - id: t-e12
     label: Enterprise
     price: 40000
     cycle: year
