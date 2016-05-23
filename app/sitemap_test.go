@@ -27,7 +27,7 @@ func TestBuilding(t *testing.T) {
 	for _, test := range cases {
 		value := test.builder.Build()
 		if value != test.expected {
-			t.Errorf("bad build, expected %q got %q for builder %q", test.expected, value, test.builder)
+			t.Errorf("bad build, expected %q got %q for builder %v", test.expected, value, test.builder)
 		}
 	}
 }

@@ -4,12 +4,59 @@ import (
 	"teamzones/integrations"
 	"teamzones/models"
 
+	"github.com/lionelbarrow/braintree-go"
 	"github.com/qedus/nds"
 
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/delay"
 	"google.golang.org/appengine/log"
+)
+
+var processBtWebhook = delay.Func(
+	"process-braintree-webhook",
+	func(ctx context.Context, btSignature, btPayload string) {
+		bt := integrations.NewBraintreeService(ctx)
+		n, err := bt.WebhookNotification().Parse(btSignature, btPayload)
+		if err != nil {
+			log.Errorf(ctx, "Failed to parse Braintree webhook: %v", err)
+			return
+		}
+
+		sub := n.Subject.Subscription
+		if sub.Id == "" {
+			log.Warningf(ctx, "Unexpected notification: %v", n.Kind)
+			return
+		}
+
+		company, err := models.GetCompanyBySubID(ctx, sub.Id)
+		if err != nil {
+			log.Errorf(ctx, "Failed to retrieve company: %v", err)
+			return
+		}
+
+		switch n.Kind {
+		case braintree.SubscriptionCanceledWebhook:
+			t, err := integrations.ParseBraintreeDate(sub.BillingPeriodEndDate)
+			if err != nil {
+				panic(err)
+			}
+
+			if err := company.CancelSubscription(ctx, t); err != nil {
+				panic(err)
+			}
+
+		case braintree.SubscriptionChargedSuccessfullyWebhook:
+			// FIXME: handle this case
+
+		case braintree.SubscriptionChargedUnsuccessfullyWebhook:
+			// FIXME: handle this case
+
+		case braintree.SubscriptionWentPastDueWebhook:
+			// FIXME: handle this case
+
+		}
+	},
 )
 
 var refreshGCalendar = delay.Func(

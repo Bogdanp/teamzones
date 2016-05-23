@@ -31,10 +31,12 @@ const (
 	// Site
 	homeRoute = iota
 	plansRoute
-	btTokenRoute
 	signUpRoute
 	siteSignInRoute
 	findTeamRoute
+
+	btTokenRoute
+	btWebhookRoute
 
 	// Integrations
 	initiateOAuthRoute

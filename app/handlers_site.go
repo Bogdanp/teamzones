@@ -20,6 +20,7 @@ func init() {
 	ALL(siteRouter, findTeamRoute, "/find-team/", findTeamHandler)
 
 	GET(siteRouter, btTokenRoute, "/api/bt-token", braintreeTokenHandler)
+	POST(siteRouter, btWebhookRoute, "/api/bt-webhooks", braintreeWebhookHandler)
 }
 
 func homeHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
@@ -227,4 +228,10 @@ func braintreeTokenHandler(res http.ResponseWriter, req *http.Request, _ httprou
 	}
 
 	renderer.JSON(res, http.StatusOK, t)
+}
+
+func braintreeWebhookHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	ctx := appengine.NewContext(req)
+	processBtWebhook.Call(ctx, req.PostFormValue("bt_signature"), req.PostFormValue("bt_payload"))
+	res.WriteHeader(http.StatusAccepted)
 }

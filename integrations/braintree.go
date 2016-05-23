@@ -4,8 +4,11 @@ import (
 	"errors"
 	"strings"
 	"teamzones/utils"
+	"time"
 
-	"github.com/lionelbarrow/braintree-go"
+	// Fixes gocode completion
+	braintree "github.com/lionelbarrow/braintree-go"
+
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine"
@@ -114,4 +117,14 @@ func LookupBraintreePlan(planID string) (*BraintreePlan, error) {
 	}
 
 	return nil, ErrPlanNotFound
+}
+
+// ParseBraintreeDate converts a Braintree date string to a time.Time.
+func ParseBraintreeDate(date string) (time.Time, error) {
+	t, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		return time.Time{}, nil
+	}
+
+	return t, nil
 }
