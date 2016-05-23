@@ -1,33 +1,85 @@
 {{define "title-sign-up"}} - Sign Up{{end}}
 
-<form action="" method="post">
+<form action="" method="post" id="signup-form">
   <h1>Account information</h1>
+  {{template "_fields/text" .Form.CompanyName}} <br/>
+  {{template "_fields/text" .Form.CompanySubdomain}} <br/>
+  {{template "_fields/text" .Form.FirstName}} <br/>
+  {{template "_fields/text" .Form.LastName}} <br/>
+  {{template "_fields/email" .Form.Email}} <br/>
+  {{template "_fields/password" .Form.Password}} <br/>
 
-  {{template "_fields/text" .CompanyName}}
-  {{template "_fields/text" .CompanySubdomain}}
-  {{template "_fields/text" .Name}}
-  {{template "_fields/email" .Email}}
-  {{template "_fields/password" .Password}}
-  {{template "_fields/select" .Country}}
-  {{template "_fields/hidden" .Timezone}}
+  <h1>Billing information</h1>
+  {{template "_fields/text" .Form.Address1}} <br/>
+  {{template "_fields/text" .Form.Address2}} <br/>
+  {{template "_fields/text" .Form.City}} <br/>
+  {{template "_fields/text" .Form.Region}} <br/>
+  {{template "_fields/text" .Form.PostalCode}} <br/>
+  {{template "_fields/select" .Form.Country}} <br/>
 
-  <h1>Payment information</h1>
+  <div id="eu-vat">
+    <input type="text" id="vat-prefix" disabled="disabled" />
+    {{template "_fields/text" .Form.VATID}} <br/>
+  </div>
+
   <div id="payment">
   </div>
 
-  <input type="submit" id="submit-button" disabled="disabled" />
+  {{template "_fields/hidden" .Form.Timezone}} <br/>
+
+  <input type="submit"
+         id="submit-button"
+         disabled="disabled" />
 </form>
 
 <script src="/static/js/braintree-2.24.1.min.js"></script>
 <script src="/static/js/lib.js"></script>
 <script>
-  document.getElementById("timezone").value = moment.tz.guess();
+  var vatCountries = {{.VATCountries}};
+  var countryEl = document.getElementById("country");
+  var euVatEl = document.getElementById("eu-vat");
+  var vatIdEl = document.getElementById("vat-id");
+  var vatPrefixEl = document.getElementById("vat-prefix");
+  var timezoneEl = document.getElementById("timezone");
+  var submitEl = document.getElementById("submit-button");
+  var formEl = document.getElementById("signup-form");
+
+  var handleVAT = function(code) {
+    for (var i = 0; i < vatCountries.length; i++) {
+      var country = vatCountries[i];
+
+      if (country.Code === code) {
+        vatPrefixEl.value = country.Code;
+        euVatEl.style.display = "block";
+        return;
+      }
+    }
+
+    euVatEl.style.display = "none";
+  };
+
   service.fetchBraintreeToken().then(function(token) {
     braintree.setup(token, "dropin", {
       container: "payment",
       onReady: function() {
-        document.getElementById("submit-button").disabled = false;
+        submitEl.disabled = false;
       }
     })
   });
+
+  // VAT
+  handleVAT(countryEl.value);
+  countryEl.onchange = function(e) {
+    handleVAT(e.target.value);
+  };
+  vatIdEl.onchange = function(e) {
+  };
+
+  // Timezone
+  timezoneEl.value = moment.tz.guess();
+
+  // Submission
+  formEl.onsubmit = function() {
+    submitEl.disabled = true;
+  };
 </script>

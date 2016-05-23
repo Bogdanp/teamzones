@@ -65,8 +65,9 @@ validateWorkdays =
 
 validate : Validation () Profile
 validate =
-    form3 Profile
-        (get "name" (string `andThen` minLength 3 `andThen` maxLength 50))
+    form4 Profile
+        (get "first-name" (string `andThen` minLength 3 `andThen` maxLength 50))
+        (get "last-name" (string `andThen` minLength 3 `andThen` maxLength 50))
         (get "timezone" string)
         validateWorkdays
 
@@ -78,10 +79,11 @@ init user timezones =
             Select << toString
 
         profile =
-            Profile user.name user.timezone user.workdays
+            Profile user.firstName user.lastName user.timezone user.workdays
 
         values =
-            [ ( "name", Text user.name )
+            [ ( "first-name", Text user.firstName )
+            , ( "last-name", Text user.lastName )
             , ( "timezone", Select user.timezone )
             , ( "monday-start", select user.workdays.monday.start )
             , ( "monday-end", select user.workdays.monday.end )
@@ -278,7 +280,8 @@ view { form, deleteAvatarButton, pending, uploadUri, timezones } =
                 ]
             , FC.form Submit
                 [ h4 [] [ text "Personal information" ]
-                , textInput "Name" "name"
+                , textInput "First name" "first-name"
+                , textInput "Last name" "last-name"
                 , selectInput "Timezone" "timezone" timezoneValues
                 , h4 [] [ text "Workdays" ]
                 , workday "Monday" "monday"

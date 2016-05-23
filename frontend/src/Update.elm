@@ -206,7 +206,9 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
 
                 update u =
                     { u
-                        | name = profile.name
+                        | firstName = profile.firstName
+                        , lastName = profile.lastName
+                        , fullName = profile.firstName ++ " " ++ profile.lastName
                         , timezone = profile.timezone
                         , workdays = profile.workdays
                     }
@@ -235,12 +237,12 @@ findUser teamMembers email =
 
 
 prepareUser : ContextUser -> User
-prepareUser u =
+prepareUser ctx =
     let
-        role r =
-            if r == "main" then
+        role =
+            if ctx.role == "main" then
                 Main
-            else if r == "manager" then
+            else if ctx.role == "manager" then
                 Manager
             else
                 Member
@@ -252,12 +254,21 @@ prepareUser u =
                 Just s
 
         avatar =
-            maybeFromZero u.avatar
+            maybeFromZero ctx.avatar
 
         smallAvatar =
-            maybeFromZero u.smallAvatar
+            maybeFromZero ctx.smallAvatar
     in
-        User (role u.role) u.name u.email avatar smallAvatar u.timezone u.workdays
+        { role = role
+        , firstName = ctx.firstName
+        , lastName = ctx.lastName
+        , fullName = ctx.firstName ++ " " ++ ctx.lastName
+        , email = ctx.email
+        , avatar = avatar
+        , smallAvatar = smallAvatar
+        , timezone = ctx.timezone
+        , workdays = ctx.workdays
+        }
 
 
 groupTeam : Timestamp -> List User -> Team
@@ -285,7 +296,7 @@ groupTeam now xs =
 
         -- This sorts in reverse to account for the foldl
         sort u =
-            ( order u, u.name )
+            ( order u, u.fullName )
     in
         List.sortBy sort xs
             |> List.reverse

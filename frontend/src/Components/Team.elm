@@ -30,7 +30,7 @@ view routeTo team now =
             in
                 li [ classList [ "offline" => isOffline now u ] ]
                     [ avatar
-                    , div [ class "overlay" ] [ span [] [ text u.name ] ]
+                    , div [ class "overlay" ] [ span [] [ text u.fullName ] ]
                     ]
 
         anchorTo route attrs =
@@ -39,7 +39,7 @@ view routeTo team now =
         initialsAvatar user =
             let
                 initials' =
-                    initials user.name
+                    initials user.fullName
             in
                 anchorTo (ProfileR user.email)
                     [ class "initials"

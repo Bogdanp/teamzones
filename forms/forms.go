@@ -180,8 +180,10 @@ func Country(value string) error {
 	return fmt.Errorf("Country %q does not exist.", value)
 }
 
-// CountryValues returns a list of Options representing the set of countries.
-func CountryValues() []Option {
+// CountryValues is the list of Options representing the set of countries.
+var CountryValues = buildCountryValues()
+
+func buildCountryValues() []Option {
 	options := make([]Option, len(utils.Countries))
 	for i, country := range utils.Countries {
 		options[i].Value = country.Code

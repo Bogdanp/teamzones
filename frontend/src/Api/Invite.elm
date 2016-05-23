@@ -14,7 +14,8 @@ import Util exposing ((=>))
 
 
 type alias Invite =
-    { name : String
+    { firstName : String
+    , lastName : String
     , email : String
     }
 
@@ -38,7 +39,8 @@ createBulkInvite =
 encodeInvite : Invite -> Json.Encode.Value
 encodeInvite invite =
     Json.Encode.object
-        [ "name" => Json.Encode.string invite.name
+        [ "firstName" => Json.Encode.string invite.firstName
+        , "lastName" => Json.Encode.string invite.lastName
         , "email" => Json.Encode.string invite.email
         ]
 

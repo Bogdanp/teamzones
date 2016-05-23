@@ -114,7 +114,7 @@ view { currentUser, teamMembers, deleteMemberButtons } =
 
 
 memberRow : User -> Dict String CB.Model -> User -> Html Msg
-memberRow currentUser buttons { name, email, role } =
+memberRow currentUser buttons { fullName, email, role } =
     let
         deleteButton =
             case Dict.get email buttons of
@@ -126,7 +126,7 @@ memberRow currentUser buttons { name, email, role } =
                     Debug.crash "impossible"
     in
         tr []
-            [ td [] [ anchorTo (ProfileR email) [] [ text name ] ]
+            [ td [] [ anchorTo (ProfileR email) [] [ text fullName ] ]
             , td [] [ text email ]
             , td [] [ text (toString role) ]
             , td []

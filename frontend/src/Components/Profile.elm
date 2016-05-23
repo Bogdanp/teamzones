@@ -35,7 +35,7 @@ view { now, user, currentUser } =
         offline =
             isOffline now user
     in
-        page user.name
+        page user.fullName
             [ div [ class "profile-page" ]
                 [ div [ class "profile-sidebar" ]
                     [ div [ class "user-profile" ]
@@ -59,7 +59,7 @@ avatar : User -> Html Msg
 avatar user =
     let
         initials' =
-            initials user.name
+            initials user.fullName
 
         avatar' =
             case user.avatar of
@@ -74,7 +74,7 @@ avatar user =
                     div []
                         [ img
                             [ src uri
-                            , title user.name
+                            , title user.fullName
                             , alt initials'
                             ]
                             []

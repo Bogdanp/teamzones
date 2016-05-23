@@ -26,21 +26,23 @@ const (
 // Invite represents an individual invitation that is sent out to a
 // User via e-mail.  Invites allow said users to join teams.
 type Invite struct {
-	Company *datastore.Key
-	Name    string
-	Email   string
-	Sent    bool
-	Bulk    bool
+	Company   *datastore.Key
+	FirstName string
+	LastName  string
+	Email     string
+	Sent      bool
+	Bulk      bool
 
 	Times
 }
 
 // NewInvite initializes a new Invite struct.
-func NewInvite(companyKey *datastore.Key, name, email string) *Invite {
+func NewInvite(companyKey *datastore.Key, firstName, lastName, email string) *Invite {
 	invite := Invite{
-		Company: companyKey,
-		Name:    name,
-		Email:   email,
+		Company:   companyKey,
+		FirstName: firstName,
+		LastName:  lastName,
+		Email:     email,
 	}
 	invite.initTimes()
 	return &invite
@@ -61,10 +63,10 @@ func NewBulkInvite(companyKey *datastore.Key) *Invite {
 // automatically sends out an e-mail invitation on success.
 func CreateInvite(
 	ctx context.Context,
-	companyKey *datastore.Key, name, email string,
+	companyKey *datastore.Key, firstName, lastName, email string,
 ) (*Invite, *datastore.Key, error) {
 
-	invite := NewInvite(companyKey, name, email)
+	invite := NewInvite(companyKey, firstName, lastName, email)
 	key := datastore.NewIncompleteKey(ctx, inviteKind, companyKey)
 	key, err := nds.Put(ctx, key, invite)
 	if err != nil {

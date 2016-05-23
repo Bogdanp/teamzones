@@ -12,7 +12,7 @@ view : AnchorTo msg -> User -> Html msg
 view anchorTo user =
     div [ class "user-profile" ]
         [ avatar anchorTo user
-        , h3 [] [ text user.name ]
+        , h3 [] [ text user.fullName ]
         , h6 [] [ text (showTimezone user.timezone) ]
         ]
 
@@ -21,7 +21,7 @@ avatar : AnchorTo msg -> User -> Html msg
 avatar anchorTo user =
     let
         initials' =
-            initials user.name
+            initials user.fullName
 
         avatar' =
             case user.avatar of
@@ -37,7 +37,7 @@ avatar anchorTo user =
                         []
                         [ img
                             [ src uri
-                            , title user.name
+                            , title user.fullName
                             , alt initials'
                             ]
                             []

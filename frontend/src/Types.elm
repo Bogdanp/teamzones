@@ -43,7 +43,8 @@ type alias Workdays =
 
 type alias ContextUser =
     { role : String
-    , name : String
+    , firstName : String
+    , lastName : String
     , email : String
     , avatar : String
     , smallAvatar : String
@@ -58,7 +59,9 @@ type alias IntegrationStates =
 
 type alias User =
     { role : UserRole
-    , name : String
+    , firstName : String
+    , lastName : String
+    , fullName : String
     , email : String
     , avatar : Maybe String
     , smallAvatar : Maybe String

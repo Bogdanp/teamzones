@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"encoding/json"
+	"html/template"
 	"net/http"
 	"teamzones/forms"
 	"teamzones/integrations"
 	"teamzones/models"
+	"teamzones/utils"
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
@@ -31,6 +34,23 @@ func plansHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Param
 	renderer.HTML(res, http.StatusOK, "plans", integrations.BraintreePlans())
 }
 
+type signUpForm struct {
+	CompanyName      forms.Field
+	CompanySubdomain forms.Field
+	FirstName        forms.Field
+	LastName         forms.Field
+	Email            forms.Field
+	Password         forms.Field
+	Address1         forms.Field
+	Address2         forms.Field
+	City             forms.Field
+	Region           forms.Field
+	PostalCode       forms.Field
+	Country          forms.Field
+	VATID            forms.Field
+	Timezone         forms.Field
+}
+
 func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	plan, err := integrations.LookupBraintreePlan(params.ByName("plan"))
 	if err != nil {
@@ -39,15 +59,7 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 	}
 
 	country := req.Header.Get("X-AppEngine-Country")
-	form := struct {
-		CompanyName      forms.Field
-		CompanySubdomain forms.Field
-		Name             forms.Field
-		Email            forms.Field
-		Password         forms.Field
-		Country          forms.Field
-		Timezone         forms.Field
-	}{
+	form := signUpForm{
 		forms.Field{
 			Name:       "company-name",
 			Label:      "Company name",
@@ -60,8 +72,13 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 			Validators: []forms.Validator{forms.MinLength(3), forms.MaxLength(15)},
 		},
 		forms.Field{
-			Name:       "name",
-			Label:      "Your name",
+			Name:       "first-name",
+			Label:      "First Name",
+			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(75)},
+		},
+		forms.Field{
+			Name:       "last-name",
+			Label:      "Last Name",
 			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(75)},
 		},
 		forms.Field{
@@ -75,64 +92,115 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 			Validators: []forms.Validator{forms.MinLength(6)},
 		},
 		forms.Field{
+			Name:       "address-1",
+			Label:      "Address 1",
+			Validators: []forms.Validator{forms.MaxLength(300)},
+		},
+		forms.Field{
+			Name:       "address-2",
+			Label:      "Address 2",
+			Optional:   true,
+			Validators: []forms.Validator{forms.MaxLength(300)},
+		},
+		forms.Field{
+			Name:       "city",
+			Label:      "City",
+			Validators: []forms.Validator{forms.MaxLength(100)},
+		},
+		forms.Field{
+			Name:       "region",
+			Label:      "Region",
+			Validators: []forms.Validator{forms.MaxLength(100)},
+		},
+		forms.Field{
+			Name:       "postal-code",
+			Label:      "Postal Code",
+			Validators: []forms.Validator{forms.MaxLength(100)},
+		},
+		forms.Field{
 			Name:       "country",
 			Label:      "Country",
 			Value:      country,
-			Values:     forms.CountryValues(),
+			Values:     forms.CountryValues,
 			Validators: []forms.Validator{forms.Country},
 		},
 		forms.Field{
-			Name:       "timezone",
-			Label:      "Timezone",
-			Validators: []forms.Validator{},
+			Name:     "vat-id",
+			Label:    "VAT ID (Optional)",
+			Optional: true,
 		},
+		forms.Field{
+			Name:  "timezone",
+			Label: "Timezone",
+		},
+	}
+
+	vatCountries, _ := json.Marshal(utils.VATCountries)
+	data := struct {
+		Form         *signUpForm
+		VATCountries template.JS
+	}{
+		Form:         &form,
+		VATCountries: template.JS(vatCountries),
 	}
 
 	if req.Method == http.MethodPost {
 		if !forms.Bind(req, &form) {
-			renderer.HTML(res, http.StatusBadRequest, "sign-up", form)
+			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}
 
 		if country != "ZZ" && country != form.Country.Value {
 			form.Country.Errors = []string{"Your selected country must match your IP address."}
-			renderer.HTML(res, http.StatusBadRequest, "sign-up", form)
+			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}
 
 		nonce := req.PostFormValue("payment_method_nonce")
 		if nonce == "" {
-			renderer.HTML(res, http.StatusBadRequest, "sign-up", form)
+			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}
 
 		ctx := appengine.NewContext(req)
 		customer, subscription, err := integrations.BraintreeSubscribe(
 			ctx, nonce, plan.ID,
-			form.CompanySubdomain.Value, form.Name.Value, form.Email.Value,
+			form.CompanySubdomain.Value,
+			form.FirstName.Value,
+			form.LastName.Value,
+			form.Email.Value,
 		)
 		if err != nil {
 			// FIXME: Display an error
 			log.Errorf(ctx, "error while subscribing customer: %v", err)
-			renderer.HTML(res, http.StatusBadRequest, "sign-up", form)
+			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}
 
-		_, _, err = models.CreateMainUser(
+		company := models.NewCompany(form.CompanyName.Value, form.CompanySubdomain.Value)
+
+		// Customer-provided
+		company.SubscriptionPlanID = plan.ID
+		company.SubscriptionFirstName = form.FirstName.Value
+		company.SubscriptionLastName = form.LastName.Value
+		company.SubscriptionAddress1 = form.Address1.Value
+		company.SubscriptionAddress2 = form.Address2.Value
+		company.SubscriptionCity = form.City.Value
+		company.SubscriptionRegion = form.Region.Value
+		company.SubscriptionPostalCode = form.PostalCode.Value
+		company.SubscriptionCountry = form.Country.Value
+		company.SubscriptionVATID = form.VATID.Value
+		company.SubscriptionIP = req.RemoteAddr
+
+		// Braintree-provided
+		company.SubscriptionID = subscription.Id
+		company.SubscriptionCustomerID = customer.Id
+
+		_, err = models.CreateMainUser(
 			ctx,
-
-			form.CompanyName.Value,
-			form.CompanySubdomain.Value,
-
-			plan.ID,
-			customer.Id,
-			subscription.Id,
-
-			// Remote address and Country are required for VAT purposes
-			req.RemoteAddr,
-			form.Country.Value,
-
-			form.Name.Value,
+			company,
+			form.FirstName.Value,
+			form.LastName.Value,
 			form.Email.Value,
 			form.Password.Value,
 			form.Timezone.Value,
@@ -147,14 +215,14 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 			return
 		case models.ErrSubdomainTaken:
 			form.CompanySubdomain.Errors = []string{err.Error()}
-			renderer.HTML(res, http.StatusBadRequest, "sign-up", form)
+			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
 			return
 		default:
 			panic(err)
 		}
 	}
 
-	renderer.HTML(res, http.StatusOK, "sign-up", form)
+	renderer.HTML(res, http.StatusOK, "sign-up", data)
 }
 
 func siteSignInHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {

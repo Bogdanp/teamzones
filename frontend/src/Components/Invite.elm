@@ -40,8 +40,9 @@ type alias Model =
 
 validate : Validation () Invite
 validate =
-    form2 Invite
-        (get "name" (string `andThen` minLength 3 `andThen` maxLength 50))
+    form3 Invite
+        (get "first-name" (string `andThen` minLength 3 `andThen` maxLength 50))
+        (get "last-name" (string `andThen` minLength 3 `andThen` maxLength 50))
         (get "email" email)
 
 
@@ -108,7 +109,8 @@ view { form, pending, bulkInvite } =
         page "Invite Teammates"
             [ p [] [ text "You can use this form to invite members to your team." ]
             , FC.form Submit
-                [ textInput' "Name" "name"
+                [ textInput' "First name" "first-name"
+                , textInput' "Last name" "last-name"
                 , textInput' "Email address" "email"
                 , submitWithOptions { label = "Send invite", disabled = pending }
                 ]

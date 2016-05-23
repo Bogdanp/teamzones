@@ -83,8 +83,9 @@ func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 	}
 
 	var data struct {
-		Name  string `json:"name" validate:"MinLength:3,MaxLength:50"`
-		Email string `json:"email" validate:"Email"`
+		FirstName string `json:"firstName" validate:"MinLength:3,MaxLength:50"`
+		LastName  string `json:"lastName" validate:"MinLength:3,MaxLength:50"`
+		Email     string `json:"email" validate:"Email"`
 	}
 
 	if err := forms.BindJSON(req, &data); err != nil {
@@ -101,7 +102,10 @@ func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 		return
 	}
 
-	_, _, err = models.CreateInvite(ctx, companyKey, data.Name, data.Email)
+	_, _, err = models.CreateInvite(
+		ctx, companyKey,
+		data.FirstName, data.LastName, data.Email,
+	)
 	if err != nil {
 		log.Errorf(ctx, "failed to create invite: %v", err)
 		serverError(res)
@@ -243,9 +247,10 @@ func deleteAvatarHandler(res http.ResponseWriter, req *http.Request, _ httproute
 
 func updateProfileHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	var data struct {
-		Name     string          `json:"name" validate:"MinLength:3,MaxLength:50"`
-		Timezone string          `json:"timezone"`
-		Workdays models.Workdays `json:"workdays"`
+		FirstName string          `json:"firstName" validate:"MinLength:3,MaxLength:50"`
+		LastName  string          `json:"lastName" validate:"MinLength:3,MaxLength:50"`
+		Timezone  string          `json:"timezone"`
+		Workdays  models.Workdays `json:"workdays"`
 	}
 
 	if err := forms.BindJSON(req, &data); err != nil {
@@ -255,7 +260,7 @@ func updateProfileHandler(res http.ResponseWriter, req *http.Request, _ httprout
 
 	ctx := appengine.NewContext(req)
 	user := context.Get(req, userCtxKey).(*models.User)
-	user.Name = data.Name
+	user.FirstName = data.FirstName
 	user.Timezone = data.Timezone
 	user.Workdays = data.Workdays
 	user.Put(ctx)

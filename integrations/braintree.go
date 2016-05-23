@@ -72,11 +72,15 @@ func NewBraintreeService(ctx context.Context) *braintree.Braintree {
 // BraintreeSubscribe creates subscribes a new customer in Braintree.
 func BraintreeSubscribe(
 	ctx context.Context,
-	nonce, planID, subdomain, name, email string,
+	nonce, planID, subdomain, firstName, lastName, email string,
 ) (*braintree.Customer, *braintree.Subscription, error) {
 
 	bt := NewBraintreeService(ctx)
-	customer, err := bt.Customer().Create(&braintree.Customer{})
+	customer, err := bt.Customer().Create(&braintree.Customer{
+		FirstName: firstName,
+		LastName:  lastName,
+		Email:     email,
+	})
 	if err != nil {
 		return nil, nil, err
 	}

@@ -1,7 +1,8 @@
 {{define "title-sign-up"}} - Sign Up{{end}}
 
 <form action="" method="post">
-  {{template "_fields/text" .Name}}
+  {{template "_fields/text" .FirstName}}
+  {{template "_fields/text" .LastName}}
   {{template "_fields/email" .Email}}
   {{template "_fields/password" .Password}}
   {{template "_fields/hidden" .Timezone}}

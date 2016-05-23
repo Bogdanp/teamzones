@@ -18,11 +18,22 @@ type Company struct {
 	Name      string `json:"name"`
 	Subdomain string `json:"-"`
 
-	PlanID                 string    `json:"-"`
-	CustomerID             string    `json:"-"`
+	// Customer-provided
+	SubscriptionPlanID     string `json:"-"`
+	SubscriptionFirstName  string `json:"-"`
+	SubscriptionLastName   string `json:"-"`
+	SubscriptionAddress1   string `json:"-"`
+	SubscriptionAddress2   string `json:"-"`
+	SubscriptionCity       string `json:"-"`
+	SubscriptionRegion     string `json:"-"` // or state
+	SubscriptionPostalCode string `json:"-"` // or zip
+	SubscriptionCountry    string `json:"-"` // necessary for VAT
+	SubscriptionVATID      string `json:"-"` // VAT not charged if provided
+	SubscriptionIP         string `json:"-"` // necessary for VAT
+
+	// Braintree-provided
 	SubscriptionID         string    `json:"-"`
-	SubscriptionIP         string    `json:"-"` // necessary for VAT
-	SubscriptionCountry    string    `json:"-"` // necessary for VAT
+	SubscriptionCustomerID string    `json:"-"`
 	SubscriptionStatus     string    `json:"-"` // never Expired or Unrecognized
 	SubscriptionValidUntil time.Time `json:"-"` // used when subscription status is canceled or past due
 
@@ -31,16 +42,13 @@ type Company struct {
 
 // NewCompany creates an empty Company, ensuring that its Time
 // properties are initialized correctly.
-func NewCompany(name, subdomain, planID, custID, subID, subIP, subCountry string) *Company {
-	company := Company{}
-	company.Name = name
-	company.Subdomain = subdomain
-	company.PlanID = planID
-	company.CustomerID = custID
-	company.SubscriptionID = subID
-	company.SubscriptionIP = subIP
-	company.SubscriptionCountry = subCountry
-	company.SubscriptionStatus = braintree.SubscriptionStatusActive
+func NewCompany(name, subdomain string) *Company {
+	company := Company{
+		Name:               name,
+		Subdomain:          subdomain,
+		SubscriptionPlanID: "free",
+		SubscriptionStatus: braintree.SubscriptionStatusActive,
+	}
 	company.initTimes()
 	return &company
 }

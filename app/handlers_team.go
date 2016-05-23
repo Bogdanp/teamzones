@@ -87,15 +87,22 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 	}
 
 	form := struct {
-		Name     forms.Field
-		Email    forms.Field
-		Password forms.Field
-		Timezone forms.Field
+		FirstName forms.Field
+		LastName  forms.Field
+		Email     forms.Field
+		Password  forms.Field
+		Timezone  forms.Field
 	}{
 		forms.Field{
-			Name:       "name",
-			Label:      "Your name",
-			Value:      invite.Name,
+			Name:       "first-name",
+			Label:      "First Name",
+			Value:      invite.FirstName,
+			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(75)},
+		},
+		forms.Field{
+			Name:       "last-name",
+			Label:      "Last Name",
+			Value:      invite.LastName,
 			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(75)},
 		},
 		forms.Field{
@@ -126,7 +133,8 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 		_, err := models.CreateUser(
 			ctx,
 			companyKey,
-			form.Name.Value,
+			form.FirstName.Value,
+			form.LastName.Value,
 			form.Email.Value,
 			form.Password.Value,
 			form.Timezone.Value,

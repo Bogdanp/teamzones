@@ -15,7 +15,8 @@ import Util exposing ((=>))
 
 
 type alias Profile =
-    { name : String
+    { firstName : String
+    , lastName : String
     , timezone : String
     , workdays : Workdays
     }
@@ -60,7 +61,8 @@ encodeWorkdays workdays =
 encodeProfile : Profile -> Json.Encode.Value
 encodeProfile profile =
     Json.Encode.object
-        [ "name" => Json.Encode.string profile.name
+        [ "firstName" => Json.Encode.string profile.firstName
+        , "lastName" => Json.Encode.string profile.lastName
         , "timezone" => Json.Encode.string profile.timezone
         , "workdays" => encodeWorkdays profile.workdays
         ]

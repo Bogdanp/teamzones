@@ -66,10 +66,11 @@ type Workdays struct {
 type User struct {
 	Company *datastore.Key `json:"-"`
 
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"-"`
-	Role     string `json:"role"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Email     string `json:"email"`
+	Password  string `json:"-"`
+	Role      string `json:"role"`
 
 	Timezone string   `json:"timezone"`
 	Workdays Workdays `json:"workdays"`
@@ -124,21 +125,20 @@ func (u *User) Key(ctx context.Context) *datastore.Key {
 // CreateMainUser transactionally creates the initial Company and User
 // pair for a company.
 func CreateMainUser(
-	ctx context.Context,
-	companyName, companySubdomain, planID, custID, subID, subIP, subCountry,
-	name, email, password, timezone string,
-) (*Company, *User, error) {
+	ctx context.Context, company *Company,
+	firstName, lastName, email, password, timezone string,
+) (*User, error) {
 
-	company := NewCompany(companyName, companySubdomain, planID, custID, subID, subIP, subCountry)
-	companyKey := NewCompanyKey(ctx, companySubdomain)
+	companyKey := NewCompanyKey(ctx, company.Subdomain)
 	if err := nds.Get(ctx, companyKey, &company); err != datastore.ErrNoSuchEntity {
-		return nil, nil, ErrSubdomainTaken
+		return nil, ErrSubdomainTaken
 	}
 
 	user := NewUser()
 	userKey := NewUserKey(ctx, companyKey, email)
 	user.Company = companyKey
-	user.Name = name
+	user.FirstName = firstName
+	user.LastName = lastName
 	user.Email = email
 	user.SetPassword(password)
 	user.Timezone = timezone
@@ -154,14 +154,14 @@ func CreateMainUser(
 		return err
 	}, nil)
 
-	return company, user, err
+	return user, err
 }
 
 // CreateUser creates team members.
 func CreateUser(
 	ctx context.Context,
 	companyKey *datastore.Key,
-	name, email, password, timezone string,
+	firstName, lastName, email, password, timezone string,
 ) (*User, error) {
 
 	user := NewUser()
@@ -171,7 +171,8 @@ func CreateUser(
 	}
 
 	user.Company = companyKey
-	user.Name = name
+	user.FirstName = firstName
+	user.LastName = lastName
 	user.Email = email
 	user.SetPassword(password)
 	user.Timezone = timezone
