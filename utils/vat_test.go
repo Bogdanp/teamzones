@@ -7,15 +7,18 @@ import (
 )
 
 func TestCheckVAT(t *testing.T) {
-	tests := []struct {
+	// TODO: Add passing case
+	cases := []struct {
 		VATID string
 		Valid bool
 	}{
 		{"a", false},
+		{"RO    ", false},
+		{"AT0000", false},
 		{"RO1234", false},
 	}
 
-	for _, test := range tests {
+	for _, test := range cases {
 		r := CheckVAT(context.Background(), test.VATID)
 		if r != test.Valid {
 			t.Fatalf("%v is %v, expected %v", test.VATID, r, test.Valid)

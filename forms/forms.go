@@ -129,6 +129,31 @@ func dynEmail(value interface{}, _ []string) error {
 	return Email(value.(string))
 }
 
+var reservedSubdomains = []string{
+	"admin",
+	"support",
+}
+
+// Subdomain validates that the Field's value is a subdomain.
+func Subdomain(value string) error {
+	for _, subdomain := range reservedSubdomains {
+		if value == subdomain {
+			return errors.New("The selected subdomain is reserved.")
+		}
+	}
+
+	value = strings.ToLower(value)
+	for _, char := range value {
+		if (char >= 'a' && char <= 'z') || (char >= '0' && char <= '9') {
+			continue
+		}
+
+		return errors.New("Subdomains may only contain letters and numbers.")
+	}
+
+	return nil
+}
+
 // MinLength validates that the Field's value is at least n characters long.
 func MinLength(n int) Validator {
 	return func(value string) error {

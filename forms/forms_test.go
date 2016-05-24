@@ -36,3 +36,23 @@ func TestBindJSON(t *testing.T) {
 		}
 	}
 }
+
+func TestSubdomainValidator(t *testing.T) {
+	cases := []struct {
+		Value string
+		Valid bool
+	}{
+		{"admin", false},
+		{"example", true},
+		{"ABC", true},
+		{"foo0123", true},
+		{"λ", false},
+	}
+
+	for _, test := range cases {
+		err := Subdomain(test.Value)
+		if err != nil && test.Valid {
+			t.Fatalf("expected %q to pass but it failed: %v", test.Value, err)
+		}
+	}
+}
