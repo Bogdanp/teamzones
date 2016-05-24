@@ -233,6 +233,18 @@
   }
 }
 
+@media (max-width: 960px) {
+  #checkout {
+    #form {
+        width: 55%;
+    }
+
+    #summary {
+        width: 45%;
+    }
+  }
+}
+
 @media (max-width: 780px) {
   #checkout {
     flex-direction: column-reverse;
