@@ -61,15 +61,17 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 	country := req.Header.Get("X-AppEngine-Country")
 	form := signUpForm{
 		forms.Field{
-			Name:       "company-name",
-			Label:      "Team Name",
-			Validators: []forms.Validator{forms.MinLength(3), forms.MaxLength(50)},
+			Name:        "company-name",
+			Label:       "Team Name",
+			Placeholder: "The A-Team",
+			Validators:  []forms.Validator{forms.MinLength(3), forms.MaxLength(50)},
 		},
 		forms.Field{
-			Name:       "company-subdomain",
-			Label:      "Team Subdomain",
-			Value:      req.FormValue("subdomain"), // ?subdomain=foo
-			Validators: []forms.Validator{forms.MinLength(3), forms.MaxLength(15), forms.Subdomain},
+			Name:        "company-subdomain",
+			Label:       "Team Subdomain",
+			Placeholder: "ateam",
+			Value:       req.FormValue("subdomain"), // ?subdomain=foo
+			Validators:  []forms.Validator{forms.MinLength(3), forms.MaxLength(15), forms.Subdomain},
 		},
 		forms.Field{
 			Name:       "first-name",

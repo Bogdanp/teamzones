@@ -4,6 +4,7 @@
          id="{{.Name}}"
          name="{{.Name}}"
          value="{{.Value}}"
+         placeholder="{{.Placeholder}}"
          {{if .Optional}}{{else}}required{{end}} />
   {{template "_fields/errors" .}}
 </div>

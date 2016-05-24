@@ -27,13 +27,14 @@ type Option struct {
 // Field represents a field on a form.  They are used to perform form
 // validation and to make rendering forms easy.
 type Field struct {
-	Name       string
-	Label      string
-	Value      string
-	Values     []Option
-	Optional   bool
-	Errors     []string
-	Validators []Validator
+	Name        string
+	Label       string
+	Placeholder string
+	Value       string
+	Values      []Option
+	Optional    bool
+	Errors      []string
+	Validators  []Validator
 }
 
 func bind(lookup func(string) string, form interface{}) bool {
