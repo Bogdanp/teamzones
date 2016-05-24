@@ -35,14 +35,14 @@ plans:
 
   - id: t-e1
     label: Enterprise
-    price: 4000
-    mprice: 4000
+    price: 10000
+    mprice: 10000
     cycle: month
     members: 500
 
   - id: t-e12
     label: Enterprise
-    price: 40800
-    mprice: 3400
+    price: 102000
+    mprice: 8500
     cycle: year
     members: 500
