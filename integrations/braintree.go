@@ -100,14 +100,16 @@ func BraintreeSubscribe(
 		return nil, nil, err
 	}
 
+	plan, _ := LookupBraintreePlan(planID)
 	subData := braintree.Subscription{
 		PlanId:             planID,
 		PaymentMethodToken: card.Token,
 	}
 	if vat != 0 {
-		plan, _ := LookupBraintreePlan(planID)
 		price := int(math.Floor(float64(vat)/100*float64(plan.Price))) + plan.Price
 		subData.Price = braintree.NewDecimal(int64(price), 2)
+	} else {
+		subData.Price = braintree.NewDecimal(int64(plan.Price), 2)
 	}
 
 	subscription, err := bt.Subscription().Create(&subData)
