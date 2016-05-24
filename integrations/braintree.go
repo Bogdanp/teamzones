@@ -2,6 +2,8 @@ package integrations
 
 import (
 	"errors"
+	"fmt"
+	"math"
 	"strings"
 	"teamzones/utils"
 	"time"
@@ -20,6 +22,7 @@ type BraintreePlan struct {
 	ID      string
 	Label   string
 	Price   int
+	MPrice  int
 	Cycle   string
 	Members int
 }
@@ -72,7 +75,8 @@ func NewBraintreeService(ctx context.Context) *braintree.Braintree {
 // BraintreeSubscribe creates subscribes a new customer in Braintree.
 func BraintreeSubscribe(
 	ctx context.Context,
-	nonce, planID, subdomain, firstName, lastName, email string,
+	nonce, planID string, vat int,
+	subdomain, firstName, lastName, email string,
 ) (*braintree.Customer, *braintree.Subscription, error) {
 
 	bt := NewBraintreeService(ctx)
@@ -96,10 +100,17 @@ func BraintreeSubscribe(
 		return nil, nil, err
 	}
 
-	subscription, err := bt.Subscription().Create(&braintree.Subscription{
+	subData := braintree.Subscription{
 		PlanId:             planID,
 		PaymentMethodToken: card.Token,
-	})
+	}
+	if vat != 0 {
+		plan, _ := LookupBraintreePlan(planID)
+		price := int(math.Floor(float64(vat)/100*float64(plan.Price))) + plan.Price
+		subData.Price = braintree.NewDecimal(int64(price), 2)
+	}
+
+	subscription, err := bt.Subscription().Create(&subData)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -131,4 +142,14 @@ func ParseBraintreeDate(date string) (time.Time, error) {
 	}
 
 	return t, nil
+}
+
+// DollarPrice returns the formatted price of a plan.
+func (p *BraintreePlan) DollarPrice() string {
+	return fmt.Sprintf("$%d.%02d", p.Price/100, p.Price%100)
+}
+
+// DollarMPrice returns the formatted monthly price of a plan.
+func (p *BraintreePlan) DollarMPrice() string {
+	return fmt.Sprintf("$%d.%02d", p.MPrice/100, p.MPrice%100)
 }

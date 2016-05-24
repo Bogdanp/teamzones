@@ -2,6 +2,7 @@ all: style javascript elm
 
 style: css/*.scss
 	node-sass css/app.scss ../app/static/css/app.css
+	node-sass css/checkout.scss ../app/static/css/checkout.css
 
 javascript: lib/*.js
 	browserify lib/index.js -o ../app/static/js/lib.js

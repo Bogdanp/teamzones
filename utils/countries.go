@@ -27,3 +27,14 @@ func init() {
 		}
 	}
 }
+
+// LookupVATCountry looks up a VAT country by its code.
+func LookupVATCountry(code string) (*Country, bool) {
+	for _, country := range VATCountries {
+		if country.Code == code {
+			return &country, true
+		}
+	}
+
+	return nil, false
+}

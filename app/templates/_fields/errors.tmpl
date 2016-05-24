@@ -1,7 +1,5 @@
 {{if .Errors}}
-  <ul>
-    {{range $message := .Errors}}
-      <li>{{$message}}</li>
-    {{end}}
-  </ul>
+  {{range $message := .Errors}}
+    <span class="error">{{$message}}</span>
+  {{end}}
 {{end}}

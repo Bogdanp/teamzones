@@ -1,85 +1,131 @@
-{{define "title-sign-up"}} - Sign Up{{end}}
+{{define "title-sign-up"}} - Order your Teamzones account{{end}}
+{{define "head-sign-up"}}
+  <link rel="stylesheet" type="text/css" href="/static/css/normalize.css?v={{version}}" />
+  <link rel="stylesheet" type="text/css" href="/static/css/checkout.css?v={{version}}" />
+{{end}}
 
-<form action="" method="post" id="signup-form">
-  <h1>Account information</h1>
-  {{template "_fields/text" .Form.CompanyName}} <br/>
-  {{template "_fields/text" .Form.CompanySubdomain}} <br/>
-  {{template "_fields/text" .Form.FirstName}} <br/>
-  {{template "_fields/text" .Form.LastName}} <br/>
-  {{template "_fields/email" .Form.Email}} <br/>
-  {{template "_fields/password" .Form.Password}} <br/>
+<div id="header">
+  <h1>Checkout</h1>
+</div>
+<form action="" method="post" id="checkout">
+  <div id="summary">
+    <h4>Order Summary</h4>
 
-  <h1>Billing information</h1>
-  {{template "_fields/text" .Form.Address1}} <br/>
-  {{template "_fields/text" .Form.Address2}} <br/>
-  {{template "_fields/text" .Form.City}} <br/>
-  {{template "_fields/text" .Form.Region}} <br/>
-  {{template "_fields/text" .Form.PostalCode}} <br/>
-  {{template "_fields/select" .Form.Country}} <br/>
+    <div id="order">
+      <div id="order-plan">
+        <div class="col">
+          <h5>{{.Plan.Label}} Plan</h5>
+        </div>
+        <div class="col-r">
+          <h6>{{.Plan.DollarMPrice}}<small>/mo</small></h6>
+        </div>
+      </div>
 
-  <div id="eu-vat">
-    <input type="text" id="vat-prefix" disabled="disabled" />
-    {{template "_fields/text" .Form.VATID}} <br/>
+      <div id="order-vat">
+        <div class="col">
+          <h6>VAT</h6>
+        </div>
+        <div class="col-r">
+          <h6 id="vat-amount">$0</h6>
+        </div>
+      </div>
+
+      <div id="order-total">
+        <div class="col">
+          <h6>Total Due Today</h6>
+        </div>
+        <div class="col-r">
+          <h6 id="total-amount">{{.Plan.DollarPrice}}</h6>
+        </div>
+      </div>
+    </div>
+
+    <div id="submit-wrapper">
+      <input type="submit"
+             id="submit-button"
+             disabled="disabled"
+             value="Purchase Teamzones" />
+    </div>
   </div>
 
-  <div id="payment">
+  <div id="form">
+    <h4>Account information</h4>
+
+    <div class="row">
+      {{template "_fields/text" .Form.CompanyName}}
+      {{template "_fields/text" .Form.CompanySubdomain}}
+    </div>
+
+    <div class="row">
+      {{template "_fields/email" .Form.Email}}
+    </div>
+    <div class="row">
+      {{template "_fields/password" .Form.Password}}
+    </div>
+
+    <br/>
+    <h4>Billing information</h4>
+    <div class="row">
+      {{template "_fields/text" .Form.FirstName}}
+      {{template "_fields/text" .Form.LastName}}
+    </div>
+
+    <div class="row">
+      {{template "_fields/text" .Form.Address1}}
+    </div>
+
+    <div class="row">
+      {{template "_fields/text" .Form.Address2}}
+    </div>
+
+    <div class="row">
+      {{template "_fields/text" .Form.City}}
+      {{template "_fields/text" .Form.Region}}
+      {{template "_fields/text" .Form.PostalCode}}
+    </div>
+
+    <div class="row">
+      {{template "_fields/select" .Form.Country}}
+    </div>
+
+    <div class="row">
+      <div class="col {{if .Form.VATID.Errors}}errors{{end}}" id="eu-vat">
+        {{template "_fields/label" .Form.VATID}}
+        <input type="text" id="vat-prefix" disabled="disabled" />
+        <input type="text"
+               id="{{.Form.VATID.Name}}"
+               name="{{.Form.VATID.Name}}"
+               value="{{.Form.VATID.Value}}" />
+        {{template "_fields/errors" .Form.VATID}}
+      </div>
+    </div>
+
+    <div class="row" id="payment-info">
+    </div>
+
+    {{template "_fields/hidden" .Form.Timezone}}
   </div>
-
-  {{template "_fields/hidden" .Form.Timezone}} <br/>
-
-  <input type="submit"
-         id="submit-button"
-         disabled="disabled" />
 </form>
 
 <script src="/static/js/braintree-2.24.1.min.js"></script>
 <script src="/static/js/lib.js"></script>
 <script>
-  var vatCountries = {{.VATCountries}};
-  var countryEl = document.getElementById("country");
-  var euVatEl = document.getElementById("eu-vat");
-  var vatIdEl = document.getElementById("vat-id");
-  var vatPrefixEl = document.getElementById("vat-prefix");
-  var timezoneEl = document.getElementById("timezone");
-  var submitEl = document.getElementById("submit-button");
-  var formEl = document.getElementById("signup-form");
-
-  var handleVAT = function(code) {
-    for (var i = 0; i < vatCountries.length; i++) {
-      var country = vatCountries[i];
-
-      if (country.Code === code) {
-        vatPrefixEl.value = country.Code;
-        euVatEl.style.display = "block";
-        return;
-      }
+  var checkout = new Checkout(
+    "payment-info",
+    {{.VATCountries}},
+    {{.PlanJS}},
+    {
+      form: document.getElementById("checkout"),
+      submit: document.getElementById("submit-button"),
+      country: document.getElementById("country"),
+      orderVAT: document.getElementById("order-vat"),
+      orderVATAmount: document.getElementById("vat-amount"),
+      orderTotalAmount: document.getElementById("total-amount"),
+      euVAT: document.getElementById("eu-vat"),
+      vatId: document.getElementById("vat-id"),
+      vatPrefix: document.getElementById("vat-prefix"),
     }
+  );
 
-    euVatEl.style.display = "none";
-  };
-
-  service.fetchBraintreeToken().then(function(token) {
-    braintree.setup(token, "dropin", {
-      container: "payment",
-      onReady: function() {
-        submitEl.disabled = false;
-      }
-    })
-  });
-
-  // VAT
-  handleVAT(countryEl.value);
-  countryEl.onchange = function(e) {
-    handleVAT(e.target.value);
-  };
-  vatIdEl.onchange = function(e) {
-  };
-
-  // Timezone
-  timezoneEl.value = moment.tz.guess();
-
-  // Submission
-  formEl.onsubmit = function() {
-    submitEl.disabled = true;
-  };
+  document.getElementById("timezone").value = moment.tz.guess();
 </script>

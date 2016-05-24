@@ -8,35 +8,41 @@ plans:
   - id: t-m1
     label: Medium
     price: 1200
+    mprice: 1200
     cycle: month
     members: 25
 
   - id: t-m12
     label: Medium
-    price: 10000
+    price: 10800
+    mprice: 900
     cycle: year
     members: 25
 
   - id: t-l1
     label: Large
     price: 2000
+    mprice: 2000
     cycle: month
     members: 50
 
   - id: t-l12
     label: Large
-    price: 20000
+    price: 20400
+    mprice: 1700
     cycle: year
     members: 50
 
   - id: t-e1
     label: Enterprise
     price: 4000
+    mprice: 4000
     cycle: month
     members: 500
 
   - id: t-e12
     label: Enterprise
-    price: 40000
+    price: 40800
+    mprice: 3400
     cycle: year
     members: 500

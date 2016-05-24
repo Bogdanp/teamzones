@@ -1,12 +1,14 @@
-{{template "_fields/label" .}}
-<select id="{{.Name}}"
-        name="{{.Name}}">
-  {{$fieldValue := .Value}}
-  {{range $option := .Values}}
+<div class="col {{if.Errors}}errors{{end}}">
+  {{template "_fields/label" .}}
+  <select id="{{.Name}}"
+          name="{{.Name}}">
+    {{$fieldValue := .Value}}
+    {{range $option := .Values}}
     <option value="{{$option.Value}}"
             {{if eq $option.Value $fieldValue}}selected="selected"{{end}}>
       {{$option.Label}}
     </option>
-  {{end}}
-</select>
-{{template "_fields/errors" .}}
+    {{end}}
+  </select>
+  {{template "_fields/errors" .}}
+</div>

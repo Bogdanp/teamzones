@@ -62,14 +62,14 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 	form := signUpForm{
 		forms.Field{
 			Name:       "company-name",
-			Label:      "Company name",
+			Label:      "Team Name",
 			Validators: []forms.Validator{forms.MinLength(3), forms.MaxLength(50)},
 		},
 		forms.Field{
 			Name:       "company-subdomain",
-			Label:      "Company subdomain",
+			Label:      "Team Subdomain",
 			Value:      req.FormValue("subdomain"), // ?subdomain=foo
-			Validators: []forms.Validator{forms.MinLength(3), forms.MaxLength(15)},
+			Validators: []forms.Validator{forms.MinLength(3), forms.MaxLength(15), forms.Subdomain},
 		},
 		forms.Field{
 			Name:       "first-name",
@@ -83,7 +83,7 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 		},
 		forms.Field{
 			Name:       "email",
-			Label:      "E-mail address",
+			Label:      "Email",
 			Validators: []forms.Validator{forms.Email, forms.MaxLength(150)},
 		},
 		forms.Field{
@@ -109,12 +109,12 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 		},
 		forms.Field{
 			Name:       "region",
-			Label:      "Region",
+			Label:      "State/Region",
 			Validators: []forms.Validator{forms.MaxLength(100)},
 		},
 		forms.Field{
 			Name:       "postal-code",
-			Label:      "Postal Code",
+			Label:      "Zip/Postal Code",
 			Validators: []forms.Validator{forms.MaxLength(100)},
 		},
 		forms.Field{
@@ -136,11 +136,19 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 	}
 
 	vatCountries, _ := json.Marshal(utils.VATCountries)
+	planJS, _ := json.Marshal(plan)
+
 	data := struct {
-		Form         *signUpForm
+		Plan *integrations.BraintreePlan
+		Form *signUpForm
+
+		PlanJS       template.JS
 		VATCountries template.JS
 	}{
-		Form:         &form,
+		Plan: plan,
+		Form: &form,
+
+		PlanJS:       template.JS(planJS),
 		VATCountries: template.JS(vatCountries),
 	}
 
@@ -150,8 +158,16 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 			return
 		}
 
+		// ZZ is returned by GAE for localhost.
 		if country != "ZZ" && country != form.Country.Value {
 			form.Country.Errors = []string{"Your selected country must match your IP address."}
+			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
+			return
+		}
+
+		ctx := appengine.NewContext(req)
+		if form.VATID.Value != "" && !utils.CheckVAT(ctx, form.Country.Value+form.VATID.Value) {
+			form.VATID.Errors = []string{"The provided VAT ID is not valid."}
 			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}
@@ -162,9 +178,14 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 			return
 		}
 
-		ctx := appengine.NewContext(req)
+		vat := 0
+		vatCountry, found := utils.LookupVATCountry(form.Country.Value)
+		if form.VATID.Value == "" && found {
+			vat = vatCountry.VAT
+		}
+
 		customer, subscription, err := integrations.BraintreeSubscribe(
-			ctx, nonce, plan.ID,
+			ctx, nonce, plan.ID, vat,
 			form.CompanySubdomain.Value,
 			form.FirstName.Value,
 			form.LastName.Value,

@@ -1,4 +1,6 @@
 var moment = require("moment-timezone");
+
+var Checkout = require("./checkout");
 var service = require("./service");
 
 function now() {
@@ -10,7 +12,7 @@ function seconds() {
 }
 
 window.moment = moment;
-window.service = service;
+window.Checkout = Checkout;
 window.init = function(Elm, el, context) {
   context.now = now();
   context.path = window.location.pathname;
