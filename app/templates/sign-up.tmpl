@@ -49,6 +49,12 @@
   </div>
 
   <div id="form">
+    {{if .Error}}
+    <div id="billing-error" class="row">
+      {{.Error}}
+    </div>
+    {{end}}
+
     <h4>Account information</h4>
 
     <div class="row">

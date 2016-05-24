@@ -142,12 +142,14 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 		Plan *integrations.BraintreePlan
 		Form *signUpForm
 
+		Error        string
 		PlanJS       template.JS
 		VATCountries template.JS
 	}{
 		Plan: plan,
 		Form: &form,
 
+		Error:        "",
 		PlanJS:       template.JS(planJS),
 		VATCountries: template.JS(vatCountries),
 	}
@@ -192,8 +194,8 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 			form.Email.Value,
 		)
 		if err != nil {
-			// FIXME: Display an error
 			log.Errorf(ctx, "error while subscribing customer: %v", err)
+			data.Error = "We encountered an issue while processing your credit card. You have not been billed."
 			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}
