@@ -22,16 +22,24 @@ import (
 )
 
 func init() {
-	GET(appRouter, locationRoute, "/api/location", locationHandler)
+	// User management
 	POST(appRouter, sendInviteRoute, "/api/invites", sendInviteHandler)
 	POST(appRouter, createBulkInviteRoute, "/api/bulk-invites", createBulkInviteHandler)
+	DELETE(appRouter, deleteUserRoute, "/api/users/:email", deleteUserHandler)
+
+	// Profile
+	GET(appRouter, locationRoute, "/api/location", locationHandler)
 	POST(appRouter, updateProfileRoute, "/api/profile", updateProfileHandler)
 	ALL(appRouter, avatarUploadRoute, "/api/upload", avatarUploadHandler)
 	DELETE(appRouter, deleteAvatarRoute, "/api/avatar", deleteAvatarHandler)
-	DELETE(appRouter, deleteUserRoute, "/api/users/:email", deleteUserHandler)
+
+	// Integrations
 	POST(appRouter, refreshIntegrationRoute, "/api/integrations/refresh", refreshIntegrationHandler)
 	POST(appRouter, disconnectIntegrationRoute, "/api/integrations/disconnect", disconnectIntegrationHandler)
 	GET(appRouter, gcalendarDataRoute, "/api/integrations/gcalendar/data", gcalendarDataHandler)
+
+	// Billing
+	GET(appRouter, billingStatusRoute, "/api/billing/status", billingStatusHandler)
 }
 
 type locationResponse struct {
@@ -389,4 +397,18 @@ func gcalendarDataHandler(res http.ResponseWriter, req *http.Request, _ httprout
 	}
 
 	renderer.JSON(res, http.StatusOK, data)
+}
+
+func billingStatusHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	user := context.Get(req, userCtxKey).(*models.User)
+	if user.Role != models.RoleMain {
+		forbidden(res)
+		return
+	}
+
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	renderer.JSON(res, http.StatusOK, map[string]string{
+		"status":     company.SubscriptionStatus,
+		"validUntil": company.SubscriptionValidUntil.Format("2 Jan, 2006"),
+	})
 }

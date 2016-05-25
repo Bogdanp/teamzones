@@ -68,6 +68,7 @@ const (
 	refreshIntegrationRoute
 	disconnectIntegrationRoute
 	gcalendarDataRoute
+	billingStatusRoute
 
 	// Tools
 	provisionRoute

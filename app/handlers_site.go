@@ -8,9 +8,11 @@ import (
 	"teamzones/integrations"
 	"teamzones/models"
 	"teamzones/utils"
+	"time"
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/taskqueue"
 
 	"gopkg.in/julienschmidt/httprouter.v1"
 )
@@ -325,6 +327,19 @@ func braintreeTokenHandler(res http.ResponseWriter, req *http.Request, _ httprou
 
 func braintreeWebhookHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	ctx := appengine.NewContext(req)
-	processBtWebhook.Call(ctx, req.PostFormValue("bt_signature"), req.PostFormValue("bt_payload"))
+	task, err := processBtWebhook.Task(
+		req.PostFormValue("bt_signature"),
+		req.PostFormValue("bt_payload"),
+	)
+	if err != nil {
+		log.Errorf(ctx, "failed to create processBtWebhook task: %v", err)
+		serverError(res)
+		return
+	}
+
+	// Delay these tasks by 5 minutes to avoid a race condition when
+	// creating new accounts.
+	task.Delay = 5 * time.Minute
+	taskqueue.Add(ctx, task, "braintree")
 	res.WriteHeader(http.StatusAccepted)
 }

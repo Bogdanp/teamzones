@@ -8,7 +8,6 @@ import (
 	"github.com/qedus/nds"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
-	"google.golang.org/appengine/log"
 )
 
 const (
@@ -49,7 +48,7 @@ func NewCompany(name, subdomain string) *Company {
 		Name:               name,
 		Subdomain:          subdomain,
 		SubscriptionPlanID: "free",
-		SubscriptionStatus: braintree.SubscriptionStatusActive,
+		SubscriptionStatus: braintree.SubscriptionStatusPending,
 	}
 	company.initTimes()
 	return &company
@@ -129,13 +128,12 @@ func (c *Company) MarkSubscriptionPastDue(ctx context.Context, sub *braintree.Su
 }
 
 // MarkSubscriptionActive marks the Company's subscription as being
-// active.  This is a no-op if the Company's subscription status is
-// anything but PastDue.
+// active.
 func (c *Company) MarkSubscriptionActive(ctx context.Context, sub *braintree.Subscription) error {
 
-	if c.SubscriptionStatus != braintree.SubscriptionStatusPastDue {
-		log.Debugf(ctx, "Cannot mark Company %v as Active per subscription %v.", c, sub)
-		return nil
+	t, err := integrations.ParseBraintreeDate(sub.BillingPeriodEndDate)
+	if err != nil {
+		return err
 	}
 
 	return nds.RunInTransaction(ctx, func(ctx context.Context) error {
@@ -145,6 +143,7 @@ func (c *Company) MarkSubscriptionActive(ctx context.Context, sub *braintree.Sub
 		}
 
 		company.SubscriptionStatus = braintree.SubscriptionStatusActive
+		company.SubscriptionValidUntil = t
 		_, err = company.Put(ctx)
 		return err
 	}, nil)

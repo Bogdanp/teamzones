@@ -26,7 +26,7 @@ var processBtWebhook = delay.Func(
 
 		sub := n.Subject.Subscription
 		if sub == nil {
-			log.Warningf(ctx, "Unexpected notification: %v", n.Kind)
+			log.Errorf(ctx, "Notification does not have a Subscription: %v", n.Kind)
 			return
 		}
 
