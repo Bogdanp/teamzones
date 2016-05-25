@@ -112,6 +112,7 @@ func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 		return
 	}
 
+	// TODO: Send email invite
 	res.WriteHeader(http.StatusCreated)
 }
 
@@ -372,13 +373,16 @@ func disconnectIntegrationHandler(res http.ResponseWriter, req *http.Request, _ 
 
 func gcalendarDataHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	data := models.GCalendarData{
-		Status: models.GCalendarStatusLoading,
+		Status:    models.GCalendarStatusLoading,
+		Calendars: []integrations.Calendar{},
 	}
 
 	user := context.Get(req, userCtxKey).(*models.User)
-	if user.GCalendarToken != nil && user.GCalendarData != nil {
+	if user.GCalendarToken != nil {
 		ctx := appengine.NewContext(req)
-		if err := nds.Get(ctx, user.GCalendarData, &data); err != nil {
+		if user.GCalendarData == nil {
+			refreshGCalendar.Call(ctx, user.GCalendarToken)
+		} else if err := nds.Get(ctx, user.GCalendarData, &data); err != nil {
 			serverError(res)
 			return
 		}
