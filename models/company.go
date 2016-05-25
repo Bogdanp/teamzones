@@ -1,12 +1,14 @@
 package models
 
 import (
+	"teamzones/integrations"
 	"time"
 
 	"github.com/lionelbarrow/braintree-go"
 	"github.com/qedus/nds"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 )
 
 const (
@@ -85,7 +87,12 @@ func GetCompanyBySubID(ctx context.Context, subID string) (*Company, error) {
 }
 
 // CancelSubscription marks the Company's subscription as canceled.
-func (c *Company) CancelSubscription(ctx context.Context, validUntil time.Time) error {
+func (c *Company) CancelSubscription(ctx context.Context, sub *braintree.Subscription) error {
+
+	t, err := integrations.ParseBraintreeDate(sub.BillingPeriodEndDate)
+	if err != nil {
+		return err
+	}
 
 	return nds.RunInTransaction(ctx, func(ctx context.Context) error {
 		company, err := GetCompany(ctx, c.Subdomain)
@@ -94,10 +101,52 @@ func (c *Company) CancelSubscription(ctx context.Context, validUntil time.Time) 
 		}
 
 		company.SubscriptionStatus = braintree.SubscriptionStatusCanceled
-		company.SubscriptionValidUntil = validUntil
-		company.Put(ctx)
+		company.SubscriptionValidUntil = t
+		_, err = company.Put(ctx)
+		return err
+	}, nil)
+}
 
+// MarkSubscriptionPastDue marks the Company's subscription as being past due.
+func (c *Company) MarkSubscriptionPastDue(ctx context.Context, sub *braintree.Subscription) error {
+
+	t, err := integrations.ParseBraintreeDate(sub.BillingPeriodEndDate)
+	if err != nil {
+		return err
+	}
+
+	return nds.RunInTransaction(ctx, func(ctx context.Context) error {
+		company, err := GetCompany(ctx, c.Subdomain)
+		if err != nil {
+			return err
+		}
+
+		company.SubscriptionStatus = braintree.SubscriptionStatusPastDue
+		company.SubscriptionValidUntil = t
+		_, err = company.Put(ctx)
+		return err
+	}, nil)
+}
+
+// MarkSubscriptionActive marks the Company's subscription as being
+// active.  This is a no-op if the Company's subscription status is
+// anything but PastDue.
+func (c *Company) MarkSubscriptionActive(ctx context.Context, sub *braintree.Subscription) error {
+
+	if c.SubscriptionStatus != braintree.SubscriptionStatusPastDue {
+		log.Debugf(ctx, "Cannot mark Company %v as Active per subscription %v.", c, sub)
 		return nil
+	}
+
+	return nds.RunInTransaction(ctx, func(ctx context.Context) error {
+		company, err := GetCompany(ctx, c.Subdomain)
+		if err != nil {
+			return err
+		}
+
+		company.SubscriptionStatus = braintree.SubscriptionStatusActive
+		_, err = company.Put(ctx)
+		return err
 	}, nil)
 }
 

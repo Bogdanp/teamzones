@@ -25,7 +25,7 @@ var processBtWebhook = delay.Func(
 		}
 
 		sub := n.Subject.Subscription
-		if sub.Id == "" {
+		if sub == nil {
 			log.Warningf(ctx, "Unexpected notification: %v", n.Kind)
 			return
 		}
@@ -38,24 +38,20 @@ var processBtWebhook = delay.Func(
 
 		switch n.Kind {
 		case braintree.SubscriptionCanceledWebhook:
-			t, err := integrations.ParseBraintreeDate(sub.BillingPeriodEndDate)
-			if err != nil {
+			if err := company.CancelSubscription(ctx, sub); err != nil {
 				panic(err)
 			}
 
-			if err := company.CancelSubscription(ctx, t); err != nil {
+		case braintree.SubscriptionWentPastDueWebhook:
+			// TODO: Notify the user that their subscription is past due.
+			if err := company.MarkSubscriptionPastDue(ctx, sub); err != nil {
 				panic(err)
 			}
 
 		case braintree.SubscriptionChargedSuccessfullyWebhook:
-			// FIXME: handle this case
-
-		case braintree.SubscriptionChargedUnsuccessfullyWebhook:
-			// FIXME: handle this case
-
-		case braintree.SubscriptionWentPastDueWebhook:
-			// FIXME: handle this case
-
+			if err := company.MarkSubscriptionActive(ctx, sub); err != nil {
+				panic(err)
+			}
 		}
 	},
 )
