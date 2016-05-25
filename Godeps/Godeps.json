@@ -192,6 +192,10 @@
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
 		{
+			"ImportPath": "google.golang.org/appengine/internal/mail",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
 			"ImportPath": "google.golang.org/appengine/internal/memcache",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
@@ -213,6 +217,10 @@
 		},
 		{
 			"ImportPath": "google.golang.org/appengine/log",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/mail",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
 		{

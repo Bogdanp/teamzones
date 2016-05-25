@@ -30,7 +30,6 @@ type Invite struct {
 	FirstName string
 	LastName  string
 	Email     string
-	Sent      bool
 	Bulk      bool
 
 	Times
@@ -73,7 +72,6 @@ func CreateInvite(
 		return nil, nil, err
 	}
 
-	invite.send(ctx, key.IntID())
 	return invite, key, nil
 }
 
@@ -122,8 +120,4 @@ func DeleteInvite(
 		ctx,
 		datastore.NewKey(ctx, inviteKind, "", inviteID, companyKey),
 	)
-}
-
-func (invite *Invite) send(ctx context.Context, inviteID int64) {
-	// FIXME: Send e-mail (https://sendgrid.com/partners/google)
 }

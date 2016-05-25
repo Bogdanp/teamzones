@@ -11,6 +11,7 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/delay"
 	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/mail"
 )
 
 var processBtWebhook = delay.Func(
@@ -115,5 +116,12 @@ var refreshGCalendar = delay.Func(
 		if err != nil {
 			panic(err)
 		}
+	},
+)
+
+var sendMail = delay.Func(
+	"send-mail",
+	func(ctx context.Context, message mail.Message) {
+		mail.Send(ctx, &message)
 	},
 )
