@@ -1,0 +1,28 @@
+$base-line-height: 32px;
+$black: rgb(0, 0, 0);
+$off-black: rgba($black, 0.2);
+$spin-duration: 1s;
+$pulse-duration: 750ms;
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading {
+  padding: 25px;
+
+  div {
+    border-radius: 50%;
+    width: $base-line-height;
+    height: $base-line-height;
+    border: .25rem solid $off-black;
+    border-style: double;
+    border-top-color: $black;
+    animation: spin $spin-duration infinite linear;
+  }
+}

@@ -35,6 +35,15 @@ init ({ path, now, company, user, team, timezones, integrationStates } as flags)
                 , integrationStates = integrationStates
                 }
 
+        ( settings, _ ) =
+            Settings.init
+                { deleteUser = DeleteUser
+                , fullRoute = route
+                , subRoute = Nothing
+                , currentUser = currentUser
+                , teamMembers = teamMembers
+                }
+
         ( currentProfile, _ ) =
             CP.init currentUser timezones
 
@@ -55,14 +64,7 @@ init ({ path, now, company, user, team, timezones, integrationStates } as flags)
                     , currentUser = currentUser
                     }
                 , integrations = integrations
-                , settings =
-                    Settings.init
-                        { deleteUser = DeleteUser
-                        , fullRoute = route
-                        , subRoute = Nothing
-                        , currentUser = currentUser
-                        , teamMembers = teamMembers
-                        }
+                , settings = settings
                 , currentProfile = currentProfile
                 , notifications = Notifications.init
                 }
@@ -102,8 +104,8 @@ handleRoute ({ now, route, user, teamMembers, integrationStates } as model) =
                     ! [ Cmd.map ToIntegrations fx ]
 
         SettingsR subRoute ->
-            { model
-                | settings =
+            let
+                ( settings, fx ) =
                     Settings.init
                         { deleteUser = DeleteUser
                         , fullRoute = route
@@ -111,8 +113,8 @@ handleRoute ({ now, route, user, teamMembers, integrationStates } as model) =
                         , currentUser = user
                         , teamMembers = teamMembers
                         }
-            }
-                ! []
+            in
+                { model | settings = settings } ! [ Cmd.map ToSettings fx ]
 
         CurrentProfileR () ->
             let
@@ -186,7 +188,8 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
                         Nothing ->
                             ( model.teamMembers, model.team )
             in
-                { model | settings = settings, team = team, teamMembers = teamMembers } ! [ Cmd.map ToSettings fx ]
+                { model | settings = settings, team = team, teamMembers = teamMembers }
+                    ! [ Cmd.map ToSettings fx ]
 
         -- (CP.RemoveAvatar) to satisfy elm-format
         ToCurrentProfile (CP.ToParent (CP.RemoveAvatar)) ->

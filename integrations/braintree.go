@@ -72,7 +72,7 @@ func NewBraintreeService(ctx context.Context) *braintree.Braintree {
 	return bt
 }
 
-// BraintreeSubscribe creates subscribes a new customer in Braintree.
+// BraintreeSubscribe subscribes a new customer in Braintree.
 func BraintreeSubscribe(
 	ctx context.Context,
 	nonce, planID string, vat int,
@@ -118,6 +118,20 @@ func BraintreeSubscribe(
 	}
 
 	return customer, subscription, nil
+}
+
+// BraintreeCancelSubscription cancels a Company's subscription.
+func BraintreeCancelSubscription(
+	ctx context.Context, subID string,
+) (*braintree.Subscription, error) {
+
+	bt := NewBraintreeService(ctx)
+	sub, err := bt.Subscription().Cancel(subID)
+	if err != nil {
+		return nil, err
+	}
+
+	return sub, nil
 }
 
 // BraintreePlans returns the list of defined subscription plans.

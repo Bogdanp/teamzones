@@ -22,6 +22,7 @@ type alias Context pmsg =
 type Msg
     = RouteTo Sitemap
     | ToTeam Team.Msg
+    | ToBilling Billing.Msg
 
 
 type alias Model pmsg =
@@ -29,10 +30,11 @@ type alias Model pmsg =
     , subRoute : SettingsSitemap
     , teamMembers : List User
     , team : Team.Model pmsg
+    , billing : Billing.Model
     }
 
 
-init : Context pmsg -> Model pmsg
+init : Context pmsg -> ( Model pmsg, Cmd Msg )
 init { deleteUser, fullRoute, subRoute, currentUser, teamMembers } =
     let
         team =
@@ -41,12 +43,21 @@ init { deleteUser, fullRoute, subRoute, currentUser, teamMembers } =
                 , currentUser = currentUser
                 , teamMembers = teamMembers
                 }
+
+        ( billing, billingFx ) =
+            Billing.init
     in
-        Model fullRoute (Maybe.withDefault (TeamR ()) subRoute) teamMembers team
+        { fullRoute = fullRoute
+        , subRoute = (Maybe.withDefault (TeamR ()) subRoute)
+        , teamMembers = teamMembers
+        , team = team
+        , billing = billing
+        }
+            ! [ Cmd.map ToBilling billingFx ]
 
 
 update : Msg -> Model pmsg -> ( Model pmsg, Cmd Msg, Maybe pmsg )
-update msg ({ team } as model) =
+update msg ({ team, billing } as model) =
     case msg of
         RouteTo route ->
             ( model, pushPath (Routes.route route), Nothing )
@@ -58,9 +69,16 @@ update msg ({ team } as model) =
             in
                 ( { model | team = team }, Cmd.map ToTeam fx, pmsg )
 
+        ToBilling msg ->
+            let
+                ( billing, fx ) =
+                    Billing.update msg billing
+            in
+                ( { model | billing = billing }, Cmd.map ToBilling fx, Nothing )
+
 
 view : Model pmsg -> Html Msg
-view ({ fullRoute, subRoute, team } as model) =
+view ({ fullRoute, subRoute, team, billing } as model) =
     pageWithTabs RouteTo
         fullRoute
         [ ( SettingsR (TeamR ()), "Team" )
@@ -68,7 +86,8 @@ view ({ fullRoute, subRoute, team } as model) =
         ]
         [ case subRoute of
             BillingR () ->
-                Billing.view
+                Billing.view billing
+                    |> Html.map ToBilling
 
             TeamR () ->
                 Team.view team

@@ -16,6 +16,7 @@ import (
 	"google.golang.org/appengine/memcache"
 
 	"github.com/gorilla/context"
+	"github.com/lionelbarrow/braintree-go"
 	"github.com/qedus/nds"
 
 	"gopkg.in/julienschmidt/httprouter.v1"
@@ -39,7 +40,8 @@ func init() {
 	GET(appRouter, gcalendarDataRoute, "/api/integrations/gcalendar/data", gcalendarDataHandler)
 
 	// Billing
-	GET(appRouter, billingStatusRoute, "/api/billing/status", billingStatusHandler)
+	GET(appRouter, currentSubscriptionRoute, "/api/billing/subscriptions/current", currentSubscriptionHandler)
+	DELETE(appRouter, currentSubscriptionRoute, "/api/billing/subscriptions/current", cancelSubscriptionHandler)
 }
 
 type locationResponse struct {
@@ -399,16 +401,43 @@ func gcalendarDataHandler(res http.ResponseWriter, req *http.Request, _ httprout
 	renderer.JSON(res, http.StatusOK, data)
 }
 
-func billingStatusHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	user := context.Get(req, userCtxKey).(*models.User)
-	if user.Role != models.RoleMain {
-		forbidden(res)
+func currentSubscriptionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	if !hasRole(res, req, models.RoleMain) {
 		return
 	}
 
 	company := context.Get(req, companyCtxKey).(*models.Company)
-	renderer.JSON(res, http.StatusOK, map[string]string{
+	var validUntil int64
+	if company.SubscriptionStatus != braintree.SubscriptionStatusPending {
+		validUntil = company.SubscriptionValidUntil.Unix()
+	}
+
+	renderer.JSON(res, http.StatusOK, map[string]interface{}{
 		"status":     company.SubscriptionStatus,
-		"validUntil": company.SubscriptionValidUntil.Format("2 Jan, 2006"),
+		"validUntil": validUntil,
 	})
+}
+
+func cancelSubscriptionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	if !hasRole(res, req, models.RoleMain) {
+		return
+	}
+
+	ctx := appengine.NewContext(req)
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	sub, err := integrations.BraintreeCancelSubscription(ctx, company.SubscriptionID)
+	if err != nil {
+		log.Errorf(ctx, "failed to cancel subscription for %v: %v", company.Subdomain, err)
+		serverError(res)
+		return
+	}
+
+	err = company.CancelSubscription(ctx, sub)
+	if err != nil {
+		log.Errorf(ctx, "failed to cancel subscription: %v", err)
+		serverError(res)
+		return
+	}
+
+	res.WriteHeader(http.StatusOK)
 }
