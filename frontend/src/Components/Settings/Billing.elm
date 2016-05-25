@@ -92,7 +92,7 @@ subscription cancelButton data =
                     [ p [] [ text ("Your subscription is past due and will expire on " ++ nextDate () ++ ".") ]
                     ]
 
-            Cancelled ->
+            Canceled ->
                 div []
-                    [ p [] [ text ("Your subscription has been cancelled and is valid until " ++ nextDate () ++ ".") ]
+                    [ p [] [ text ("Your subscription has been canceled and is valid until " ++ nextDate () ++ ".") ]
                     ]
