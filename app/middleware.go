@@ -23,6 +23,25 @@ var (
 	}
 )
 
+// Access restricts access to paths based on their ACL.  This only
+// applies to static paths!
+func Access(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
+	if roles, ok := sitemapACL[req.URL.Path]; ok {
+		user := context.Get(req, userCtxKey).(*models.User)
+		for _, role := range roles {
+			if role == user.Role {
+				next(res, req)
+				return
+			}
+		}
+
+		forbidden(res)
+		return
+	}
+
+	next(res, req)
+}
+
 func guestPath(path string) bool {
 	for _, p := range guestPaths {
 		if strings.HasPrefix(path, p) {

@@ -4,27 +4,12 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"teamzones/models"
 	"time"
-
-	gcontext "github.com/gorilla/context"
 
 	"google.golang.org/appengine/memcache"
 
 	"golang.org/x/net/context"
 )
-
-func hasRole(res http.ResponseWriter, req *http.Request, roles ...string) bool {
-	user := gcontext.Get(req, userCtxKey).(*models.User)
-	for _, r := range roles {
-		if user.Role == r {
-			return true
-		}
-	}
-
-	forbidden(res)
-	return false
-}
 
 // Optimistically "lock" around a key in memcache.  Returns true when
 // execution should halt and false otherwise.

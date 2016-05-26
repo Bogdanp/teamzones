@@ -14,6 +14,7 @@ import (
 type Route int
 
 var sitemap = make(map[Route]RouteBuilder)
+var sitemapACL = make(map[string][]string) // path -> list of roles
 
 const (
 	segmentStatic  = iota
@@ -173,10 +174,15 @@ func newBuilder(path string) RouteBuilder {
 
 func register(
 	router *httprouter.Router,
-	name Route, path string, handler httprouter.Handle, methods ...string,
+	name Route, path string, handler httprouter.Handle,
+	roles []string, methods []string,
 ) {
 
 	sitemap[name] = newBuilder(path)
+
+	if len(roles) > 0 {
+		sitemapACL[path] = roles
+	}
 
 	for _, method := range methods {
 		router.Handle(method, path, handler)
@@ -184,23 +190,23 @@ func register(
 }
 
 // GET creates an HTTP GET route handler.
-func GET(router *httprouter.Router, name Route, path string, handler httprouter.Handle) {
-	register(router, name, path, handler, http.MethodGet)
+func GET(router *httprouter.Router, name Route, path string, handler httprouter.Handle, roles ...string) {
+	register(router, name, path, handler, roles, []string{http.MethodGet})
 }
 
 // POST creates an HTTP POST route handler.
-func POST(router *httprouter.Router, name Route, path string, handler httprouter.Handle) {
-	register(router, name, path, handler, http.MethodPost)
+func POST(router *httprouter.Router, name Route, path string, handler httprouter.Handle, roles ...string) {
+	register(router, name, path, handler, roles, []string{http.MethodPost})
 }
 
 // DELETE creates an HTTP DELETE route handler.
-func DELETE(router *httprouter.Router, name Route, path string, handler httprouter.Handle) {
-	register(router, name, path, handler, http.MethodDelete)
+func DELETE(router *httprouter.Router, name Route, path string, handler httprouter.Handle, roles ...string) {
+	register(router, name, path, handler, roles, []string{http.MethodDelete})
 }
 
 // ALL creates an HTTP GET and POST route handler.
-func ALL(router *httprouter.Router, name Route, path string, handler httprouter.Handle) {
-	register(router, name, path, handler, http.MethodGet, http.MethodPost)
+func ALL(router *httprouter.Router, name Route, path string, handler httprouter.Handle, roles ...string) {
+	register(router, name, path, handler, roles, []string{http.MethodGet, http.MethodPost})
 }
 
 // ReverseRoute looks up routes by name and returns RouteBuilders for

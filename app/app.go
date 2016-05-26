@@ -58,17 +58,25 @@ const (
 	resetPasswordRoute
 
 	// API
-	locationRoute
+	/// User management
 	sendInviteRoute
 	createBulkInviteRoute
+	deleteUserRoute
+
+	/// Profile
+	locationRoute
 	updateProfileRoute
 	avatarUploadRoute
 	deleteAvatarRoute
-	deleteUserRoute
+
+	/// Integrations
 	refreshIntegrationRoute
 	disconnectIntegrationRoute
 	gcalendarDataRoute
+
+	/// Billing
 	currentSubscriptionRoute
+	activatePlanRoute
 
 	// Tools
 	provisionRoute
@@ -94,6 +102,7 @@ func createRouters() (*httprouter.Router, *httprouter.Router) {
 		sessions.Sessions("session", store),
 		negroni.HandlerFunc(Subdomain),
 		negroni.HandlerFunc(Auth),
+		negroni.HandlerFunc(Access),
 		negroni.Wrap(appRouter),
 	)
 
