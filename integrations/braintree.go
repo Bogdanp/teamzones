@@ -1,7 +1,6 @@
 package integrations
 
 import (
-	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -10,6 +9,7 @@ import (
 
 	// Fixes gocode completion
 	braintree "github.com/lionelbarrow/braintree-go"
+	"github.com/pkg/errors"
 
 	"golang.org/x/net/context"
 
@@ -102,23 +102,46 @@ func BraintreeSubscribe(
 	}
 
 	plan, _ := LookupBraintreePlan(planID)
-	subData := braintree.Subscription{
+	subscription, err := bt.Subscription().Create(&braintree.Subscription{
 		PlanId:             planID,
 		PaymentMethodToken: card.Token,
-	}
-	if vat != 0 {
-		price := int(math.Floor(float64(vat)/100*float64(plan.Price))) + plan.Price
-		subData.Price = braintree.NewDecimal(int64(price), 2)
-	} else {
-		subData.Price = braintree.NewDecimal(int64(plan.Price), 2)
-	}
-
-	subscription, err := bt.Subscription().Create(&subData)
+		Price:              computePrice(plan.Price, vat),
+	})
 	if err != nil {
 		return nil, nil, err
 	}
 
 	return customer, subscription, nil
+}
+
+// BraintreeUpdateSubscription updates a Company's subscription plan.
+func BraintreeUpdateSubscription(
+	ctx context.Context,
+	subID, planID string, vat int,
+) (*braintree.Subscription, error) {
+	bt := NewBraintreeService(ctx)
+	subs := bt.Subscription()
+	sub, err := subs.Find(subID)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not find subscription")
+	}
+
+	plan, _ := LookupBraintreePlan(planID)
+	sub, err = subs.Update(&braintree.Subscription{
+		Id:     sub.Id,
+		PlanId: planID,
+		Price:  computePrice(plan.Price, vat),
+		Options: &braintree.SubscriptionOptions{
+			ProrateCharges:                       true,
+			RevertSubscriptionOnProrationFailure: true,
+			StartImmediately:                     true,
+		},
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "could not update subscription")
+	}
+
+	return sub, nil
 }
 
 // BraintreeCancelSubscription cancels a Company's subscription.
@@ -169,4 +192,13 @@ func (p *BraintreePlan) DollarPrice() string {
 // DollarMPrice returns the formatted monthly price of a plan.
 func (p *BraintreePlan) DollarMPrice() string {
 	return fmt.Sprintf("$%d.%02d", p.MPrice/100, p.MPrice%100)
+}
+
+func computePrice(price, vat int) *braintree.Decimal {
+	if vat != 0 {
+		price = int(math.Floor(float64(vat)/100*float64(price))) + price
+		return braintree.NewDecimal(int64(price), 2)
+	}
+
+	return braintree.NewDecimal(int64(price), 2)
 }

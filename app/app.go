@@ -76,7 +76,7 @@ const (
 
 	/// Billing
 	currentSubscriptionRoute
-	activatePlanRoute
+	updatePlanRoute
 
 	// Tools
 	provisionRoute

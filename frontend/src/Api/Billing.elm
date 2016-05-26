@@ -6,12 +6,15 @@ module Api.Billing
         , SubscriptionPlan
         , cancelSubscription
         , fetchSubscription
+        , updatePlan
         )
 
-import Api exposing (Errors, Error, Response, deletePlain, getJson)
+import Api exposing (Errors, Error, Response, deletePlain, getJson, postPlain)
 import Json.Decode as Json exposing (Decoder, (:=), int, list, string)
+import Json.Encode
 import Task exposing (Task)
 import Timestamp exposing (Timestamp)
+import Util exposing ((=>))
 
 
 type BillingCycle
@@ -124,3 +127,8 @@ cancelSubscription =
 fetchSubscription : Task Error (Response Subscription)
 fetchSubscription =
     getJson subscription "billing/subscriptions/current"
+
+
+updatePlan : String -> Task Error (Response String)
+updatePlan planId =
+    postPlain (Json.Encode.object [ "planId" => Json.Encode.string planId ]) "billing/plans"

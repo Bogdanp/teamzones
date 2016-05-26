@@ -2,9 +2,11 @@ package models
 
 import (
 	"teamzones/integrations"
+	"teamzones/utils"
 	"time"
 
 	"github.com/lionelbarrow/braintree-go"
+	"github.com/pkg/errors"
 	"github.com/qedus/nds"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
@@ -179,6 +181,60 @@ func (c *Company) ValidPlans(ctx context.Context) ([]integrations.BraintreePlan,
 	}
 
 	return plans, nil
+}
+
+// ValidPlan returns true if a plan is valid for a Company given its size.
+func (c *Company) ValidPlan(ctx context.Context, planID string) (bool, error) {
+	plans, err := c.ValidPlans(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	for _, plan := range plans {
+		if plan.ID == planID {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+// UpdatePlan changes a Company's subscription plan.
+func (c *Company) UpdatePlan(ctx context.Context, planID string) (*braintree.Subscription, error) {
+
+	valid, err := c.ValidPlan(ctx, planID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !valid {
+		return nil, errors.Errorf("company %v cannot activate plan %v", c, planID)
+	}
+
+	vat := 0
+	vatCountry, found := utils.LookupVATCountry(c.SubscriptionCountry)
+	if c.SubscriptionVATID == "" && found {
+		vat = vatCountry.VAT
+	}
+
+	sub, err := integrations.BraintreeUpdateSubscription(ctx, c.SubscriptionID, planID, vat)
+	if err != nil {
+		return nil, err
+	}
+
+	t, _ := integrations.ParseBraintreeDate(sub.BillingPeriodEndDate)
+	err = nds.RunInTransaction(ctx, func(ctx context.Context) error {
+		c.SubscriptionPlanID = planID
+		c.SubscriptionStatus = sub.Status
+		c.SubscriptionValidUntil = t
+		_, err := c.Put(ctx)
+		return err
+	}, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return sub, nil
 }
 
 // Key is a helper function for building a Company's key.

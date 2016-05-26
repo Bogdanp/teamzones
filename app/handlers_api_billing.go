@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"teamzones/forms"
 	"teamzones/integrations"
 	"teamzones/models"
 
@@ -25,8 +26,8 @@ func init() {
 	)
 	POST(
 		appRouter,
-		activatePlanRoute, "/api/billing/plans",
-		activatePlanHandler, models.RoleMain,
+		updatePlanRoute, "/api/billing/plans",
+		updatePlanHandler, models.RoleMain,
 	)
 }
 
@@ -73,5 +74,24 @@ func cancelSubscriptionHandler(res http.ResponseWriter, req *http.Request, _ htt
 	res.WriteHeader(http.StatusOK)
 }
 
-func activatePlanHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+func updatePlanHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	var data struct {
+		PlanID string `json:"planId"`
+	}
+
+	if err := forms.BindJSON(req, &data); err != nil {
+		badRequest(res, err.Error())
+		return
+	}
+
+	ctx := appengine.NewContext(req)
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	_, err := company.UpdatePlan(ctx, data.PlanID)
+	if err != nil {
+		log.Errorf(ctx, "failed to update subscription plan for %v: %v", company.Subdomain, err)
+		serverError(res)
+		return
+	}
+
+	res.WriteHeader(http.StatusOK)
 }

@@ -19,6 +19,8 @@ type Msg
     | SubscriptionSuccess (Response Subscription)
     | CancelSubscriptionError Error
     | CancelSubscriptionSuccess (Response String)
+    | ActivatePlanError Error
+    | ActivatePlanSuccess (Response String)
     | ToCancelButton CB.Msg
     | ToActivateButton String CB.Msg
 
@@ -63,6 +65,15 @@ update msg model =
         CancelSubscriptionSuccess _ ->
             { model | data = Nothing } ! [ fetchSubscription ]
 
+        ActivatePlanError _ ->
+            model
+                ! [ error "We encountered an issue while trying to change your subscription. Please contact support."
+                  , fetchSubscription
+                  ]
+
+        ActivatePlanSuccess _ ->
+            model ! [ fetchSubscription ]
+
         ToCancelButton ((CB.ToParent (CB.Confirm)) as msg) ->
             { model | data = Nothing, cancelButton = CB.update msg model.cancelButton }
                 ! [ Task.perform CancelSubscriptionError CancelSubscriptionSuccess Billing.cancelSubscription ]
@@ -75,7 +86,10 @@ update msg model =
                 buttons =
                     Dict.update id (Maybe.map (CB.update msg)) model.activateButtons
             in
-                { model | activateButtons = buttons } ! []
+                { model | data = Nothing, activateButtons = buttons }
+                    ! [ Billing.updatePlan id
+                            |> Task.perform ActivatePlanError ActivatePlanSuccess
+                      ]
 
         ToActivateButton id msg ->
             let
