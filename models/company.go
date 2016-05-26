@@ -157,6 +157,30 @@ func (c *Company) MarkSubscriptionActive(ctx context.Context, sub *braintree.Sub
 	}, nil)
 }
 
+// ValidPlans returns a slice of plans that are valid for the Company given its size.
+func (c *Company) ValidPlans(ctx context.Context) ([]integrations.BraintreePlan, error) {
+	var plans []integrations.BraintreePlan
+
+	p, err := integrations.LookupBraintreePlan(c.SubscriptionPlanID)
+	if err != nil {
+		return plans, err
+	}
+
+	ps := integrations.BraintreePlans()
+	teamSize, err := GetCompanySize(ctx, c.Key(ctx))
+	if err != nil {
+		return plans, err
+	}
+
+	for _, plan := range ps {
+		if plan.ID != "free" && p.Cycle == plan.Cycle && plan.Members >= teamSize {
+			plans = append(plans, plan)
+		}
+	}
+
+	return plans, nil
+}
+
 // Key is a helper function for building a Company's key.
 func (c *Company) Key(ctx context.Context) *datastore.Key {
 	return NewCompanyKey(ctx, c.Subdomain)

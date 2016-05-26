@@ -413,15 +413,11 @@ func currentSubscriptionHandler(res http.ResponseWriter, req *http.Request, _ ht
 	}
 
 	ctx := appengine.NewContext(req)
-	p, _ := integrations.LookupBraintreePlan(company.SubscriptionPlanID)
-	ps := integrations.BraintreePlans()
-	teamSize, _ := models.GetCompanySize(ctx, company.Key(ctx))
-
-	var plans []integrations.BraintreePlan
-	for _, plan := range ps {
-		if plan.ID != "free" && p.Cycle == plan.Cycle && plan.Members >= teamSize {
-			plans = append(plans, plan)
-		}
+	plans, err := company.ValidPlans(ctx)
+	if err != nil {
+		log.Errorf(ctx, "error fetching valid plans: %v", err)
+		serverError(res)
+		return
 	}
 
 	renderer.JSON(res, http.StatusOK, map[string]interface{}{
