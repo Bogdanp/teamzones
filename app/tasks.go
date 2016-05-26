@@ -49,6 +49,10 @@ var processBtWebhook = delay.Func(
 			}
 
 		case braintree.SubscriptionChargedSuccessfullyWebhook:
+			if _, err := models.CreateReceipt(ctx, company, sub); err != nil {
+				panic(err)
+			}
+
 			if err := company.MarkSubscriptionActive(ctx, sub); err != nil {
 				panic(err)
 			}
