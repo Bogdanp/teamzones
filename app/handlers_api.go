@@ -412,7 +412,21 @@ func currentSubscriptionHandler(res http.ResponseWriter, req *http.Request, _ ht
 		validUntil = company.SubscriptionValidUntil.Unix()
 	}
 
+	ctx := appengine.NewContext(req)
+	p, _ := integrations.LookupBraintreePlan(company.SubscriptionPlanID)
+	ps := integrations.BraintreePlans()
+	teamSize, _ := models.GetCompanySize(ctx, company.Key(ctx))
+
+	var plans []integrations.BraintreePlan
+	for _, plan := range ps {
+		if plan.ID != "free" && p.Cycle == plan.Cycle && plan.Members >= teamSize {
+			plans = append(plans, plan)
+		}
+	}
+
 	renderer.JSON(res, http.StatusOK, map[string]interface{}{
+		"plans":      plans,
+		"planId":     company.SubscriptionPlanID,
 		"status":     company.SubscriptionStatus,
 		"validUntil": validUntil,
 	})

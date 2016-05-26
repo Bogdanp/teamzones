@@ -19,12 +19,13 @@ import (
 
 // BraintreePlan represents a subscription plan.
 type BraintreePlan struct {
-	ID      string
-	Label   string
-	Price   int
-	MPrice  int
-	Cycle   string
-	Members int
+	ID      string `json:"id"`
+	Label   string `json:"label"`
+	Price   int    `json:"price"`
+	MPrice  int    `json:"monthlyPrice"`
+	Cycle   string `json:"billingCycle"`
+	Members int    `json:"members"`
+	Summary string `json:"summary"`
 }
 
 // BraintreeConfiguration represents the data necessary to communicate

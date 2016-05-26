@@ -545,3 +545,15 @@ table {
 .confirmation-button {
   display: inline-block;
 }
+
+.billing-overview {
+  margin-top: 1em;
+
+  tbody {
+    tr > td:first-child {
+      background: #F9F9F9;
+      border-right: 1px solid #F2F2F2;
+      width: 120px;
+    }
+  }
+}

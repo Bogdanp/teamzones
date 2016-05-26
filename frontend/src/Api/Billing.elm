@@ -1,15 +1,23 @@
 module Api.Billing
     exposing
-        ( SubscriptionStatus(..)
+        ( BillingCycle(..)
+        , SubscriptionStatus(..)
         , Subscription
+        , SubscriptionPlan
         , cancelSubscription
         , fetchSubscription
         )
 
 import Api exposing (Errors, Error, Response, deletePlain, getJson)
-import Json.Decode as Json exposing (Decoder, (:=), int, string)
+import Json.Decode as Json exposing (Decoder, (:=), int, list, string)
 import Task exposing (Task)
 import Timestamp exposing (Timestamp)
+
+
+type BillingCycle
+    = Never
+    | Month
+    | Year
 
 
 type SubscriptionStatus
@@ -19,8 +27,21 @@ type SubscriptionStatus
     | Canceled
 
 
+type alias SubscriptionPlan =
+    { id : String
+    , label : String
+    , price : Int
+    , monthlyPrice : Int
+    , billingCycle : BillingCycle
+    , members : Int
+    , summary : String
+    }
+
+
 type alias Subscription =
-    { status : SubscriptionStatus
+    { plans : List SubscriptionPlan
+    , planId : String
+    , status : SubscriptionStatus
     , validUntil : Timestamp
     }
 
@@ -32,6 +53,23 @@ timestamp =
             toFloat x * 1000
     in
         Json.map convert int
+
+
+billingCycle : Decoder BillingCycle
+billingCycle =
+    let
+        convert s =
+            case s of
+                "month" ->
+                    Month
+
+                "year" ->
+                    Year
+
+                _ ->
+                    Never
+    in
+        Json.map convert string
 
 
 subscriptionStatus : Decoder SubscriptionStatus
@@ -57,9 +95,23 @@ subscriptionStatus =
         Json.map convert string
 
 
+subscriptionPlan : Decoder SubscriptionPlan
+subscriptionPlan =
+    Json.object7 SubscriptionPlan
+        ("id" := string)
+        ("label" := string)
+        ("price" := int)
+        ("monthlyPrice" := int)
+        ("billingCycle" := billingCycle)
+        ("members" := int)
+        ("summary" := string)
+
+
 subscription : Decoder Subscription
 subscription =
-    Json.object2 Subscription
+    Json.object4 Subscription
+        ("plans" := list subscriptionPlan)
+        ("planId" := string)
         ("status" := subscriptionStatus)
         ("validUntil" := timestamp)
 

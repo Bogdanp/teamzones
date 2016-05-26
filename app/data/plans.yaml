@@ -4,6 +4,8 @@ plans:
     price: 0
     cycle: never
     members: 1000
+    summary: >-
+      The free plan.
 
   - id: t-m1
     label: Medium
@@ -11,6 +13,8 @@ plans:
     mprice: 1200
     cycle: month
     members: 25
+    summary: >-
+      For teams of up to 25 people.
 
   - id: t-m12
     label: Medium
@@ -18,6 +22,8 @@ plans:
     mprice: 900
     cycle: year
     members: 25
+    summary: >-
+      For teams of up to 25 people.
 
   - id: t-l1
     label: Large
@@ -25,6 +31,8 @@ plans:
     mprice: 2000
     cycle: month
     members: 50
+    summary: >-
+      For teams of up to 50 people.
 
   - id: t-l12
     label: Large
@@ -32,6 +40,8 @@ plans:
     mprice: 1700
     cycle: year
     members: 50
+    summary: >-
+      For teams of up to 50 people.
 
   - id: t-e1
     label: Enterprise
@@ -39,6 +49,8 @@ plans:
     mprice: 10000
     cycle: month
     members: 500
+    summary: >-
+      For teams of up to 500 people.
 
   - id: t-e12
     label: Enterprise
@@ -46,3 +58,5 @@ plans:
     mprice: 8500
     cycle: year
     members: 500
+    summary: >-
+      For teams of up to 500 people.

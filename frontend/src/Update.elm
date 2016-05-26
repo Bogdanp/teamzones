@@ -130,7 +130,6 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
                 { model | settings = settings, team = team, teamMembers = teamMembers }
                     ! [ Cmd.map ToSettings fx ]
 
-        -- (CP.RemoveAvatar) to satisfy elm-format
         ToCurrentProfile (CP.ToParent (CP.RemoveAvatar)) ->
             let
                 ( user', team' ) =

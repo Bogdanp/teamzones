@@ -85,6 +85,14 @@ func GetCompanyBySubID(ctx context.Context, subID string) (*Company, error) {
 	return &company, nil
 }
 
+// GetCompanySize returns the number of members a given Company has.
+func GetCompanySize(ctx context.Context, company *datastore.Key) (int, error) {
+	return datastore.NewQuery(userKind).
+		Ancestor(company).
+		Count(ctx)
+
+}
+
 // CancelSubscription marks the Company's subscription as canceled.
 func (c *Company) CancelSubscription(ctx context.Context, sub *braintree.Subscription) error {
 

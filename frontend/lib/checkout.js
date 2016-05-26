@@ -15,14 +15,14 @@ var Checkout = function(btContainer, vatCountries, plan, elements) {
       var country = vatCountries[i];
 
       if (country.Code === code) {
-        var vat = country.VAT / 100 * plan.Price;
+        var vat = country.VAT / 100 * plan.price;
 
         elements.vatPrefix.value = country.Code;
         elements.euVAT.style.display = "block";
         elements.orderVAT.style.display = "flex";
 
         elements.orderVATAmount.innerHTML = formatPrice(vat);
-        elements.orderTotalAmount.innerHTML = formatPrice(vat + plan.Price);
+        elements.orderTotalAmount.innerHTML = formatPrice(vat + plan.price);
         return;
       }
     }
@@ -56,7 +56,7 @@ var Checkout = function(btContainer, vatCountries, plan, elements) {
     // Hide VAT if they provide a VAT ID.
     if (value) {
       elements.orderVAT.style.display = "none";
-      elements.orderTotalAmount.innerHTML = formatPrice(plan.Price);
+      elements.orderTotalAmount.innerHTML = formatPrice(plan.price);
     }
   };
 
