@@ -1,5 +1,6 @@
-module Routes exposing (Sitemap(..), IntegrationsSitemap(..), SettingsSitemap(..), match, route)
+module Routes exposing (Sitemap(..), IntegrationsSitemap(..), SettingsSitemap(..), match, route, push)
 
+import Navigation
 import Route exposing (..)
 
 
@@ -11,6 +12,11 @@ type Sitemap
     | SettingsR SettingsSitemap
     | CurrentProfileR ()
     | NotFoundR
+
+
+push : Sitemap -> Cmd msg
+push =
+    Navigation.newUrl << route
 
 
 homeR =

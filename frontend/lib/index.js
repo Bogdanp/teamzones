@@ -15,23 +15,12 @@ window.moment = moment;
 window.Checkout = Checkout;
 window.init = function(Elm, el, context) {
   context.now = now();
-  context.path = window.location.pathname;
   context.user.integrations = context.integrations;
   context.timezones = moment.tz.names().filter(function(tz) {
     return tz.indexOf("/") !== -1 && tz.indexOf("Etc/") !== 0;
   });
 
   var app = Elm.Main.embed(el, context);
-
-  // History subs
-  window.onpopstate = function(event) {
-    app.ports.path.send(window.location.pathname);
-  };
-
-  app.ports.pushPath.subscribe(function(path) {
-    window.history.pushState({}, "", path);
-    app.ports.path.send(window.location.pathname);
-  });
 
   // Time{zone,stamp} subs
   service.fetchLocation().then(function(location) {

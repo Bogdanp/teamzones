@@ -1,13 +1,7 @@
-port module Ports exposing (path, pushPath, timestamps, timezones, notifications, notify)
+port module Ports exposing (timestamps, timezones, notifications, notify)
 
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (Notification)
-
-
-port path : (String -> msg) -> Sub msg
-
-
-port pushPath : String -> Cmd msg
 
 
 port timestamps : (Timestamp -> msg) -> Sub msg

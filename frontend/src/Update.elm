@@ -1,4 +1,4 @@
-port module Update exposing (init, update)
+port module Update exposing (init, update, urlUpdate, pathParser)
 
 import Components.CurrentProfile as CP
 import Components.Invite as Invite
@@ -8,19 +8,16 @@ import Components.Profile as Profile
 import Components.Settings as Settings
 import Dict exposing (Dict)
 import Model exposing (..)
-import Ports exposing (pushPath)
+import Navigation exposing (Location)
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..), SettingsSitemap(..))
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
 import User exposing (isOffline)
 
 
-init : Flags -> ( Model, Cmd Msg )
-init ({ path, now, company, user, team, timezones, integrationStates } as flags) =
+init : Flags -> Sitemap -> ( Model, Cmd Msg )
+init ({ now, company, user, team, timezones, integrationStates } as flags) route =
     let
-        route =
-            Routes.match path
-
         currentUser =
             prepareUser user
 
@@ -48,7 +45,7 @@ init ({ path, now, company, user, team, timezones, integrationStates } as flags)
             CP.init currentUser timezones
 
         ( model, fx ) =
-            handleRoute
+            urlUpdate route
                 { now = now
                 , company = company
                 , user = currentUser
@@ -72,61 +69,6 @@ init ({ path, now, company, user, team, timezones, integrationStates } as flags)
         model ! [ fx ]
 
 
-handleRoute : Model -> ( Model, Cmd Msg )
-handleRoute ({ now, route, user, teamMembers, integrationStates } as model) =
-    case route of
-        ProfileR email ->
-            case findUser teamMembers email of
-                Just profileUser ->
-                    { model
-                        | profile =
-                            { now = now
-                            , user = profileUser
-                            , currentUser = user
-                            }
-                    }
-                        ! []
-
-                Nothing ->
-                    { model | route = NotFoundR } ! []
-
-        IntegrationsR subRoute ->
-            let
-                ( integrations, fx ) =
-                    Integrations.init
-                        { fullRoute = route
-                        , subRoute = Just subRoute
-                        , currentUser = user
-                        , integrationStates = integrationStates
-                        }
-            in
-                { model | integrations = integrations }
-                    ! [ Cmd.map ToIntegrations fx ]
-
-        SettingsR subRoute ->
-            let
-                ( settings, fx ) =
-                    Settings.init
-                        { deleteUser = DeleteUser
-                        , fullRoute = route
-                        , subRoute = Just subRoute
-                        , currentUser = user
-                        , teamMembers = teamMembers
-                        }
-            in
-                { model | settings = settings } ! [ Cmd.map ToSettings fx ]
-
-        CurrentProfileR () ->
-            let
-                ( profile, fx ) =
-                    CP.init model.user model.timezones
-            in
-                { model | currentProfile = profile } ! [ Cmd.map ToCurrentProfile fx ]
-
-        _ ->
-            model ! []
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ now, user, team, teamMembers, notifications } as model) =
     case msg of
@@ -137,11 +79,8 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
             -- FIXME: Prompt user to update timezone.
             model ! []
 
-        PathChanged path ->
-            handleRoute { model | route = Routes.match path }
-
         RouteTo route ->
-            model ! [ pushPath (Routes.route route) ]
+            model ! [ Routes.push route ]
 
         Notified notification ->
             let
@@ -231,6 +170,70 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
                     Notifications.update msg model.notifications
             in
                 { model | notifications = notifications } ! [ Cmd.map ToNotifications fx ]
+
+
+urlUpdate : Sitemap -> Model -> ( Model, Cmd Msg )
+urlUpdate route ({ now, user, teamMembers, integrationStates } as m) =
+    let
+        model =
+            { m | route = route }
+    in
+        case route of
+            ProfileR email ->
+                case findUser teamMembers email of
+                    Just profileUser ->
+                        { model
+                            | profile =
+                                { now = now
+                                , user = profileUser
+                                , currentUser = user
+                                }
+                        }
+                            ! []
+
+                    Nothing ->
+                        { model | route = NotFoundR } ! []
+
+            IntegrationsR subRoute ->
+                let
+                    ( integrations, fx ) =
+                        Integrations.init
+                            { fullRoute = route
+                            , subRoute = Just subRoute
+                            , currentUser = user
+                            , integrationStates = integrationStates
+                            }
+                in
+                    { model | integrations = integrations }
+                        ! [ Cmd.map ToIntegrations fx ]
+
+            SettingsR subRoute ->
+                let
+                    ( settings, fx ) =
+                        Settings.init
+                            { deleteUser = DeleteUser
+                            , fullRoute = route
+                            , subRoute = Just subRoute
+                            , currentUser = user
+                            , teamMembers = teamMembers
+                            }
+                in
+                    { model | settings = settings } ! [ Cmd.map ToSettings fx ]
+
+            CurrentProfileR () ->
+                let
+                    ( profile, fx ) =
+                        CP.init model.user model.timezones
+                in
+                    { model | currentProfile = profile } ! [ Cmd.map ToCurrentProfile fx ]
+
+            _ ->
+                model ! []
+
+
+pathParser : Location -> Sitemap
+pathParser =
+    .pathname >> Routes.match
 
 
 findUser : List User -> String -> Maybe User

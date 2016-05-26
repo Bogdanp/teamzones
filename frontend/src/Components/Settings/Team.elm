@@ -7,7 +7,6 @@ import Dict exposing (Dict)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
-import Ports exposing (pushPath)
 import Routes exposing (Sitemap(..))
 import Task
 import Types exposing (AnchorTo, User, UserRole(..))
@@ -65,7 +64,7 @@ update msg ({ rootDeleteUser, teamMembers, deleteMemberButtons } as model) =
     in
         case msg of
             RouteTo route ->
-                ( model, pushPath (Routes.route route), Nothing )
+                ( model, Routes.push route, Nothing )
 
             ToDeleteButton email ((CB.ToParent (CB.Confirm)) as msg) ->
                 ( { model | deleteMemberButtons = updateButtons email msg }

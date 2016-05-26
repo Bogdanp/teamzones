@@ -4,7 +4,6 @@ import Components.Integrations.GCalendar as GCalendar
 import Components.Page exposing (pageWithTabs)
 import Html exposing (..)
 import Html.App as Html
-import Ports exposing (pushPath)
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..))
 import Types exposing (User, IntegrationStates)
 
@@ -54,7 +53,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ integrationStates } as model) =
     case msg of
         RouteTo route ->
-            ( model, pushPath (Routes.route route) )
+            ( model, Routes.push route )
 
         ToGCalendar msg ->
             let

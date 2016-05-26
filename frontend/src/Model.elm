@@ -18,7 +18,6 @@ type ContextMsg
 type Msg
     = Tick Timestamp
     | TimezoneChanged Timezone
-    | PathChanged String
     | RouteTo Sitemap
     | Notified Notification
     | ToInvite Invite.Msg
@@ -48,8 +47,7 @@ type alias Model =
 
 
 type alias Flags =
-    { path : String
-    , now : Timestamp
+    { now : Timestamp
     , company : Company
     , user : ContextUser
     , team : List ContextUser

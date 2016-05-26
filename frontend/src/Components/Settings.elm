@@ -5,7 +5,6 @@ import Components.Settings.Billing as Billing
 import Components.Settings.Team as Team
 import Html exposing (..)
 import Html.App as Html
-import Ports exposing (pushPath)
 import Routes exposing (Sitemap(..), SettingsSitemap(..))
 import Types exposing (User)
 
@@ -60,7 +59,7 @@ update : Msg -> Model pmsg -> ( Model pmsg, Cmd Msg, Maybe pmsg )
 update msg ({ team, billing } as model) =
     case msg of
         RouteTo route ->
-            ( model, pushPath (Routes.route route), Nothing )
+            ( model, Routes.push route, Nothing )
 
         ToTeam msg ->
             let

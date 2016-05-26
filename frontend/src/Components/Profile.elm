@@ -3,7 +3,6 @@ module Components.Profile exposing (Model, Msg, update, view)
 import Components.Page exposing (page)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Ports exposing (pushPath)
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone, offset)
 import Types exposing (AnchorTo, User, Workday)
@@ -26,7 +25,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         RouteTo route ->
-            ( model, pushPath (Routes.route route) )
+            ( model, Routes.push route )
 
 
 view : Model -> Html Msg
