@@ -25,7 +25,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         RouteTo route ->
-            ( model, Routes.push route )
+            ( model, Routes.navigateTo route )
 
 
 view : Model -> Html Msg

@@ -132,7 +132,7 @@ on' event msg =
 
 anchorTo : (Sitemap -> msg) -> AnchorTo msg
 anchorTo f route attrs =
-    a ([ on' "click" (f route), href (Routes.route route) ] ++ attrs)
+    a ([ on' "click" (f route), href (Routes.toString route) ] ++ attrs)
 
 
 boolFromMaybe : Maybe a -> Bool

@@ -26,6 +26,6 @@ pageWithTabs f route tabs content =
 tab : (Sitemap -> msg) -> Sitemap -> ( Sitemap, String ) -> Html msg
 tab f currentRoute ( route, label ) =
     li [ classList [ "active" => (currentRoute == route) ] ]
-        [ a [ on' "click" (f route), href (Routes.route route) ]
+        [ a [ on' "click" (f route), href (Routes.toString route) ]
             [ text label ]
         ]

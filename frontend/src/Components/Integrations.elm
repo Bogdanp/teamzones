@@ -53,7 +53,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ integrationStates } as model) =
     case msg of
         RouteTo route ->
-            ( model, Routes.push route )
+            ( model, Routes.navigateTo route )
 
         ToGCalendar msg ->
             let

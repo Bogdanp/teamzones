@@ -3,12 +3,12 @@ module Routes
         ( Sitemap(..)
         , IntegrationsSitemap(..)
         , SettingsSitemap(..)
-        , match
-        , route
-        , push
+        , parsePath
+        , navigateTo
+        , toString
         )
 
-import Navigation
+import Navigation exposing (Location)
 import Route exposing (..)
 
 
@@ -22,9 +22,14 @@ type Sitemap
     | NotFoundR
 
 
-push : Sitemap -> Cmd msg
-push =
-    Navigation.newUrl << route
+parsePath : Location -> Sitemap
+parsePath =
+    .pathname >> match
+
+
+navigateTo : Sitemap -> Cmd msg
+navigateTo =
+    toString >> Navigation.newUrl
 
 
 homeR : Route Sitemap
@@ -67,8 +72,8 @@ match =
     Route.match sitemap >> Maybe.withDefault (DashboardR ())
 
 
-route : Sitemap -> String
-route route =
+toString : Sitemap -> String
+toString route =
     case route of
         DashboardR () ->
             reverse homeR []

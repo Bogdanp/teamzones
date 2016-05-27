@@ -34,7 +34,7 @@ view routeTo team now =
                     ]
 
         anchorTo route attrs =
-            a ([ on' "click" (routeTo route), href (Routes.route route) ] ++ attrs)
+            a ([ on' "click" (routeTo route), href (Routes.toString route) ] ++ attrs)
 
         initialsAvatar user =
             let

@@ -64,7 +64,7 @@ update msg ({ rootDeleteUser, teamMembers, deleteMemberButtons } as model) =
     in
         case msg of
             RouteTo route ->
-                ( model, Routes.push route, Nothing )
+                ( model, Routes.navigateTo route, Nothing )
 
             ToDeleteButton email ((CB.ToParent (CB.Confirm)) as msg) ->
                 ( { model | deleteMemberButtons = updateButtons email msg }

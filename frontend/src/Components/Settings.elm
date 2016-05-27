@@ -66,7 +66,7 @@ update : Msg -> Model pmsg -> ( Model pmsg, Cmd Msg, Maybe pmsg )
 update msg ({ team, billing } as model) =
     case msg of
         RouteTo route ->
-            ( model, Routes.push route, Nothing )
+            ( model, Routes.navigateTo route, Nothing )
 
         ToTeam msg ->
             let

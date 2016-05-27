@@ -1,4 +1,4 @@
-port module Update exposing (init, update, urlUpdate, pathParser)
+port module Update exposing (init, update, urlUpdate)
 
 import Components.CurrentProfile as CP
 import Components.Invite as Invite
@@ -8,7 +8,6 @@ import Components.Profile as Profile
 import Components.Settings as Settings
 import Dict exposing (Dict)
 import Model exposing (..)
-import Navigation exposing (Location)
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..), SettingsSitemap(..))
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)
@@ -80,7 +79,7 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
             model ! []
 
         RouteTo route ->
-            model ! [ Routes.push route ]
+            model ! [ Routes.navigateTo route ]
 
         Notified notification ->
             let
@@ -228,11 +227,6 @@ urlUpdate route ({ now, user, teamMembers, integrationStates } as m) =
 
             _ ->
                 model ! []
-
-
-pathParser : Location -> Sitemap
-pathParser =
-    .pathname >> Routes.match
 
 
 findUser : List User -> String -> Maybe User
