@@ -2,6 +2,7 @@ package models
 
 import (
 	"teamzones/integrations"
+	"teamzones/utils"
 	"time"
 
 	"github.com/lionelbarrow/braintree-go"
@@ -18,11 +19,13 @@ const (
 
 // Receipt represents a successful payment.
 type Receipt struct {
-	Company *datastore.Key `json:"-"`
+	Company *datastore.Key
 
-	SubscriptionID     string
-	SubscriptionPlanID string
-	SubscriptionVATID  string
+	SubscriptionID         string
+	SubscriptionPlanID     string
+	SubscriptionCountry    string
+	SubscriptionVATID      string
+	SubscriptionVATPercent int
 
 	TransactionID     string
 	TransactionAmount int64
@@ -46,7 +49,8 @@ func NewReceiptKey(ctx context.Context, company *datastore.Key, transID string) 
 	return datastore.NewKey(ctx, receiptKind, transID, 0, company)
 }
 
-// CreateReceipt creates a new receipt.
+// CreateReceipt creates a new receipt.  This will not overwrite
+// existings Receipts.
 func CreateReceipt(
 	ctx context.Context,
 	company *Company,
@@ -56,16 +60,26 @@ func CreateReceipt(
 	st, _ := integrations.ParseBraintreeDate(subscription.BillingPeriodStartDate)
 	et, _ := integrations.ParseBraintreeDate(subscription.BillingPeriodEndDate)
 
+	receipt := NewReceipt()
+
 	// According to BT's docs the most recent transaction should
 	// always be at index 0 so this _should_ be safe.
 	transaction := subscription.Transactions.Transaction[0]
 	companyKey := company.Key(ctx)
 	key := NewReceiptKey(ctx, companyKey, transaction.Id)
-	receipt := NewReceipt()
+	if err := nds.Get(ctx, key, receipt); err != datastore.ErrNoSuchEntity {
+		return receipt, err
+	}
+
 	receipt.Company = companyKey
 	receipt.SubscriptionID = subscription.Id
 	receipt.SubscriptionPlanID = subscription.PlanId
+	receipt.SubscriptionCountry = company.SubscriptionCountry
 	receipt.SubscriptionVATID = company.SubscriptionVATID
+	if company.SubscriptionVATID == "" {
+		receipt.SubscriptionVATPercent = utils.LookupVAT(company.SubscriptionCountry)
+	}
+
 	receipt.TransactionID = transaction.Id
 	receipt.TransactionAmount = transaction.Amount.Unscaled
 	receipt.BillingPeriodStart = st
