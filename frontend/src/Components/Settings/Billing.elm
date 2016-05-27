@@ -101,7 +101,7 @@ update msg model =
             model ! [ fetchSubscription ]
 
         UpdateVatIdError _ ->
-            model
+            { model | vatPending = False }
                 ! [ error "We encountered an issue while trying to update your VAT id. Please contact support. "
                   ]
 
