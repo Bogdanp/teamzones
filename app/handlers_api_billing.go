@@ -27,14 +27,20 @@ func init() {
 	)
 	POST(
 		appRouter,
+		updateVatIDRoute, "/api/billing/vat-id",
+		updateVatIDHandler, models.RoleMain,
+	)
+	POST(
+		appRouter,
 		updatePlanRoute, "/api/billing/plans",
 		updatePlanHandler, models.RoleMain,
 	)
 }
 
 type subscriptionResponse struct {
-	VAT        int                          `json:"vat,omitempty"`
-	VATID      string                       `json:"vatId,omitempty"`
+	NeedVAT    bool                         `json:"needVat"`
+	VAT        int                          `json:"vat"`
+	VATID      string                       `json:"vatId"`
 	Plans      []integrations.BraintreePlan `json:"plans"`
 	PlanID     string                       `json:"planId"`
 	Status     string                       `json:"status"`
@@ -56,8 +62,10 @@ func currentSubscriptionHandler(res http.ResponseWriter, req *http.Request, _ ht
 		return
 	}
 
+	vat := utils.LookupVAT(company.SubscriptionCountry)
 	renderer.JSON(res, http.StatusOK, subscriptionResponse{
-		VAT:        utils.LookupVAT(company.SubscriptionCountry),
+		NeedVAT:    vat != 0 && company.SubscriptionVATID == "",
+		VAT:        vat,
 		VATID:      company.SubscriptionVATID,
 		Plans:      plans,
 		PlanID:     company.SubscriptionPlanID,
@@ -79,6 +87,36 @@ func cancelSubscriptionHandler(res http.ResponseWriter, req *http.Request, _ htt
 	err = company.CancelSubscription(ctx, sub)
 	if err != nil {
 		log.Errorf(ctx, "failed to cancel subscription: %v", err)
+		serverError(res)
+		return
+	}
+
+	res.WriteHeader(http.StatusOK)
+}
+
+func updateVatIDHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	var data struct {
+		VATID string `json:"vatId"`
+	}
+
+	if err := forms.BindJSON(req, &data); err != nil {
+		badRequest(res, err.Error())
+		return
+	}
+
+	ctx := appengine.NewContext(req)
+	if data.VATID != "" && !utils.CheckVAT(ctx, data.VATID) {
+		badRequest(res, "invalid VAT id")
+		return
+	}
+
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	company.SubscriptionVATID = data.VATID
+	company.Put(ctx)
+
+	_, err := company.UpdatePlan(ctx, company.SubscriptionPlanID)
+	if err != nil {
+		log.Errorf(ctx, "failed to update vat for %v: %v", company.Subdomain, err)
 		serverError(res)
 		return
 	}

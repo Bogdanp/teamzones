@@ -7,10 +7,11 @@ module Api.Billing
         , cancelSubscription
         , fetchSubscription
         , updatePlan
+        , updateVatId
         )
 
 import Api exposing (Errors, Error, Response, deletePlain, getJson, postPlain)
-import Json.Decode as Json exposing (Decoder, (:=), int, list, string)
+import Json.Decode as Json exposing (Decoder, (:=), bool, int, list, maybe, string)
 import Json.Encode
 import Task exposing (Task)
 import Timestamp exposing (Timestamp)
@@ -42,7 +43,10 @@ type alias SubscriptionPlan =
 
 
 type alias Subscription =
-    { plans : List SubscriptionPlan
+    { needVat : Bool
+    , vat : Int
+    , vatId : String
+    , plans : List SubscriptionPlan
     , planId : String
     , status : SubscriptionStatus
     , validUntil : Timestamp
@@ -112,7 +116,10 @@ subscriptionPlan =
 
 subscription : Decoder Subscription
 subscription =
-    Json.object4 Subscription
+    Json.object7 Subscription
+        ("needVat" := bool)
+        ("vat" := int)
+        ("vatId" := string)
         ("plans" := list subscriptionPlan)
         ("planId" := string)
         ("status" := subscriptionStatus)
@@ -132,3 +139,8 @@ fetchSubscription =
 updatePlan : String -> Task Error (Response String)
 updatePlan planId =
     postPlain (Json.Encode.object [ "planId" => Json.Encode.string planId ]) "billing/plans"
+
+
+updateVatId : String -> Task Error (Response String)
+updateVatId vatId =
+    postPlain (Json.Encode.object [ "vatId" => Json.Encode.string vatId ]) "billing/vat-id"

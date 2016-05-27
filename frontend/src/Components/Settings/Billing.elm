@@ -3,9 +3,13 @@ module Components.Settings.Billing exposing (Model, Msg, init, update, view)
 import Api exposing (Error, Response)
 import Api.Billing as Billing exposing (BillingCycle(..), SubscriptionStatus(..), Subscription, SubscriptionPlan)
 import Components.ConfirmationButton as CB
+import Components.Form as FC
 import Components.Loading exposing (loading)
-import Components.Notifications exposing (error)
+import Components.Notifications exposing (info, error)
 import Dict exposing (Dict)
+import Form exposing (Form)
+import Form.Field exposing (Field(..))
+import Form.Validate as Validate exposing (Validation)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.App as Html
@@ -21,12 +25,18 @@ type Msg
     | CancelSubscriptionSuccess (Response String)
     | ActivatePlanError Error
     | ActivatePlanSuccess (Response String)
+    | UpdateVatIdError Error
+    | UpdateVatIdSuccess (Response String)
+    | UpdateVatId
     | ToCancelButton CB.Msg
     | ToActivateButton String CB.Msg
+    | ToVatForm Form.Msg
 
 
 type alias Model =
     { data : Maybe Subscription
+    , vatPending : Bool
+    , vatForm : Form () String
     , cancelButton : CB.Model
     , activateButtons : Dict String CB.Model
     }
@@ -37,9 +47,16 @@ fetchSubscription =
     Task.perform SubscriptionError SubscriptionSuccess Billing.fetchSubscription
 
 
+validateVatForm : Validation () String
+validateVatForm =
+    (Validate.get "vat-id" <| Validate.oneOf [ Validate.emptyString, Validate.string ])
+
+
 init : ( Model, Cmd Msg )
 init =
     { data = Nothing
+    , vatPending = False
+    , vatForm = Form.initial [] validateVatForm
     , cancelButton = CB.init "Cancel your subscription"
     , activateButtons = Dict.empty
     }
@@ -56,8 +73,17 @@ update msg model =
             let
                 buttons =
                     List.foldl (\p -> Dict.insert p.id (CB.init "Activate")) Dict.empty data.plans
+
+                vatForm =
+                    Form.initial [ "vat-id" => Text data.vatId ] validateVatForm
             in
-                { model | data = Just data, activateButtons = buttons } ! []
+                { model
+                    | data = Just data
+                    , activateButtons = buttons
+                    , vatPending = False
+                    , vatForm = vatForm
+                }
+                    ! []
 
         CancelSubscriptionError _ ->
             model ! [ error "We encountered an issue while trying to cancel your subscription. Please try again later." ]
@@ -73,6 +99,35 @@ update msg model =
 
         ActivatePlanSuccess _ ->
             model ! [ fetchSubscription ]
+
+        UpdateVatIdError _ ->
+            model
+                ! [ error "We encountered an issue while trying to update your VAT id. Please contact support. "
+                  ]
+
+        UpdateVatIdSuccess _ ->
+            { model | data = Nothing }
+                ! [ info "Your VAT id has been saved successfully and your subscription has been updated accordingly."
+                  , fetchSubscription
+                  ]
+
+        UpdateVatId ->
+            let
+                form =
+                    Form.update Form.Submit model.vatForm
+
+                vatId =
+                    Form.getOutput form
+            in
+                case vatId of
+                    Nothing ->
+                        { model | vatForm = form } ! []
+
+                    Just vatId ->
+                        { model | vatPending = True, vatForm = form }
+                            ! [ Billing.updateVatId vatId
+                                    |> Task.perform UpdateVatIdError UpdateVatIdSuccess
+                              ]
 
         ToCancelButton ((CB.ToParent (CB.Confirm)) as msg) ->
             { model | data = Nothing, cancelButton = CB.update msg model.cancelButton }
@@ -98,9 +153,12 @@ update msg model =
             in
                 { model | activateButtons = buttons } ! []
 
+        ToVatForm msg ->
+            { model | vatForm = Form.update msg model.vatForm } ! []
+
 
 view : Model -> Html Msg
-view { data, cancelButton, activateButtons } =
+view { data, vatPending, vatForm, cancelButton, activateButtons } =
     case data of
         Nothing ->
             loading
@@ -112,7 +170,11 @@ view { data, cancelButton, activateButtons } =
             in
                 div []
                     [ overview data plan cancelButton
-                    , plans data.plans plan activateButtons
+                    , plans data plan activateButtons
+                    , if data.vat /= 0 then
+                        vat data vatPending vatForm
+                      else
+                        text ""
                     ]
 
 
@@ -163,7 +225,7 @@ activeOverview : Subscription -> SubscriptionPlan -> CB.Model -> Html Msg
 activeOverview data plan cancelButton =
     tbody []
         [ row "Plan" [ strong [] [ text <| label plan ] ]
-        , row "Payment amount" [ text <| amount plan ]
+        , row "Payment amount" [ text <| amount data plan ]
         , row "Next payment due" [ text <| nextDate data ]
         , row ""
             [ div [ class "input-group" ]
@@ -204,8 +266,31 @@ canceledOverview data plan =
         ]
 
 
-plans : List SubscriptionPlan -> SubscriptionPlan -> Dict String CB.Model -> Html Msg
-plans plans plan buttons =
+vat : Subscription -> Bool -> Form () String -> Html Msg
+vat ({ vat, vatId } as data) pending form =
+    let
+        textInput' label name =
+            let
+                options =
+                    FC.defaultOptions name
+            in
+                Html.map ToVatForm (FC.textInput { options | label = Just label } form)
+    in
+        div []
+            [ FC.form UpdateVatId
+                [ h4 [] [ text "VAT information" ]
+                , textInput' "VAT ID" "vat-id"
+                , FC.submitWithOptions { label = "Update VAT Id", disabled = pending }
+                ]
+            , if vatId == "" then
+                p [] [ text "If you’re a registered business, enter your VAT identification number to remove VAT from your bill." ]
+              else
+                text ""
+            ]
+
+
+plans : Subscription -> SubscriptionPlan -> Dict String CB.Model -> Html Msg
+plans ({ plans } as data) plan buttons =
     let
         button p =
             case Dict.get p.id buttons of
@@ -228,7 +313,7 @@ plans plans plan buttons =
                             text p.label
                         ]
                     , td [] [ text p.summary ]
-                    , td [] [ text <| amount p ]
+                    , td [] [ text <| amount data p ]
                     , td []
                         [ if current then
                             text ""
@@ -243,8 +328,8 @@ plans plans plan buttons =
                 [ thead []
                     [ tr []
                         [ td [ style [ "width" => "20%" ] ] [ text "Plan" ]
-                        , td [ style [ "width" => "40%" ] ] [ text "Summary" ]
-                        , td [ style [ "width" => "20%" ] ] [ text "Price" ]
+                        , td [ style [ "width" => "35%" ] ] [ text "Summary" ]
+                        , td [ style [ "width" => "25%" ] ] [ text "Price" ]
                         , td [ style [ "width" => "20%" ] ] []
                         ]
                     ]
@@ -277,16 +362,22 @@ label p =
             p.label
 
 
-amount : SubscriptionPlan -> String
-amount p =
+amount : Subscription -> SubscriptionPlan -> String
+amount data p =
     let
+        price =
+            if data.needVat then
+                p.monthlyPrice + floor (toFloat p.monthlyPrice * (toFloat data.vat / 100))
+            else
+                p.monthlyPrice
+
         dollars =
-            toString <| p.monthlyPrice // 100
+            toString <| price // 100
 
         cents =
             let
                 x =
-                    p.monthlyPrice `rem` 100
+                    price `rem` 100
             in
                 if x < 10 then
                     "0" ++ toString x
@@ -294,7 +385,15 @@ amount p =
                     toString x
 
         amount =
-            "$" ++ dollars ++ "." ++ cents ++ "/mo"
+            "$"
+                ++ dollars
+                ++ "."
+                ++ cents
+                ++ "/mo"
+                ++ if data.needVat then
+                    " (incl. VAT)"
+                   else
+                    ""
     in
         case p.billingCycle of
             Month ->

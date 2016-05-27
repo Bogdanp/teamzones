@@ -76,6 +76,7 @@ const (
 
 	/// Billing
 	currentSubscriptionRoute
+	updateVatIDRoute
 	updatePlanRoute
 
 	// Tools
