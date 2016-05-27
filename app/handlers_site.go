@@ -185,9 +185,8 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 		}
 
 		vat := 0
-		vatCountry, found := utils.LookupVATCountry(form.Country.Value)
-		if form.VATID.Value == "" && found {
-			vat = vatCountry.VAT
+		if form.VATID.Value == "" {
+			vat = utils.LookupVAT(form.Country.Value)
 		}
 
 		customer, subscription, err := integrations.BraintreeSubscribe(

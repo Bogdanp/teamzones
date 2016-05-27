@@ -5,6 +5,7 @@ import (
 	"teamzones/forms"
 	"teamzones/integrations"
 	"teamzones/models"
+	"teamzones/utils"
 
 	"github.com/gorilla/context"
 	"github.com/lionelbarrow/braintree-go"
@@ -31,6 +32,15 @@ func init() {
 	)
 }
 
+type subscriptionResponse struct {
+	VAT        int                          `json:"vat,omitempty"`
+	VATID      string                       `json:"vatId,omitempty"`
+	Plans      []integrations.BraintreePlan `json:"plans"`
+	PlanID     string                       `json:"planId"`
+	Status     string                       `json:"status"`
+	ValidUntil int64                        `json:"validUntil"`
+}
+
 func currentSubscriptionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	company := context.Get(req, companyCtxKey).(*models.Company)
 	var validUntil int64
@@ -46,11 +56,13 @@ func currentSubscriptionHandler(res http.ResponseWriter, req *http.Request, _ ht
 		return
 	}
 
-	renderer.JSON(res, http.StatusOK, map[string]interface{}{
-		"plans":      plans,
-		"planId":     company.SubscriptionPlanID,
-		"status":     company.SubscriptionStatus,
-		"validUntil": validUntil,
+	renderer.JSON(res, http.StatusOK, subscriptionResponse{
+		VAT:        utils.LookupVAT(company.SubscriptionCountry),
+		VATID:      company.SubscriptionVATID,
+		Plans:      plans,
+		PlanID:     company.SubscriptionPlanID,
+		Status:     company.SubscriptionStatus,
+		ValidUntil: validUntil,
 	})
 }
 

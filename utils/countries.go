@@ -38,3 +38,13 @@ func LookupVATCountry(code string) (*Country, bool) {
 
 	return nil, false
 }
+
+// LookupVAT looks up the VAT amount for a given country code.
+func LookupVAT(code string) int {
+	c, found := LookupVATCountry(code)
+	if found {
+		return c.VAT
+	}
+
+	return 0
+}
