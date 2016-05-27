@@ -45,14 +45,21 @@ init { deleteUser, fullRoute, subRoute, currentUser, teamMembers } =
 
         ( billing, billingFx ) =
             Billing.init
+
+        subRoute' =
+            Maybe.withDefault (TeamR ()) subRoute
     in
         { fullRoute = fullRoute
-        , subRoute = (Maybe.withDefault (TeamR ()) subRoute)
+        , subRoute = subRoute'
         , teamMembers = teamMembers
         , team = team
         , billing = billing
         }
-            ! [ Cmd.map ToBilling billingFx ]
+            ! [ if subRoute' == BillingR () then
+                    Cmd.map ToBilling billingFx
+                else
+                    Cmd.none
+              ]
 
 
 update : Msg -> Model pmsg -> ( Model pmsg, Cmd Msg, Maybe pmsg )
