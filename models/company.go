@@ -284,7 +284,7 @@ func (c *Company) LookupVAT() int {
 // Suspended returns true if the company's subscription has been
 // canceled or is past due and their grace period is over.
 func (c *Company) Suspended() bool {
-	return (c.SubscriptionStatus == braintree.SubscriptionStatusCanceled ||
-		c.SubscriptionStatus == braintree.SubscriptionStatusPastDue &&
-			c.SubscriptionValidUntil.Before(time.Now()))
+	return ((c.SubscriptionStatus == braintree.SubscriptionStatusCanceled ||
+		c.SubscriptionStatus == braintree.SubscriptionStatusPastDue) &&
+		c.SubscriptionValidUntil.Before(time.Now()))
 }
