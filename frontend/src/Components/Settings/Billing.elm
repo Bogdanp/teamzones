@@ -324,7 +324,7 @@ plans ({ plans } as data) plan buttons =
                         [ if current then
                             text ""
                           else
-                             Html.map (ToActivateButton p.id) (CB.view (button p)
+                            Html.map (ToActivateButton p.id) (CB.view (button p))
                         ]
                     ]
     in
