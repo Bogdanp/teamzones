@@ -1,17 +1,19 @@
 module View exposing (view)
 
+import Color
 import Components.CurrentProfile as CurrentProfile
 import Components.CurrentUser as CurrentUser
-import Components.Invite as Invite
 import Components.Integrations as Integrations
-import Components.Notifications as Notifications
+import Components.Invite as Invite
 import Components.NotFound as NotFound
+import Components.Notifications as Notifications
 import Components.Profile as Profile
 import Components.Settings as Settings
 import Components.Team as Team
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
+import Icons
 import Model exposing (Model, Msg(..))
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..), SettingsSitemap(..))
 import Timestamp exposing (Timestamp, Timezone)
@@ -68,7 +70,15 @@ toolbar company timezone now =
     div [ class "toolbar" ]
         [ div [ class "team-name" ] [ anchorTo (DashboardR ()) [] [ text company.name ] ]
         , div [ class "clock" ] [ Util.time timezone now ]
-        , div [ class "menu" ] []
+        , div [ class "menu" ]
+            [ ul []
+                [ li []
+                    [ a [ href "mailto:support@teamzones.io" ]
+                        [ Icons.chat Color.black 20
+                        ]
+                    ]
+                ]
+            ]
         ]
 
 

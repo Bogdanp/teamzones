@@ -220,6 +220,23 @@ table {
     cursor: default;
     text-align: center;
   }
+
+  .menu ul {
+    list-style-type: none;
+
+    overflow: hidden;
+    margin: 0 5px;
+
+    li {
+      padding: 2px 0 0 0;
+      float: right;
+
+      a {
+        display: block;
+        height: 20px;
+      }
+    }
+  }
 }
 
 .content {
