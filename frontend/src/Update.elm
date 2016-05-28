@@ -132,17 +132,17 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
 
         ToCurrentProfile (CP.ToParent (CP.RemoveAvatar)) ->
             let
-                ( user', team' ) =
+                ( user', team', teamMembers' ) =
                     updateUser now update user team
 
                 update u =
                     { u | avatar = Nothing, smallAvatar = Nothing }
             in
-                { model | user = user', team = team' } ! []
+                { model | user = user', team = team', teamMembers = teamMembers' } ! []
 
         ToCurrentProfile (CP.ToParent (CP.UpdateCurrentUser profile)) ->
             let
-                ( user', team' ) =
+                ( user', team', teamMembers' ) =
                     updateUser now update user team
 
                 update u =
@@ -154,7 +154,7 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
                         , workdays = profile.workdays
                     }
             in
-                { model | user = user', team = team' } ! []
+                { model | user = user', team = team', teamMembers = teamMembers' } ! []
 
         ToCurrentProfile msg ->
             let
@@ -309,17 +309,19 @@ groupTeam now xs =
             |> List.foldl group Dict.empty
 
 
-updateUser : Timestamp -> (User -> User) -> User -> Team -> ( User, Team )
+updateUser : Timestamp -> (User -> User) -> User -> Team -> ( User, Team, List User )
 updateUser now f user team =
     let
         user' =
             f user
 
-        team' =
+        teamMembers =
             team
                 |> Dict.toList
                 |> List.concatMap (snd >> List.map update)
-                |> groupTeam now
+
+        team' =
+            groupTeam now teamMembers
 
         update u =
             if u == user then
@@ -327,7 +329,7 @@ updateUser now f user team =
             else
                 u
     in
-        ( user', team' )
+        ( user', team', teamMembers )
 
 
 deleteUser : String -> List User -> Team -> ( List User, Team )
