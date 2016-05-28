@@ -4,6 +4,7 @@ import Api exposing (Error, Response)
 import Api.Calendar as CalendarApi exposing (Calendar, Calendars)
 import Components.ConfirmationButton as CB
 import Components.Notifications exposing (error, info)
+import Components.Loading exposing (loading)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
@@ -138,9 +139,6 @@ auth model =
 connected : Model pmsg -> Html Msg
 connected { calendars, refreshing, disconnectButton } =
     let
-        loading =
-            tr [] [ td [ colspan 3 ] [ text "Loading..." ] ]
-
         calendar c =
             let
                 name =
@@ -165,19 +163,19 @@ connected { calendars, refreshing, disconnectButton } =
                 ]
             , div [ class "sm-ml" ]
                 [ h4 [] [ text "Your calendars" ]
-                , table []
-                    [ thead []
-                        [ tr []
-                            [ td [] [ text "Name" ]
-                            , td [] [ text "Timezone" ]
-                            , td [] []
+                , if calendars.status == CalendarApi.Loading then
+                    loading
+                  else
+                    table []
+                        [ thead []
+                            [ tr []
+                                [ td [] [ text "Name" ]
+                                , td [] [ text "Timezone" ]
+                                , td [] []
+                                ]
                             ]
+                        , tbody [] (List.map calendar calendars.calendars)
                         ]
-                    , if calendars.status == CalendarApi.Loading then
-                        tbody [] [ loading ]
-                      else
-                        tbody [] (List.map calendar calendars.calendars)
-                    ]
                 , br [] []
                 , div [ class "input-group" ]
                     [ div [ class "input" ]
