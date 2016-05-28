@@ -18,6 +18,11 @@ import (
 	"gopkg.in/julienschmidt/httprouter.v1"
 )
 
+const (
+	seatsExhaustedMessage = ("You have exhausted your allotted number of " +
+		"seats. Please upgrade your account to invite more teammates.")
+)
+
 func init() {
 	POST(
 		appRouter,
@@ -50,6 +55,11 @@ func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 
 	ctx := appengine.NewContext(req)
 	company := context.Get(req, companyCtxKey).(*models.Company)
+	if company.SeatsLeft(ctx) <= 0 {
+		badRequest(res, seatsExhaustedMessage)
+		return
+	}
+
 	companyKey := company.Key(ctx)
 	_, err := models.GetUser(ctx, companyKey, data.Email)
 	if err == nil {
@@ -82,6 +92,11 @@ func createBulkInviteHandler(res http.ResponseWriter, req *http.Request, _ httpr
 
 	ctx := appengine.NewContext(req)
 	company := context.Get(req, companyCtxKey).(*models.Company)
+	if company.SeatsLeft(ctx) <= 0 {
+		badRequest(res, seatsExhaustedMessage)
+		return
+	}
+
 	companyKey := company.Key(ctx)
 	cacheKey := fmt.Sprintf("bulk-invites:%d", companyKey.IntID())
 	inviteData, err := memcache.Get(ctx, cacheKey)

@@ -3,6 +3,7 @@ module Components.Settings.Team exposing (Model, Msg, init, update, view)
 import Api exposing (Error, Response)
 import Api.Team as TeamApi exposing (deleteUser)
 import Components.ConfirmationButton as CB
+import Components.Notifications exposing (apiError)
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.App as Html
@@ -75,9 +76,8 @@ update msg ({ rootDeleteUser, teamMembers, deleteMemberButtons } as model) =
             ToDeleteButton email msg ->
                 ( { model | deleteMemberButtons = updateButtons email msg }, Cmd.none, Nothing )
 
-            DeleteError email erorr ->
-                -- FIXME: Display errors
-                ( model, Cmd.none, Nothing )
+            DeleteError email errors ->
+                ( model, Cmd.batch (apiError errors), Nothing )
 
             DeleteSuccess email _ ->
                 let

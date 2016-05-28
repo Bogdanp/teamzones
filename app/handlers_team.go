@@ -72,6 +72,14 @@ func dashboardHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 	renderer.HTML(res, http.StatusOK, "dashboard", template.JS(data))
 }
 
+type teamSignUpForm struct {
+	FirstName forms.Field
+	LastName  forms.Field
+	Email     forms.Field
+	Password  forms.Field
+	Timezone  forms.Field
+}
+
 func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	company := context.Get(req, companyCtxKey).(*models.Company)
 	inviteID, err := strconv.ParseInt(ps.ByName("invite"), 10, 64)
@@ -88,13 +96,7 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 		return
 	}
 
-	form := struct {
-		FirstName forms.Field
-		LastName  forms.Field
-		Email     forms.Field
-		Password  forms.Field
-		Timezone  forms.Field
-	}{
+	form := teamSignUpForm{
 		forms.Field{
 			Name:       "first-name",
 			Label:      "First Name",
@@ -125,9 +127,23 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 		},
 	}
 
+	data := struct {
+		Form  *teamSignUpForm
+		Error string
+	}{
+		Form:  &form,
+		Error: "",
+	}
+
 	if req.Method == http.MethodPost {
 		if !forms.Bind(req, &form) {
-			renderer.HTML(res, http.StatusBadRequest, "team-sign-up", form)
+			renderer.HTML(res, http.StatusBadRequest, "team-sign-up", data)
+			return
+		}
+
+		if company.SeatsLeft(ctx) <= 0 {
+			data.Error = "This team has reached its member limit. Please contact your account owner."
+			renderer.HTML(res, http.StatusBadRequest, "team-sign-up", data)
 			return
 		}
 
@@ -155,7 +171,7 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 			return
 		case models.ErrUserExists:
 			form.Email.Errors = []string{err.Error()}
-			renderer.HTML(res, http.StatusBadRequest, "team-sign-up", form)
+			renderer.HTML(res, http.StatusBadRequest, "team-sign-up", data)
 			return
 		default:
 			log.Criticalf(ctx, "failed to create uesr: %v", err)
@@ -163,7 +179,7 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 
 	}
 
-	renderer.HTML(res, http.StatusOK, "team-sign-up", form)
+	renderer.HTML(res, http.StatusOK, "team-sign-up", data)
 }
 
 type signInForm struct {

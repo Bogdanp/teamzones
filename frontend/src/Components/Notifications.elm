@@ -6,15 +6,18 @@ module Components.Notifications
         , update
         , append
         , error
+        , apiError
         , warning
         , info
         , view
         )
 
+import Api exposing (Errors)
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import HttpBuilder as HB
 import Ports exposing (notify)
 import Process
 import Task
@@ -102,6 +105,16 @@ error message =
         , level = "error"
         , message = message
         }
+
+
+apiError : HB.Error Errors -> List (Cmd msg)
+apiError e =
+    case e of
+        HB.BadResponse { data } ->
+            List.map error data.errors
+
+        _ ->
+            [ error "An unexpected error has occurred. Please try again later." ]
 
 
 warning : String -> Cmd msg

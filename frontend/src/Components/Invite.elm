@@ -10,6 +10,7 @@ module Components.Invite
 import Api exposing (Error, Response)
 import Api.Invite as InviteApi exposing (Invite, BulkInvite, createInvite, createBulkInvite)
 import Components.Form as FC exposing (form, submitWithOptions)
+import Components.Notifications exposing (apiError)
 import Components.Page exposing (page)
 import Form exposing (Form)
 import Form.Validate as Validate exposing (..)
@@ -82,15 +83,13 @@ update msg model =
             { model | form = Form.update m model.form } ! []
 
         InviteError error ->
-            -- FIXME: Display real errors
-            { model | pending = False } ! []
+            { model | pending = False } ! apiError error
 
         InviteSuccess _ ->
             { model | form = Form.initial [] validate, pending = False } ! []
 
         BulkInviteError error ->
-            -- FIXME: Display real errors
-            { model | pending = False } ! []
+            { model | pending = False } ! apiError error
 
         BulkInviteSuccess response ->
             { model | bulkInvite = Just response.data, pending = False } ! []

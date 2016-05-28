@@ -335,3 +335,15 @@ func (c *Company) Suspended() bool {
 		c.SubscriptionStatus == braintree.SubscriptionStatusPastDue) &&
 		c.SubscriptionValidUntil.Before(time.Now()))
 }
+
+// SeatsLeft returns the number of remaining seats on a Company.
+// Could potentially return values <0.
+func (c *Company) SeatsLeft(ctx context.Context) int {
+
+	p, _ := integrations.LookupBraintreePlan(c.SubscriptionPlanID)
+	n, _ := datastore.NewQuery(userKind).
+		Ancestor(c.Key(ctx)).
+		Count(ctx)
+
+	return p.Members - n
+}

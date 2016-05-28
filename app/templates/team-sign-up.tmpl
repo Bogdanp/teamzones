@@ -1,11 +1,17 @@
 {{define "title-sign-up"}} - Sign Up{{end}}
 
 <form action="" method="post">
-  {{template "_fields/text" .FirstName}}
-  {{template "_fields/text" .LastName}}
-  {{template "_fields/email" .Email}}
-  {{template "_fields/password" .Password}}
-  {{template "_fields/hidden" .Timezone}}
+  {{if .Error}}
+  <div class="error">
+    {{.Error}}
+  </div>
+  {{end}}
+
+  {{template "_fields/text" .Form.FirstName}}
+  {{template "_fields/text" .Form.LastName}}
+  {{template "_fields/email" .Form.Email}}
+  {{template "_fields/password" .Form.Password}}
+  {{template "_fields/hidden" .Form.Timezone}}
 
   <input type="submit" />
 </form>
