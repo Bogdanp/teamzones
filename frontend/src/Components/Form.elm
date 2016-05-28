@@ -13,6 +13,7 @@ module Components.Form
         )
 
 import Form exposing (Form)
+import Form.Error exposing (Error(..))
 import Form.Input as Input exposing (Input)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -110,7 +111,7 @@ input options inputFn form =
                     ( False, text "" )
 
                 Just error ->
-                    ( True, span [ class "error" ] [ text <| toString error ] )
+                    ( True, span [ class "error" ] [ text <| translateError error ] )
 
         inputHtml =
             div [ class "input" ]
@@ -137,3 +138,25 @@ input options inputFn form =
                     [ label [ for fieldId ] [ text fieldLabel ]
                     , inputHtml
                     ]
+
+
+translateError : Error a -> String
+translateError e =
+    case e of
+        Empty ->
+            "This field is required."
+
+        InvalidString ->
+            "This field is required."
+
+        InvalidEmail ->
+            "Please enter a valid email address."
+
+        ShorterStringThan n ->
+            "This field must contain at least " ++ toString n ++ " characters."
+
+        LongerStringThan n ->
+            "This field can contain at most " ++ toString n ++ " characters."
+
+        e ->
+            toString e
