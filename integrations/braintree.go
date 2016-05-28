@@ -39,10 +39,17 @@ type BraintreeConfiguration struct {
 	Plans []BraintreePlan
 }
 
+const (
+	braintreeDateFormat = "2006-01-02"
+)
+
 var (
 	// ErrPlanNotFound is the error that is returned when a
 	// subscription plan cannot be found in the global configuration.
 	ErrPlanNotFound = errors.New("unknown subscription plan")
+	// ErrCardNotFound is returned when a Customer does not have a
+	// default credit card associated with them.
+	ErrCardNotFound = errors.New("no default credit card")
 )
 
 var braintreeConfig = loadBraintreeConfig()
@@ -94,7 +101,8 @@ func BraintreeSubscribe(
 		CustomerId:         customer.Id,
 		PaymentMethodNonce: nonce,
 		Options: &braintree.CreditCardOptions{
-			VerifyCard: true,
+			VerifyCard:  true,
+			MakeDefault: true,
 		},
 	})
 	if err != nil {
@@ -112,6 +120,39 @@ func BraintreeSubscribe(
 	}
 
 	return customer, subscription, nil
+}
+
+// BraintreeResubscribe creates a new subscription for an existing Company.
+func BraintreeResubscribe(
+	ctx context.Context,
+	customerID, planID string,
+	discount, vat int,
+) (*braintree.Subscription, error) {
+
+	bt := NewBraintreeService(ctx)
+	c, err := bt.Customer().Find(customerID)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Payment methods...
+	cc := c.DefaultCreditCard()
+	if cc == nil {
+		return nil, ErrCardNotFound
+	}
+
+	// FIXME: Discounts...
+	plan, _ := LookupBraintreePlan(planID)
+	sub, err := bt.Subscription().Create(&braintree.Subscription{
+		PlanId:             planID,
+		PaymentMethodToken: cc.Token,
+		Price:              computePrice(plan.Price, vat),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return sub, nil
 }
 
 // BraintreeUpdateSubscription updates a Company's subscription plan.
@@ -176,7 +217,7 @@ func LookupBraintreePlan(planID string) (*BraintreePlan, error) {
 
 // ParseBraintreeDate converts a Braintree date string to a time.Time.
 func ParseBraintreeDate(date string) (time.Time, error) {
-	t, err := time.Parse("2006-01-02", date)
+	t, err := time.Parse(braintreeDateFormat, date)
 	if err != nil {
 		return time.Time{}, nil
 	}

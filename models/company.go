@@ -1,6 +1,7 @@
 package models
 
 import (
+	"math"
 	"teamzones/integrations"
 	"teamzones/utils"
 	"time"
@@ -95,14 +96,60 @@ func GetCompanySize(ctx context.Context, company *datastore.Key) (int, error) {
 
 }
 
+// Resubscribe creates a new subscription information for a Company.
+func (c *Company) Resubscribe(ctx context.Context, planID string) (*braintree.Subscription, error) {
+
+	sub, err := integrations.BraintreeResubscribe(
+		ctx, c.SubscriptionCustomerID, planID,
+		c.ComputeResubscribeDiscount(), c.LookupVAT(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	t, _ := integrations.ParseBraintreeDate(sub.BillingPeriodEndDate)
+	err = nds.RunInTransaction(ctx, func(ctx context.Context) error {
+		company, err := GetCompany(ctx, c.Subdomain)
+		if err != nil {
+			return err
+		}
+
+		company.SubscriptionStatus = braintree.SubscriptionStatusPending
+		company.SubscriptionID = sub.Id
+		company.SubscriptionPlanID = planID
+		company.SubscriptionValidUntil = t
+		_, err = company.Put(ctx)
+		return err
+	}, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return sub, nil
+}
+
+// ComputeResubscribeDiscount returns the amount that should be
+// discounted from a new subscription based on how far along the
+// current subscription is.  This does not include VAT.
+func (c *Company) ComputeResubscribeDiscount() int {
+	ds := int(math.Floor(c.SubscriptionValidUntil.Sub(time.Now()).Hours() / 24))
+	if ds <= 0 {
+		return 0
+	}
+
+	p, _ := integrations.LookupBraintreePlan(c.SubscriptionPlanID)
+	dic := 30
+	if p.Cycle == "year" {
+		dic = 365
+	}
+
+	return p.Price / dic * ds
+}
+
 // CancelSubscription marks the Company's subscription as canceled.
 func (c *Company) CancelSubscription(ctx context.Context, sub *braintree.Subscription) error {
 
-	t, err := integrations.ParseBraintreeDate(sub.BillingPeriodEndDate)
-	if err != nil {
-		return err
-	}
-
+	t, _ := integrations.ParseBraintreeDate(sub.BillingPeriodEndDate)
 	return nds.RunInTransaction(ctx, func(ctx context.Context) error {
 		company, err := GetCompany(ctx, c.Subdomain)
 		if err != nil {

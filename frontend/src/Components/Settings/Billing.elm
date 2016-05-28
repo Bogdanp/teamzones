@@ -11,8 +11,8 @@ import Form exposing (Form)
 import Form.Field exposing (Field(..))
 import Form.Validate as Validate exposing (Validation)
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import Html.App as Html
+import Html.Attributes exposing (..)
 import Task
 import Timestamp
 import Util exposing ((=>))
@@ -171,7 +171,7 @@ view { data, vatPending, vatForm, cancelButton, activateButtons } =
                 div []
                     [ overview data plan cancelButton
                     , plans data plan activateButtons
-                    , if data.vat /= 0 then
+                    , if data.status == Active && data.vat /= 0 then
                         vat data vatPending vatForm
                       else
                         text ""
@@ -300,10 +300,16 @@ plans ({ plans } as data) plan buttons =
                 Just b ->
                     b
 
-        planRow p =
+        title =
+            if data.status == Canceled then
+                text "Reactivate your subscription"
+            else
+                text "Change plan"
+
+        row p =
             let
                 current =
-                    p.id == plan.id
+                    data.status /= Canceled && p.id == plan.id
             in
                 tr []
                     [ td []
@@ -318,12 +324,12 @@ plans ({ plans } as data) plan buttons =
                         [ if current then
                             text ""
                           else
-                            CB.view (button p) |> Html.map (ToActivateButton p.id)
+                             Html.map (ToActivateButton p.id) (CB.view (button p)
                         ]
                     ]
     in
         div []
-            [ h4 [] [ text "Change plan" ]
+            [ h4 [] [ title ]
             , table []
                 [ thead []
                     [ tr []
@@ -334,7 +340,7 @@ plans ({ plans } as data) plan buttons =
                         ]
                     ]
                 , tbody []
-                    (List.map planRow plans)
+                    (List.map row plans)
                 ]
             ]
 

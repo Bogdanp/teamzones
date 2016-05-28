@@ -134,9 +134,15 @@ func updatePlanHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 		return
 	}
 
+	var err error
 	ctx := appengine.NewContext(req)
 	company := context.Get(req, companyCtxKey).(*models.Company)
-	_, err := company.UpdatePlan(ctx, data.PlanID)
+	if company.SubscriptionStatus == braintree.SubscriptionStatusCanceled {
+		_, err = company.Resubscribe(ctx, data.PlanID)
+	} else {
+		_, err = company.UpdatePlan(ctx, data.PlanID)
+	}
+
 	if err != nil {
 		log.Errorf(ctx, "failed to update subscription plan for %v: %v", company.Subdomain, err)
 		serverError(res)
