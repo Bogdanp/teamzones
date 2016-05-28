@@ -21,13 +21,44 @@ var (
 		"/recover-password",
 		"/reset-password",
 	}
+
+	billingPaths = []string{
+		"/api/billing",
+		"/settings/billing",
+	}
 )
 
-// Access restricts access to paths based on their ACL.  This only
-// applies to static paths!
+func isSubpath(path string, paths []string) bool {
+	for _, p := range paths {
+		if strings.HasPrefix(path, p) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Access restricts access to paths based on their ACL and on the
+// current Company's billing status.  The ACLs only apply to static
+// paths!
 func Access(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
+	user := context.Get(req, userCtxKey).(*models.User)
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	if company.Suspended() {
+		if user.Role != models.RoleMain {
+			ctx := appengine.NewContext(req)
+			main := company.LookupMainUser(ctx)
+			renderer.HTML(res, http.StatusOK, "suspended", main)
+			return
+		}
+
+		if !isSubpath(req.URL.Path, billingPaths) {
+			http.Redirect(res, req, ReverseSimple(settingsBillingRoute), http.StatusFound)
+			return
+		}
+	}
+
 	if roles, ok := sitemapACL[req.URL.Path]; ok {
-		user := context.Get(req, userCtxKey).(*models.User)
 		for _, role := range roles {
 			if role == user.Role {
 				next(res, req)
@@ -42,16 +73,6 @@ func Access(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 	next(res, req)
 }
 
-func guestPath(path string) bool {
-	for _, p := range guestPaths {
-		if strings.HasPrefix(path, p) {
-			return true
-		}
-	}
-
-	return false
-}
-
 func redirectAuth(res http.ResponseWriter, req *http.Request, r string) {
 	path := ReverseRoute(signInRoute).
 		Query("r", r).
@@ -62,7 +83,7 @@ func redirectAuth(res http.ResponseWriter, req *http.Request, r string) {
 // Auth ensures that the user is authenticated before they can access
 // a resource.  It also injects the User into the context.
 func Auth(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
-	isGuestPath := guestPath(req.URL.Path)
+	isGuestPath := isSubpath(req.URL.Path, guestPaths)
 	session := sessions.GetSession(req)
 	email := session.Get(uidSessionKey)
 

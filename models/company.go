@@ -211,13 +211,8 @@ func (c *Company) UpdatePlan(ctx context.Context, planID string) (*braintree.Sub
 		return nil, errors.Errorf("company %v cannot activate plan %v", c, planID)
 	}
 
-	vat := 0
-	vatCountry, found := utils.LookupVATCountry(c.SubscriptionCountry)
-	if c.SubscriptionVATID == "" && found {
-		vat = vatCountry.VAT
-	}
-
-	sub, err := integrations.BraintreeUpdateSubscription(ctx, c.SubscriptionID, planID, vat)
+	sub, err := integrations.BraintreeUpdateSubscription(
+		ctx, c.SubscriptionID, planID, c.LookupVAT())
 	if err != nil {
 		return nil, err
 	}
@@ -258,4 +253,38 @@ func (c *Company) Save() ([]datastore.Property, error) {
 // Put saves the Company to Datastore.
 func (c *Company) Put(ctx context.Context) (*datastore.Key, error) {
 	return nds.Put(ctx, c.Key(ctx), c)
+}
+
+// LookupMainUser returns the User with Role Main belonging to a Company.
+func (c *Company) LookupMainUser(ctx context.Context) *User {
+	var user User
+
+	_, err := datastore.
+		NewQuery(userKind).
+		Ancestor(c.Key(ctx)).
+		Filter("Role=", RoleMain).
+		Run(ctx).
+		Next(&user)
+	if err != nil {
+		panic(err)
+	}
+
+	return &user
+}
+
+// LookupVAT returns the VAT percentage owed by a Company.
+func (c *Company) LookupVAT() int {
+	if c.SubscriptionVATID != "" {
+		return 0
+	}
+
+	return utils.LookupVAT(c.SubscriptionCountry)
+}
+
+// Suspended returns true if the company's subscription has been
+// canceled or is past due and their grace period is over.
+func (c *Company) Suspended() bool {
+	return (c.SubscriptionStatus == braintree.SubscriptionStatusCanceled ||
+		c.SubscriptionStatus == braintree.SubscriptionStatusPastDue &&
+			c.SubscriptionValidUntil.Before(time.Now()))
 }

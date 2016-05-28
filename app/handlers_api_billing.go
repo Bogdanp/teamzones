@@ -62,7 +62,7 @@ func currentSubscriptionHandler(res http.ResponseWriter, req *http.Request, _ ht
 		return
 	}
 
-	vat := utils.LookupVAT(company.SubscriptionCountry)
+	vat := company.LookupVAT()
 	renderer.JSON(res, http.StatusOK, subscriptionResponse{
 		NeedVAT:    vat != 0 && company.SubscriptionVATID == "",
 		VAT:        vat,

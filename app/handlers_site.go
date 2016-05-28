@@ -166,7 +166,7 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 
 		// ZZ is returned by GAE for localhost.
 		if country != "ZZ" && country != form.Country.Value {
-			form.Country.Errors = []string{"Your selected country must match your IP address."}
+			form.Country.Errors = []string{"Your selected country does not match your IP address."}
 			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}
