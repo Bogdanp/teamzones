@@ -7,9 +7,11 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
+	"google.golang.org/appengine/memcache"
 	"google.golang.org/appengine/urlfetch"
 )
 
@@ -30,7 +32,24 @@ const (
 
 // CheckVAT returns true if the given VATID is valid.
 func CheckVAT(ctx context.Context, VATID string) bool {
-	// TODO: Cache results
+	var res bool
+
+	k := "CheckVAT:" + VATID
+	if _, err := memcache.JSON.Get(ctx, k, &res); err != nil {
+		return res
+	}
+
+	res = checkVAT(ctx, VATID)
+	memcache.JSON.Set(ctx, &memcache.Item{
+		Key:        k,
+		Object:     res,
+		Expiration: 8 * time.Hour,
+	})
+
+	return res
+}
+
+func checkVAT(ctx context.Context, VATID string) bool {
 	VATID = sanitizeVATID(VATID)
 
 	e, err := buildVATEnvelope(VATID)
