@@ -354,6 +354,8 @@ table {
     align-items: stretch;
 
     .zone {
+      position: relative;  // fixes scoll in .overlay
+
       flex: 0 0 auto;
 
       margin: 0 7px;
