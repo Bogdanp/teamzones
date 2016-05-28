@@ -1,7 +1,8 @@
 <div class="col {{if.Errors}}errors{{end}}">
   {{template "_fields/label" .}}
   <select id="{{.Name}}"
-          name="{{.Name}}">
+          name="{{.Name}}"
+         {{template "_fields/_attributes" .Attributes}}>
     {{$fieldValue := .Value}}
     {{range $option := .Values}}
     <option value="{{$option.Value}}"

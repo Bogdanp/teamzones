@@ -2,4 +2,5 @@
        id="{{.Name}}"
        name="{{.Name}}"
        value="{{.Value}}"
-       {{if .Optional}}{{else}}required{{end}} />
+       {{if .Optional}}{{else}}required{{end}}
+       {{template "_fields/_attributes" .Attributes}} />

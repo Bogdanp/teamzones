@@ -35,6 +35,7 @@ type Field struct {
 	Optional    bool
 	Errors      []string
 	Validators  []Validator
+	Attributes  map[string]string
 }
 
 func bind(lookup func(string) string, form interface{}) bool {
