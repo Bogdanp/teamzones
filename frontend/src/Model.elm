@@ -30,6 +30,7 @@ type Msg
 
 type alias Model =
     { now : Timestamp
+    , suspended : Bool
     , company : Company
     , user : User
     , team : Team
@@ -48,6 +49,7 @@ type alias Model =
 
 type alias Flags =
     { now : Timestamp
+    , suspended : Bool
     , company : Company
     , user : ContextUser
     , team : List ContextUser

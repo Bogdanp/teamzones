@@ -25,6 +25,7 @@ var (
 	billingPaths = []string{
 		"/api/billing",
 		"/settings/billing",
+		"/sign-out",
 	}
 )
 
@@ -42,6 +43,11 @@ func isSubpath(path string, paths []string) bool {
 // current Company's billing status.  The ACLs only apply to static
 // paths!
 func Access(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
+	if isSubpath(req.URL.Path, guestPaths) {
+		next(res, req)
+		return
+	}
+
 	user := context.Get(req, userCtxKey).(*models.User)
 	company := context.Get(req, companyCtxKey).(*models.Company)
 	if company.Suspended() {

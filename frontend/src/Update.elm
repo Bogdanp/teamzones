@@ -15,7 +15,7 @@ import User exposing (isOffline)
 
 
 init : Flags -> Sitemap -> ( Model, Cmd Msg )
-init ({ now, company, user, team, timezones, integrationStates } as flags) route =
+init ({ now, suspended, company, user, team, timezones, integrationStates } as flags) route =
     let
         currentUser =
             prepareUser user
@@ -46,6 +46,7 @@ init ({ now, company, user, team, timezones, integrationStates } as flags) route
         ( model, fx ) =
             urlUpdate route
                 { now = now
+                , suspended = suspended
                 , company = company
                 , user = currentUser
                 , team = groupTeam now teamMembers
@@ -171,62 +172,68 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
 
 
 urlUpdate : Sitemap -> Model -> ( Model, Cmd Msg )
-urlUpdate route ({ now, user, teamMembers, integrationStates } as m) =
+urlUpdate route ({ now, suspended, user, teamMembers, integrationStates } as m) =
     let
         model =
             { m | route = route }
+
+        billingR =
+            SettingsR (BillingR ())
     in
-        case route of
-            ProfileR email ->
-                case findUser teamMembers email of
-                    Just profileUser ->
-                        { model
-                            | profile =
-                                { now = now
-                                , user = profileUser
+        if suspended && route /= billingR then
+            model ! [ Routes.navigateTo billingR ]
+        else
+            case route of
+                ProfileR email ->
+                    case findUser teamMembers email of
+                        Just profileUser ->
+                            { model
+                                | profile =
+                                    { now = now
+                                    , user = profileUser
+                                    , currentUser = user
+                                    }
+                            }
+                                ! []
+
+                        Nothing ->
+                            { model | route = NotFoundR } ! []
+
+                IntegrationsR subRoute ->
+                    let
+                        ( integrations, fx ) =
+                            Integrations.init
+                                { fullRoute = route
+                                , subRoute = Just subRoute
                                 , currentUser = user
+                                , integrationStates = integrationStates
                                 }
-                        }
-                            ! []
+                    in
+                        { model | integrations = integrations }
+                            ! [ Cmd.map ToIntegrations fx ]
 
-                    Nothing ->
-                        { model | route = NotFoundR } ! []
+                SettingsR subRoute ->
+                    let
+                        ( settings, fx ) =
+                            Settings.init
+                                { deleteUser = DeleteUser
+                                , fullRoute = route
+                                , subRoute = Just subRoute
+                                , currentUser = user
+                                , teamMembers = teamMembers
+                                }
+                    in
+                        { model | settings = settings } ! [ Cmd.map ToSettings fx ]
 
-            IntegrationsR subRoute ->
-                let
-                    ( integrations, fx ) =
-                        Integrations.init
-                            { fullRoute = route
-                            , subRoute = Just subRoute
-                            , currentUser = user
-                            , integrationStates = integrationStates
-                            }
-                in
-                    { model | integrations = integrations }
-                        ! [ Cmd.map ToIntegrations fx ]
+                CurrentProfileR () ->
+                    let
+                        ( profile, fx ) =
+                            CP.init model.user model.timezones
+                    in
+                        { model | currentProfile = profile } ! [ Cmd.map ToCurrentProfile fx ]
 
-            SettingsR subRoute ->
-                let
-                    ( settings, fx ) =
-                        Settings.init
-                            { deleteUser = DeleteUser
-                            , fullRoute = route
-                            , subRoute = Just subRoute
-                            , currentUser = user
-                            , teamMembers = teamMembers
-                            }
-                in
-                    { model | settings = settings } ! [ Cmd.map ToSettings fx ]
-
-            CurrentProfileR () ->
-                let
-                    ( profile, fx ) =
-                        CP.init model.user model.timezones
-                in
-                    { model | currentProfile = profile } ! [ Cmd.map ToCurrentProfile fx ]
-
-            _ ->
-                model ! []
+                _ ->
+                    model ! []
 
 
 findUser : List User -> String -> Maybe User
