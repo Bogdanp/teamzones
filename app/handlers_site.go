@@ -119,7 +119,7 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 		forms.Field{
 			Name:       "postal-code",
 			Label:      "Zip",
-			Validators: []forms.Validator{forms.MaxLength(100)},
+			Validators: []forms.Validator{forms.MaxLength(15)},
 		},
 		forms.Field{
 			Name:       "country",
