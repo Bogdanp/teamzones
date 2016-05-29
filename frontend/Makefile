@@ -14,7 +14,6 @@ watch:
 	fswatch -r css lib src | xargs -n1 ./bin/watch
 
 min: all
-	uglifycss css/normalize.css > ../app/static/css/normalize.css
 	uglifycss ../app/static/css/app.css  >../app/static/css/app.min.css
 	uglifycss ../app/static/css/checkout.css > ../app/static/css/checkout.min.css
 	mv ../app/static/css/app.min.css ../app/static/css/app.css
