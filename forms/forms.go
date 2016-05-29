@@ -120,7 +120,7 @@ func BindJSON(req *http.Request, data interface{}) error {
 
 // Email validates that the Field's value is an e-mail address.
 func Email(value string) error {
-	if len(value) < 3 || !strings.Contains(value, "@") {
+	if len(value) < 3 || len(value) > 150 || !strings.Contains(value, "@") {
 		return errors.New("Please enter a valid e-mail address.")
 	}
 
@@ -185,6 +185,15 @@ func MaxLength(n int) Validator {
 
 		return nil
 	}
+}
+
+// Name validates that the Field's value is the correct name for a {First,Last} name.
+func Name(value string) error {
+	if len(value) < 2 || len(value) > 35 {
+		return fmt.Errorf("Names must be between 2 and 35 characters long.")
+	}
+
+	return nil
 }
 
 func dynMaxLength(value interface{}, args []string) error {

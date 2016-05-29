@@ -101,19 +101,19 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 			Name:       "first-name",
 			Label:      "First Name",
 			Value:      invite.FirstName,
-			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(75)},
+			Validators: []forms.Validator{forms.Name},
 		},
 		forms.Field{
 			Name:       "last-name",
 			Label:      "Last Name",
 			Value:      invite.LastName,
-			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(75)},
+			Validators: []forms.Validator{forms.Name},
 		},
 		forms.Field{
 			Name:       "email",
 			Label:      "E-mail address",
 			Value:      invite.Email,
-			Validators: []forms.Validator{forms.Email, forms.MaxLength(150)},
+			Validators: []forms.Validator{forms.Email},
 		},
 		forms.Field{
 			Name:       "password",

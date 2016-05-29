@@ -78,17 +78,17 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 		forms.Field{
 			Name:       "first-name",
 			Label:      "First Name",
-			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(35)},
+			Validators: []forms.Validator{forms.Name},
 		},
 		forms.Field{
 			Name:       "last-name",
 			Label:      "Last Name",
-			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(35)},
+			Validators: []forms.Validator{forms.Name},
 		},
 		forms.Field{
 			Name:       "email",
 			Label:      "Email",
-			Validators: []forms.Validator{forms.Email, forms.MaxLength(150)},
+			Validators: []forms.Validator{forms.Email},
 		},
 		forms.Field{
 			Name:       "password",
