@@ -211,16 +211,10 @@ table {
     margin: 0 5px;
     padding: 1px 0 0 0;
     height: 20px;
-
-    transition: transform 0.2s;
-
-    &.shown {
-      translate: rotateX(90deg);
-    }
   }
 
   .team-name, .clock, .menu {
-    flex: 1 1 auto;
+    flex: 1 1 33%;
   }
 
   .team-name {
@@ -242,7 +236,7 @@ table {
     margin: 0 5px;
 
     li {
-      padding: 2px 0 0 0;
+      padding: 1px 0 0 0;
       float: right;
 
       a {
