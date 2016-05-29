@@ -260,6 +260,10 @@ table {
 
   overflow: hidden;
 
+  .sidebar::-webkit-scrollbar {
+    width: 0 !important;
+  }
+
   .sidebar {
     flex: 0 0 auto;
     width: 270px;
@@ -273,6 +277,10 @@ table {
 
     will-change: margin-left;
     transition: margin-left 0.2s ease-in-out;
+
+    &.animating {
+      transition: none;
+    }
 
     &.hidden {
       margin-left: -276px;

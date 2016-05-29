@@ -13,8 +13,9 @@ import Components.Team as Team
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onWithOptions, onClick)
 import Icons
+import Json.Decode as Json exposing ((:=))
 import Model exposing (Model, Msg(..))
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..), SettingsSitemap(..))
 import Timestamp exposing (Timestamp, Timezone)
@@ -59,7 +60,7 @@ view ({ now, company, user, team, route, invite, integrations, settings, current
             , div [ class "app" ]
                 [ toolbar company user.timezone now
                 , div [ class "content" ]
-                    [ sidebar sidebarHidden user
+                    [ sidebar model
                     , page
                     ]
                 ]
@@ -91,8 +92,8 @@ toolbar company timezone now =
         ]
 
 
-sidebar : Bool -> User -> Html Msg
-sidebar hidden user =
+sidebar : Model -> Html Msg
+sidebar { user, sidebarHidden, sidebarTouching, sidebarOffsetX } =
     let
         linkTo uri label =
             li [] [ a [ href uri ] [ text label ] ]
@@ -107,13 +108,41 @@ sidebar hidden user =
                 ]
             else
                 []
+
+        evDec =
+            Json.at [ "touches", "0" ] ("pageX" := Json.float)
+
+        on =
+            flip onWithOptions
+                { stopPropagation = True
+                , preventDefault = False
+                }
+
+        onTouchStart =
+            on "touchstart" (Json.map TouchSidebarStart evDec)
+
+        onTouchMove =
+            on "touchmove" (Json.map TouchSidebarMove evDec)
+
+        onTouchEnd =
+            on "touchend" (Json.succeed TouchSidebarEnd)
     in
         div
             [ classList
                 [ "sidebar" => True
-                , "hidden" => hidden
-                , "shown" => not hidden
+                , "animating" => sidebarTouching
+                , "hidden" => sidebarHidden
+                , "shown" => not sidebarHidden
                 ]
+            , onTouchStart
+            , onTouchMove
+            , onTouchEnd
+            , style
+                (if sidebarTouching then
+                    [ "margin-left" => (toString sidebarOffsetX ++ "px") ]
+                 else
+                    []
+                )
             ]
             [ CurrentUser.view anchorTo user
             , ul [ class "menu" ]

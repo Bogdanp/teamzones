@@ -1,12 +1,13 @@
 module Model exposing (ContextMsg(..), Msg(..), Model, Flags)
 
 import Components.CurrentProfile as CP
-import Components.Invite as Invite
 import Components.Integrations as Integrations
+import Components.Invite as Invite
 import Components.Notifications as Notifications
 import Components.Profile as Profile
 import Components.Settings as Settings
 import Routes exposing (Sitemap)
+import Time exposing (Time)
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (..)
 
@@ -27,6 +28,10 @@ type Msg
     | ToCurrentProfile CP.Msg
     | ToNotifications Notifications.Msg
     | ToggleSidebar
+    | TouchSidebarStart Float
+    | TouchSidebarMove Float
+    | TouchSidebarEnd
+    | UpdateSidebar Time
 
 
 type alias Model =
@@ -46,6 +51,10 @@ type alias Model =
     , currentProfile : CP.Model
     , notifications : Notifications.Model
     , sidebarHidden : Bool
+    , sidebarTouching : Bool
+    , sidebarOffsetStartX : Float
+    , sidebarOffsetCurrentX : Float
+    , sidebarOffsetX : Float
     }
 
 

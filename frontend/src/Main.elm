@@ -1,10 +1,11 @@
 module Main exposing (main)
 
+import AnimationFrame
 import Model exposing (Model, Msg(..), Flags)
 import Navigation
 import Ports exposing (timestamps, timezones, notifications)
-import Update exposing (init, update, urlUpdate)
 import Routes exposing (parsePath)
+import Update exposing (init, update, urlUpdate)
 import View exposing (view)
 
 
@@ -20,9 +21,10 @@ main =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
+subscriptions model =
     Sub.batch
         [ timestamps Tick
         , timezones TimezoneChanged
         , notifications Notified
+        , AnimationFrame.times UpdateSidebar
         ]

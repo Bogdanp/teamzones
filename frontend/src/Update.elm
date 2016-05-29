@@ -65,6 +65,10 @@ init ({ now, suspended, company, user, team, timezones, integrationStates, viewp
                 , currentProfile = currentProfile
                 , notifications = Notifications.init
                 , sidebarHidden = viewportWidth <= 375
+                , sidebarTouching = False
+                , sidebarOffsetStartX = 0
+                , sidebarOffsetCurrentX = 0
+                , sidebarOffsetX = 0
                 }
     in
         model ! [ fx ]
@@ -173,6 +177,39 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
 
         ToggleSidebar ->
             { model | sidebarHidden = not model.sidebarHidden } ! []
+
+        TouchSidebarStart x ->
+            { model | sidebarTouching = True, sidebarOffsetStartX = x } ! []
+
+        TouchSidebarMove x ->
+            { model | sidebarOffsetCurrentX = x } ! []
+
+        TouchSidebarEnd ->
+            { model
+                | sidebarTouching = False
+                , sidebarHidden = model.sidebarOffsetX < -50
+                , sidebarOffsetX = 0
+            }
+                ! []
+
+        UpdateSidebar d ->
+            -- Ideally, we'd filter the message out in subscriptions
+            -- but there's a bug in animation-frame that prevents
+            -- this.
+            if not model.sidebarTouching then
+                model ! []
+            else
+                let
+                    dt =
+                        min 0 (model.sidebarOffsetCurrentX - model.sidebarOffsetStartX)
+
+                    offset =
+                        if model.sidebarOffsetCurrentX == 0 then
+                            0
+                        else
+                            270 - 270 + dt
+                in
+                    { model | sidebarOffsetX = offset } ! []
 
 
 urlUpdate : Sitemap -> Model -> ( Model, Cmd Msg )
