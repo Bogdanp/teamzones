@@ -66,7 +66,7 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 			Name:        "company-name",
 			Label:       "Team Name",
 			Placeholder: "The A-Team",
-			Validators:  []forms.Validator{forms.MinLength(3), forms.MaxLength(50)},
+			Validators:  []forms.Validator{forms.MinLength(3), forms.MaxLength(35)},
 		},
 		forms.Field{
 			Name:        "company-subdomain",
@@ -78,12 +78,12 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 		forms.Field{
 			Name:       "first-name",
 			Label:      "First Name",
-			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(75)},
+			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(35)},
 		},
 		forms.Field{
 			Name:       "last-name",
 			Label:      "Last Name",
-			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(75)},
+			Validators: []forms.Validator{forms.MinLength(2), forms.MaxLength(35)},
 		},
 		forms.Field{
 			Name:       "email",
@@ -109,12 +109,12 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 		forms.Field{
 			Name:       "city",
 			Label:      "City",
-			Validators: []forms.Validator{forms.MaxLength(100)},
+			Validators: []forms.Validator{forms.MaxLength(35)},
 		},
 		forms.Field{
 			Name:       "region",
 			Label:      "State",
-			Validators: []forms.Validator{forms.MaxLength(100)},
+			Validators: []forms.Validator{forms.MaxLength(35)},
 		},
 		forms.Field{
 			Name:       "postal-code",
