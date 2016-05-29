@@ -97,10 +97,13 @@ func createRouters() (*httprouter.Router, *httprouter.Router) {
 	siteRouter := httprouter.New()
 	appRouter := httprouter.New()
 
-	store := cookiestore.New([]byte(config.Secret))
+	store := cookiestore.New(
+		config.Secret.Authentication,
+		config.Secret.Encryption,
+	)
 	site := negroni.New(negroni.Wrap(siteRouter))
 	app := negroni.New(
-		sessions.Sessions("session", store),
+		sessions.Sessions("__", store),
 		negroni.HandlerFunc(Subdomain),
 		negroni.HandlerFunc(Auth),
 		negroni.HandlerFunc(Access),
@@ -153,8 +156,13 @@ func loadMetadata() *Metadata {
 // Config contains information read from environment-specific
 // configuration files.
 type Config struct {
-	Debug  bool
-	Secret string
+	Debug bool
+
+	Secret struct {
+		Authentication []byte
+		Encryption     []byte
+	}
+
 	Domain struct {
 		Host string
 		Port int
