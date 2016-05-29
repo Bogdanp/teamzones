@@ -77,7 +77,7 @@ toolbar company timezone now =
                 , onClick ToggleSidebar
                 ]
                 [ Icons.menu Color.black 20 ]
-            , anchorTo (DashboardR ()) [] [ text company.name ]
+            , anchorTo (DashboardR ()) [ class "logo" ] [ text company.name ]
             ]
         , div [ class "clock" ] [ Util.time timezone now ]
         , div [ class "menu" ]
