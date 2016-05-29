@@ -15,7 +15,7 @@ import User exposing (isOffline)
 
 
 init : Flags -> Sitemap -> ( Model, Cmd Msg )
-init ({ now, suspended, company, user, team, timezones, integrationStates } as flags) route =
+init ({ now, suspended, company, user, team, timezones, integrationStates, viewportWidth } as flags) route =
     let
         currentUser =
             prepareUser user
@@ -64,6 +64,7 @@ init ({ now, suspended, company, user, team, timezones, integrationStates } as f
                 , settings = settings
                 , currentProfile = currentProfile
                 , notifications = Notifications.init
+                , sidebarHidden = viewportWidth <= 375
                 }
     in
         model ! [ fx ]
@@ -169,6 +170,9 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
                     Notifications.update msg model.notifications
             in
                 { model | notifications = notifications } ! [ Cmd.map ToNotifications fx ]
+
+        ToggleSidebar ->
+            { model | sidebarHidden = not model.sidebarHidden } ! []
 
 
 urlUpdate : Sitemap -> Model -> ( Model, Cmd Msg )

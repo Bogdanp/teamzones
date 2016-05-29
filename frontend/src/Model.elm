@@ -26,6 +26,7 @@ type Msg
     | ToSettings Settings.Msg
     | ToCurrentProfile CP.Msg
     | ToNotifications Notifications.Msg
+    | ToggleSidebar
 
 
 type alias Model =
@@ -44,6 +45,7 @@ type alias Model =
     , settings : Settings.Model ContextMsg
     , currentProfile : CP.Model
     , notifications : Notifications.Model
+    , sidebarHidden : Bool
     }
 
 
@@ -55,4 +57,5 @@ type alias Flags =
     , team : List ContextUser
     , timezones : List Timezone
     , integrationStates : IntegrationStates
+    , viewportWidth : Int
     }

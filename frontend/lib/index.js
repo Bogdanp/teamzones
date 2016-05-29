@@ -14,6 +14,7 @@ function seconds() {
 window.moment = moment;
 window.Checkout = Checkout;
 window.init = function(Elm, el, context) {
+  context.viewportWidth = window.innerWidth;
   context.now = now();
   context.user.integrations = context.integrations;
   context.timezones = moment.tz.names().filter(function(tz) {

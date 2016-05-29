@@ -13,6 +13,7 @@ import Components.Team as Team
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import Icons
 import Model exposing (Model, Msg(..))
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..), SettingsSitemap(..))
@@ -22,7 +23,7 @@ import Util exposing ((=>))
 
 
 view : Model -> Html Msg
-view ({ now, company, user, team, route, invite, integrations, settings, currentProfile, notifications } as model) =
+view ({ now, company, user, team, route, invite, integrations, settings, currentProfile, notifications, sidebarHidden } as model) =
     let
         page =
             case route of
@@ -58,7 +59,7 @@ view ({ now, company, user, team, route, invite, integrations, settings, current
             , div [ class "app" ]
                 [ toolbar company user.timezone now
                 , div [ class "content" ]
-                    [ sidebar user
+                    [ sidebar sidebarHidden user
                     , page
                     ]
                 ]
@@ -68,7 +69,15 @@ view ({ now, company, user, team, route, invite, integrations, settings, current
 toolbar : Company -> Timezone -> Timestamp -> Html Msg
 toolbar company timezone now =
     div [ class "toolbar" ]
-        [ div [ class "team-name" ] [ anchorTo (DashboardR ()) [] [ text company.name ] ]
+        [ div [ class "team-name" ]
+            [ a
+                [ href "javascript:;"
+                , class "sidebar-toggle"
+                , onClick ToggleSidebar
+                ]
+                [ Icons.menu Color.black 20 ]
+            , anchorTo (DashboardR ()) [] [ text company.name ]
+            ]
         , div [ class "clock" ] [ Util.time timezone now ]
         , div [ class "menu" ]
             [ ul []
@@ -82,8 +91,8 @@ toolbar company timezone now =
         ]
 
 
-sidebar : User -> Html Msg
-sidebar user =
+sidebar : Bool -> User -> Html Msg
+sidebar hidden user =
     let
         linkTo uri label =
             li [] [ a [ href uri ] [ text label ] ]
@@ -99,7 +108,13 @@ sidebar user =
             else
                 []
     in
-        div [ class "sidebar" ]
+        div
+            [ classList
+                [ "sidebar" => True
+                , "hidden" => hidden
+                , "shown" => not hidden
+                ]
+            ]
             [ CurrentUser.view anchorTo user
             , ul [ class "menu" ]
                 ([ routeTo (DashboardR ()) "Dashboard"

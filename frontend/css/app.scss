@@ -205,6 +205,20 @@ table {
   border-bottom: 1px solid #DEDEDE;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 
+  .sidebar-toggle {
+    display: block;
+    float: left;
+    margin: 0 5px;
+    padding: 1px 0 0 0;
+    height: 20px;
+
+    transition: transform 0.2s;
+
+    &.shown {
+      translate: rotateX(90deg);
+    }
+  }
+
   .team-name, .clock, .menu {
     flex: 1 1 auto;
   }
@@ -256,6 +270,17 @@ table {
 
     border-right: 1px solid #F2F2F2;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+
+    will-change: margin-left;
+    transition: margin-left 0.2s ease-in-out;
+
+    &.hidden {
+      margin-left: -276px;
+    }
+
+    &.shown {
+      margin-left: 0px;
+    }
 
     .menu {
       margin: 0;
@@ -347,6 +372,7 @@ table {
     .page-content {
       flex: 1 1 auto;
 
+      min-width: 750px;
       overflow: scroll;
 
       p {
@@ -574,5 +600,11 @@ table {
       border-right: 1px solid #F2F2F2;
       width: 120px;
     }
+  }
+}
+
+@media (min-width: 375px) {
+  .sidebar {
+    margin-left: -275px;
   }
 }
