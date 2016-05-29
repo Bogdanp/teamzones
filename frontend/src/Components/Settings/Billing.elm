@@ -171,7 +171,7 @@ view { data, vatPending, vatForm, cancelButton, activateButtons } =
                 div []
                     [ overview data plan cancelButton
                     , plans data plan activateButtons
-                    , if data.status == Active && data.vat /= 0 then
+                    , if data.status == Active && (data.vat /= 0 || data.vatId /= "") then
                         vat data vatPending vatForm
                       else
                         text ""
