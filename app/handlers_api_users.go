@@ -88,7 +88,7 @@ func createBulkInviteHandler(res http.ResponseWriter, req *http.Request, _ httpr
 		inviteID, _ := strconv.ParseInt(inviteIDStr, 10, 64)
 		invite, _ = models.GetInvite(ctx, companyKey, inviteID)
 	} else {
-		inviteData, inviteKey, err := models.CreateBulkInvite(ctx, companyKey)
+		inviteKey, inviteData, err := models.CreateBulkInvite(ctx, companyKey)
 		if err != nil {
 			log.Errorf(ctx, "failed to create invite: %v", err)
 			serverError(res)

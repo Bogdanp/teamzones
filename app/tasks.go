@@ -151,7 +151,7 @@ var inviteUser = delay.Func(
 			return
 		}
 
-		_, key, err := models.CreateInvite(ctx, companyKey, firstName, lastName, email)
+		key, _, err := models.CreateInvite(ctx, companyKey, firstName, lastName, email)
 		if err != nil {
 			panic(err)
 		}

@@ -63,7 +63,7 @@ func NewBulkInvite(companyKey *datastore.Key) *Invite {
 func CreateInvite(
 	ctx context.Context,
 	companyKey *datastore.Key, firstName, lastName, email string,
-) (*Invite, *datastore.Key, error) {
+) (*datastore.Key, *Invite, error) {
 
 	invite := NewInvite(companyKey, firstName, lastName, email)
 	key := datastore.NewIncompleteKey(ctx, inviteKind, companyKey)
@@ -72,14 +72,14 @@ func CreateInvite(
 		return nil, nil, err
 	}
 
-	return invite, key, nil
+	return key, invite, nil
 }
 
 // CreateBulkInvite creates a bulk invite entity in the datastore.
 func CreateBulkInvite(
 	ctx context.Context,
 	companyKey *datastore.Key,
-) (*Invite, *datastore.Key, error) {
+) (*datastore.Key, *Invite, error) {
 
 	invite := NewBulkInvite(companyKey)
 	key := datastore.NewIncompleteKey(ctx, inviteKind, companyKey)
@@ -88,7 +88,7 @@ func CreateBulkInvite(
 		return nil, nil, err
 	}
 
-	return invite, key, nil
+	return key, invite, nil
 }
 
 // GetInvite gets an invite belonging to a Company by its id.
