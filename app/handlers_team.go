@@ -268,14 +268,7 @@ func recoverPasswordHandler(res http.ResponseWriter, req *http.Request, _ httpro
 		ctx := appengine.NewContext(req)
 		company := context.Get(req, companyCtxKey).(*models.Company)
 		companyKey := company.Key(ctx)
-		user, err := models.GetUser(ctx, companyKey, form.Email.Value)
-		if err == nil {
-			_, _, err := models.CreateRecoveryToken(ctx, companyKey, user.Key(ctx))
-			if err != nil {
-				panic(err)
-			}
-		}
-
+		createRecoveryToken.Call(ctx, companyKey, form.Email.Value)
 		renderer.HTML(res, http.StatusOK, "recover-password-success", nil)
 		return
 	}

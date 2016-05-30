@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
 
@@ -88,15 +89,16 @@ func createBulkInviteHandler(res http.ResponseWriter, req *http.Request, _ httpr
 		inviteID, _ := strconv.ParseInt(inviteIDStr, 10, 64)
 		invite, _ = models.GetInvite(ctx, companyKey, inviteID)
 	} else {
-		inviteKey, inviteData, err := models.CreateBulkInvite(ctx, companyKey)
+		var key *datastore.Key
+
+		key, invite, err = models.CreateBulkInvite(ctx, companyKey)
 		if err != nil {
 			log.Errorf(ctx, "failed to create invite: %v", err)
 			serverError(res)
 			return
 		}
 
-		invite = inviteData // janky af
-		inviteIDStr = strconv.FormatInt(inviteKey.IntID(), 10)
+		inviteIDStr = strconv.FormatInt(key.IntID(), 10)
 		memcache.Set(ctx, &memcache.Item{
 			Key:        cacheKey,
 			Value:      []byte(inviteIDStr),

@@ -285,7 +285,6 @@ func CreateRecoveryToken(
 		return nil, nil, err
 	}
 
-	token.send(ctx, tokenNonce, user.StringID())
 	return tokenKey, &token, nil
 }
 
@@ -307,8 +306,4 @@ func GetRecoveryToken(
 	}
 
 	return &token, nil
-}
-
-func (token *RecoveryToken) send(ctx context.Context, tokenID, email string) {
-	// FIXME: Send e-mail
 }

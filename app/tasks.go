@@ -125,7 +125,7 @@ var refreshGCalendar = delay.Func(
 var sendMail = delay.Func(
 	"send-mail",
 	func(ctx context.Context, to, subject, txtMsg, htmlMsg string) {
-		log.Infof(ctx, "message: %q", txtMsg)
+		log.Debugf(ctx, "Sending email to %q with subject %q and message %q...", to, subject, txtMsg)
 		mail.Send(ctx, &mail.Message{
 			To:       []string{to},
 			Sender:   "support@teamzones.io",
@@ -160,6 +160,7 @@ var inviteUser = delay.Func(
 			Param("invite", strconv.FormatInt(key.IntID(), 10)).
 			Subdomain(company.Subdomain).
 			Build()
+
 		data := struct {
 			Company  *models.Company
 			Main     *models.User
@@ -171,17 +172,52 @@ var inviteUser = delay.Func(
 		}
 
 		var buf bytes.Buffer
-		txtMsg, err := renderEmail(&buf, "invite.txt", data)
-		if err != nil {
-			panic(err)
-		}
-
-		htmlMsg, err := renderEmail(&buf, "invite.html", data)
-		if err != nil {
-			panic(err)
-		}
-
 		subject := fmt.Sprintf("You have been invited to join the Teamzones team for %q!", company.Name)
+		txtMsg := renderEmail(&buf, "invite.txt", data)
+		htmlMsg := renderEmail(&buf, "invite.html", data)
+		sendMail.Call(ctx, email, subject, txtMsg, htmlMsg)
+	},
+)
+
+var createRecoveryToken = delay.Func(
+	"create-recovery-token",
+	func(ctx context.Context, companyKey *datastore.Key, email string) {
+		var company models.Company
+		if err := datastore.Get(ctx, companyKey, &company); err != nil {
+			log.Warningf(ctx, "company %v not found", companyKey)
+			return
+		}
+
+		user, err := models.GetUser(ctx, companyKey, email)
+		if err != nil {
+			log.Errorf(ctx, "failed to get user: %v", err)
+			return
+		}
+
+		key, _, err := models.CreateRecoveryToken(ctx, companyKey, user.Key(ctx))
+		if err != nil {
+			panic(err)
+		}
+
+		location := ReverseRoute(resetPasswordRoute).
+			Param("token", key.StringID()).
+			Subdomain(company.Subdomain).
+			Build()
+
+		data := struct {
+			Company  *models.Company
+			User     *models.User
+			Location string
+		}{
+			Company:  &company,
+			User:     user,
+			Location: location,
+		}
+
+		var buf bytes.Buffer
+		subject := "Change your Teamzones password"
+		txtMsg := renderEmail(&buf, "recover-password.txt", data)
+		htmlMsg := renderEmail(&buf, "recover-password.html", data)
 		sendMail.Call(ctx, email, subject, txtMsg, htmlMsg)
 	},
 )

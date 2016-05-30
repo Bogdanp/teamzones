@@ -13,13 +13,13 @@ import (
 )
 
 // Render a template from the _emails directory.
-func renderEmail(buf *bytes.Buffer, template string, data interface{}) (string, error) {
+func renderEmail(buf *bytes.Buffer, template string, data interface{}) string {
 	if err := renderer.TemplateLookup("_emails/"+template).Execute(buf, data); err != nil {
-		return "", err
+		panic(err)
 	}
 
 	defer buf.Reset()
-	return buf.String(), nil
+	return buf.String()
 }
 
 // Optimistically "lock" around a key in memcache.  Returns true when
