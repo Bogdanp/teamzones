@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 	"teamzones/models"
 
 	"google.golang.org/appengine"
@@ -64,10 +65,17 @@ func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 		{"Dave", "Firnstahl", "dave.firnstahl@ave81.com", "US/Central"},
 	}
 
-	for _, user := range users {
-		models.CreateUser(
-			ctx, company.Key(ctx),
-			user.FirstName, user.LastName, user.Email, "password", user.Timezone,
-		)
+	for i := 0; i < 1; i++ {
+		suffix := ""
+		if i != 0 {
+			suffix = strconv.Itoa(i)
+		}
+
+		for _, user := range users {
+			models.CreateUser(
+				ctx, company.Key(ctx),
+				user.FirstName, user.LastName, user.Email+suffix, "password", user.Timezone,
+			)
+		}
 	}
 }
