@@ -16,6 +16,7 @@ type Sitemap
     = DashboardR ()
     | InviteR ()
     | ProfileR String
+    | MeetingsR ()
     | IntegrationsR IntegrationsSitemap
     | SettingsR SettingsSitemap
     | CurrentProfileR ()
@@ -47,6 +48,11 @@ profileR =
     ProfileR := "profile" <//> string
 
 
+meetingsR : Route Sitemap
+meetingsR =
+    MeetingsR := static "meetings"
+
+
 integrationsR : Route Sitemap
 integrationsR =
     "integrations" <//> child IntegrationsR integrationsRouter
@@ -64,12 +70,12 @@ currentProfileR =
 
 sitemap : Router Sitemap
 sitemap =
-    router [ homeR, inviteR, profileR, integrationsR, settingsR, currentProfileR ]
+    router [ homeR, inviteR, profileR, integrationsR, meetingsR, settingsR, currentProfileR ]
 
 
 match : String -> Sitemap
 match =
-    Route.match sitemap >> Maybe.withDefault (DashboardR ())
+    Route.match sitemap >> Maybe.withDefault NotFoundR
 
 
 toString : Sitemap -> String
@@ -83,6 +89,9 @@ toString route =
 
         ProfileR email ->
             reverse profileR [ email ]
+
+        MeetingsR () ->
+            reverse meetingsR []
 
         IntegrationsR r ->
             reverse integrationsR [] ++ routeIntegrations r

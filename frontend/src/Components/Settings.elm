@@ -7,6 +7,7 @@ import Html exposing (..)
 import Html.App as Html
 import Routes exposing (Sitemap(..), SettingsSitemap(..))
 import Types exposing (User)
+import Util exposing ((?>))
 
 
 type alias Context pmsg =
@@ -47,7 +48,7 @@ init { deleteUser, fullRoute, subRoute, currentUser, teamMembers } =
             Billing.init
 
         subRoute' =
-            Maybe.withDefault (TeamR ()) subRoute
+            subRoute ?> TeamR ()
     in
         { fullRoute = fullRoute
         , subRoute = subRoute'

@@ -3,6 +3,7 @@ port module Update exposing (init, update, urlUpdate)
 import Components.CurrentProfile as CP
 import Components.Invite as Invite
 import Components.Integrations as Integrations
+import Components.Meetings as Meetings
 import Components.Notifications as Notifications
 import Components.Profile as Profile
 import Components.Settings as Settings
@@ -60,6 +61,7 @@ init ({ now, suspended, company, user, team, timezones, integrationStates, viewp
                     , user = currentUser
                     , currentUser = currentUser
                     }
+                , meetings = Meetings.init
                 , integrations = integrations
                 , settings = settings
                 , currentProfile = currentProfile
@@ -107,6 +109,13 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
                     Profile.update msg model.profile
             in
                 { model | profile = profile } ! [ Cmd.map ToProfile fx ]
+
+        ToMeetings msg ->
+            let
+                ( meetings, fx ) =
+                    Meetings.update msg model.meetings
+            in
+                { model | meetings = meetings } ! [ Cmd.map ToMeetings fx ]
 
         ToIntegrations msg ->
             let

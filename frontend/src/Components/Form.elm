@@ -17,7 +17,7 @@ import Form.Error exposing (Error(..))
 import Form.Input as Input exposing (Input)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Util exposing ((=>), on')
+import Util exposing ((=>), (?>), on')
 
 
 type alias ButtonOptions =
@@ -117,7 +117,7 @@ input options inputFn form =
             div [ class "input" ]
                 [ inputFn field
                     [ id fieldId
-                    , placeholder (Maybe.withDefault "" options.placeholder)
+                    , placeholder (options.placeholder ?> "")
                     , classList ([ "error" => hasError ] ++ options.classList)
                     ]
                 , errorsHtml

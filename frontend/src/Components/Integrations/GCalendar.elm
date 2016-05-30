@@ -3,8 +3,8 @@ module Components.Integrations.GCalendar exposing (Model, Msg, init, update, vie
 import Api exposing (Error, Response)
 import Api.Calendar as CalendarApi exposing (Calendar, Calendars)
 import Components.ConfirmationButton as CB
-import Components.Notifications exposing (error, info)
 import Components.Loading exposing (loading)
+import Components.Notifications exposing (error, info)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
@@ -12,6 +12,7 @@ import Html.Events exposing (onClick)
 import Process
 import Task
 import Time
+import Util exposing ((?>))
 
 
 type Msg
@@ -123,7 +124,7 @@ view ({ active } as model) =
 auth : Model pmsg -> Html Msg
 auth model =
     div []
-        [ p [] [ text "It looks like you haven't authorized your Google Calendar account yet. Click the button below to get started." ]
+        [ p [] [ text "It looks like you haven't authorized your Google Calendar account yet. Connect your account to get started." ]
         , div [ class "input-group" ]
             [ div [ class "input" ]
                 [ a
@@ -142,7 +143,7 @@ connected { calendars, refreshing, disconnectButton } =
         calendar c =
             let
                 name =
-                    Maybe.withDefault "Unnamed calendar" c.summary
+                    c.summary ?> "Unnamed calendar"
             in
                 tr []
                     [ td []
@@ -151,7 +152,7 @@ connected { calendars, refreshing, disconnectButton } =
                           else
                             text name
                         ]
-                    , td [] [ text (Maybe.withDefault "-" c.timezone) ]
+                    , td [] [ text (c.timezone ?> "-") ]
                     , td [] []
                     ]
     in

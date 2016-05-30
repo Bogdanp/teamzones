@@ -8,6 +8,7 @@ import Components.Invite as Invite
 import Components.NotFound as NotFound
 import Components.Notifications as Notifications
 import Components.Profile as Profile
+import Components.Meetings as Meetings
 import Components.Settings as Settings
 import Components.Team as Team
 import Html exposing (..)
@@ -38,6 +39,10 @@ view ({ now, company, user, team, route, invite, integrations, settings, current
                 ProfileR _ ->
                     Profile.view model.profile
                         |> Html.map ToProfile
+
+                MeetingsR () ->
+                    Meetings.view model.meetings
+                        |> Html.map ToMeetings
 
                 IntegrationsR _ ->
                     Integrations.view integrations
@@ -109,7 +114,7 @@ sidebar { user, sidebarHidden, sidebarTouching, sidebarOffsetX } =
             else
                 []
 
-        evDec =
+        touches =
             Json.at [ "touches", "0" ] ("pageX" := Json.float)
 
         on =
@@ -119,10 +124,10 @@ sidebar { user, sidebarHidden, sidebarTouching, sidebarOffsetX } =
                 }
 
         onTouchStart =
-            on "touchstart" (Json.map TouchSidebarStart evDec)
+            on "touchstart" (Json.map TouchSidebarStart touches)
 
         onTouchMove =
-            on "touchmove" (Json.map TouchSidebarMove evDec)
+            on "touchmove" (Json.map TouchSidebarMove touches)
 
         onTouchEnd =
             on "touchend" (Json.succeed TouchSidebarEnd)
@@ -147,6 +152,7 @@ sidebar { user, sidebarHidden, sidebarTouching, sidebarOffsetX } =
             [ CurrentUser.view anchorTo user
             , ul [ class "menu" ]
                 ([ routeTo (DashboardR ()) "Dashboard"
+                 , routeTo (MeetingsR ()) "Meetings"
                  , routeTo (CurrentProfileR ()) "Your Profile"
                  , routeTo (IntegrationsR (GCalendarR ())) "Integrations"
                  ]

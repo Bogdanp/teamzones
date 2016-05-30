@@ -6,8 +6,8 @@ import Html.Attributes exposing (..)
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone, showTimezone)
 import Types exposing (Workdays, Team, User)
-import Util exposing ((=>), initials, initialsColor, on')
 import User exposing (isOffline)
+import Util exposing ((=>), (?>), initials, initialsColor, on')
 
 
 view : (Sitemap -> msg) -> Team -> Timestamp -> Html msg
@@ -25,8 +25,7 @@ view routeTo team now =
         user u =
             let
                 avatar =
-                    Maybe.map (pictureAvatar u) u.smallAvatar
-                        |> Maybe.withDefault (initialsAvatar u)
+                    Maybe.map (pictureAvatar u) u.smallAvatar ?> initialsAvatar u
             in
                 li [ classList [ "offline" => isOffline now u ] ]
                     [ avatar

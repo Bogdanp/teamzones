@@ -48,6 +48,7 @@ const (
 	currentProfileRoute
 	inviteRoute
 	profileRoute
+	meetingsRoute
 	integrationsGCalRoute
 	settingsTeamRoute
 	settingsBillingRoute

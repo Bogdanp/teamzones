@@ -15,7 +15,7 @@ import Html.Attributes exposing (..)
 import Task
 import Timestamp exposing (Timezone, showTimezone)
 import Types exposing (Workday, Workdays, User)
-import Util exposing ((=>), boolFromMaybe)
+import Util exposing ((=>), (?>), boolFromMaybe)
 
 
 type ParentMsg
@@ -247,7 +247,7 @@ view { form, deleteAvatarButton, pending, uploadUri, timezones } =
     in
         page "Your Profile"
             [ Html.form
-                [ action (Maybe.withDefault "" uploadUri)
+                [ action (uploadUri ?> "")
                 , class "form-group no-pt"
                 , method "POST"
                 , enctype "multipart/form-data"

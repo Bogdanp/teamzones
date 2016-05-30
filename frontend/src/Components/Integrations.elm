@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.App as Html
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..))
 import Types exposing (User, IntegrationStates)
+import Util exposing ((?>))
 
 
 type ContextMsg
@@ -41,7 +42,7 @@ init { fullRoute, subRoute, currentUser, integrationStates } =
             GCalendar.init DisconnectGCalendar integrationStates.gCalendar
     in
         { fullRoute = fullRoute
-        , subRoute = (Maybe.withDefault (GCalendarR ()) subRoute)
+        , subRoute = (subRoute ?> GCalendarR ())
         , currentUser = currentUser
         , integrationStates = integrationStates
         , gCalendar = gCalendar

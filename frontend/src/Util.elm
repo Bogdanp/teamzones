@@ -137,8 +137,7 @@ anchorTo f route attrs =
 
 boolFromMaybe : Maybe a -> Bool
 boolFromMaybe ma =
-    Maybe.map (always True) ma
-        |> Maybe.withDefault False
+    Maybe.map (always True) ma ?> False
 
 
 ttl : Float -> String
@@ -173,3 +172,8 @@ ttl seconds =
 (=>) : a -> b -> ( a, b )
 (=>) =
     (,)
+
+
+(?>) : Maybe a -> a -> a
+(?>) =
+    flip Maybe.withDefault

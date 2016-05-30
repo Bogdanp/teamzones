@@ -5,6 +5,7 @@ import Components.Integrations as Integrations
 import Components.Invite as Invite
 import Components.Notifications as Notifications
 import Components.Profile as Profile
+import Components.Meetings as Meetings
 import Components.Settings as Settings
 import Routes exposing (Sitemap)
 import Time exposing (Time)
@@ -23,6 +24,7 @@ type Msg
     | Notified Notification
     | ToInvite Invite.Msg
     | ToProfile Profile.Msg
+    | ToMeetings Meetings.Msg
     | ToIntegrations Integrations.Msg
     | ToSettings Settings.Msg
     | ToCurrentProfile CP.Msg
@@ -46,6 +48,7 @@ type alias Model =
     , route : Sitemap
     , invite : Invite.Model
     , profile : Profile.Model
+    , meetings : Meetings.Model
     , integrations : Integrations.Model
     , settings : Settings.Model ContextMsg
     , currentProfile : CP.Model
