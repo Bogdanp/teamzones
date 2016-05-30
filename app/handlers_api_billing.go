@@ -27,8 +27,8 @@ func init() {
 	)
 	POST(
 		appRouter,
-		updateVatIDRoute, "/api/billing/vat-id",
-		updateVatIDHandler, models.RoleMain,
+		updateVATIDRoute, "/api/billing/vat-id",
+		updateVATIDHandler, models.RoleMain,
 	)
 	POST(
 		appRouter,
@@ -94,7 +94,7 @@ func cancelSubscriptionHandler(res http.ResponseWriter, req *http.Request, _ htt
 	res.WriteHeader(http.StatusOK)
 }
 
-func updateVatIDHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+func updateVATIDHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	var data struct {
 		VATID string `json:"vatId"`
 	}

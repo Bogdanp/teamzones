@@ -60,24 +60,7 @@ func sendInviteHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 		return
 	}
 
-	companyKey := company.Key(ctx)
-	_, err := models.GetUser(ctx, companyKey, data.Email)
-	if err == nil {
-		log.Infof(ctx, "user %q is already a member, skipping invite", data.Email)
-		return
-	}
-
-	_, _, err = models.CreateInvite(
-		ctx, companyKey,
-		data.FirstName, data.LastName, data.Email,
-	)
-	if err != nil {
-		log.Errorf(ctx, "failed to create invite: %v", err)
-		serverError(res)
-		return
-	}
-
-	// TODO: Send email invite
+	inviteUser.Call(ctx, company.Key(ctx), data.FirstName, data.LastName, data.Email)
 	res.WriteHeader(http.StatusCreated)
 }
 

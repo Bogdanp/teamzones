@@ -255,6 +255,11 @@ func (u *User) Put(ctx context.Context) (*datastore.Key, error) {
 	return nds.Put(ctx, u.Key(ctx), u)
 }
 
+// FullName returns the User's full name.
+func (u *User) FullName() string {
+	return u.FirstName + " " + u.LastName
+}
+
 // NewRecoveryTokenKey creates fully-qualified datastore keys for RecoveryTokens.
 func NewRecoveryTokenKey(
 	ctx context.Context,

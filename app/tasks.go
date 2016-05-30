@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"bytes"
+	"fmt"
+	"strconv"
 	"teamzones/integrations"
 	"teamzones/models"
 
@@ -121,7 +124,64 @@ var refreshGCalendar = delay.Func(
 
 var sendMail = delay.Func(
 	"send-mail",
-	func(ctx context.Context, message mail.Message) {
-		mail.Send(ctx, &message)
+	func(ctx context.Context, to, subject, txtMsg, htmlMsg string) {
+		log.Infof(ctx, "message: %q", txtMsg)
+		mail.Send(ctx, &mail.Message{
+			To:       []string{to},
+			Sender:   "support@teamzones.io",
+			Subject:  subject,
+			Body:     txtMsg,
+			HTMLBody: htmlMsg,
+		})
+	},
+)
+
+var inviteUser = delay.Func(
+	"invite-user",
+	func(ctx context.Context, companyKey *datastore.Key, firstName, lastName, email string) {
+		var company models.Company
+		if err := datastore.Get(ctx, companyKey, &company); err != nil {
+			log.Warningf(ctx, "company %v not found", companyKey)
+			return
+		}
+
+		_, err := models.GetUser(ctx, companyKey, email)
+		if err == nil {
+			log.Infof(ctx, "user %q is already a member, skipping invite", email)
+			return
+		}
+
+		_, key, err := models.CreateInvite(ctx, companyKey, firstName, lastName, email)
+		if err != nil {
+			panic(err)
+		}
+
+		location := ReverseRoute(teamSignUpRoute).
+			Param("invite", strconv.FormatInt(key.IntID(), 10)).
+			Subdomain(company.Subdomain).
+			Build()
+		data := struct {
+			Company  *models.Company
+			Main     *models.User
+			Location string
+		}{
+			Company:  &company,
+			Main:     company.LookupMainUser(ctx),
+			Location: location,
+		}
+
+		var buf bytes.Buffer
+		txtMsg, err := renderEmail(&buf, "invite.txt", data)
+		if err != nil {
+			panic(err)
+		}
+
+		htmlMsg, err := renderEmail(&buf, "invite.html", data)
+		if err != nil {
+			panic(err)
+		}
+
+		subject := fmt.Sprintf("You have been invited to join the Teamzones team for %q!", company.Name)
+		sendMail.Call(ctx, email, subject, txtMsg, htmlMsg)
 	},
 )

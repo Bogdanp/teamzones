@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -10,6 +11,16 @@ import (
 
 	"golang.org/x/net/context"
 )
+
+// Render a template from the _emails directory.
+func renderEmail(buf *bytes.Buffer, template string, data interface{}) (string, error) {
+	if err := renderer.TemplateLookup("_emails/"+template).Execute(buf, data); err != nil {
+		return "", err
+	}
+
+	defer buf.Reset()
+	return buf.String(), nil
+}
 
 // Optimistically "lock" around a key in memcache.  Returns true when
 // execution should halt and false otherwise.
