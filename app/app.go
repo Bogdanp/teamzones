@@ -119,8 +119,8 @@ func createRouters() (*httprouter.Router, *httprouter.Router) {
 // Initializes the renderer.
 func createRenderer() *render.Render {
 	funcs := template.FuncMap{
-		"version": func() string {
-			return metadata.Version
+		"asset": func(filename string) string {
+			return fmt.Sprintf("/static/%s?v=%s", filename, metadata.Version)
 		},
 	}
 

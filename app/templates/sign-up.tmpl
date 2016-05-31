@@ -1,6 +1,9 @@
 {{define "title-sign-up"}} - Order your Teamzones account{{end}}
 {{define "head-sign-up"}}
-  <link rel="stylesheet" type="text/css" href="/static/css/checkout.css?v={{version}}" />
+<link
+    rel="stylesheet"
+    type="text/css"
+    href="{{asset "css/checkout.css"}}" />
 {{end}}
 
 <div id="header">
@@ -117,7 +120,7 @@
 </form>
 
 <script src="/static/js/braintree-2.24.1.min.js"></script>
-<script src="/static/js/lib.js"></script>
+<script src="{{asset "js/lib.js"}}"></script>
 <script>
   var checkout = new Checkout(
     "payment-info",
