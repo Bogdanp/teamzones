@@ -24,6 +24,9 @@ init ({ now, suspended, company, user, team, timezones, integrationStates, viewp
         teamMembers =
             List.map prepareUser team
 
+        ( meetings, _ ) =
+            Meetings.init { integrationStates = integrationStates }
+
         ( integrations, _ ) =
             Integrations.init
                 { fullRoute = route
@@ -61,7 +64,7 @@ init ({ now, suspended, company, user, team, timezones, integrationStates, viewp
                     , user = currentUser
                     , currentUser = currentUser
                     }
-                , meetings = Meetings.init
+                , meetings = meetings
                 , integrations = integrations
                 , settings = settings
                 , currentProfile = currentProfile
@@ -248,6 +251,14 @@ urlUpdate route ({ now, suspended, user, teamMembers, integrationStates } as m) 
 
                         Nothing ->
                             { model | route = NotFoundR } ! []
+
+                MeetingsR () ->
+                    let
+                        ( meetings, fx ) =
+                            Meetings.init { integrationStates = integrationStates }
+                    in
+                        { model | meetings = meetings }
+                            ! [ Cmd.map ToMeetings fx ]
 
                 IntegrationsR subRoute ->
                     let
