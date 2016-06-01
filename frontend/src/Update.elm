@@ -25,7 +25,7 @@ init ({ now, suspended, company, user, team, timezones, integrationStates, viewp
             List.map prepareUser team
 
         ( meetings, _ ) =
-            Meetings.init { integrationStates = integrationStates }
+            Meetings.init { now = now, integrationStates = integrationStates }
 
         ( integrations, _ ) =
             Integrations.init
@@ -255,7 +255,7 @@ urlUpdate route ({ now, suspended, user, teamMembers, integrationStates } as m) 
                 MeetingsR () ->
                     let
                         ( meetings, fx ) =
-                            Meetings.init { integrationStates = integrationStates }
+                            Meetings.init { now = now, integrationStates = integrationStates }
                     in
                         { model | meetings = meetings }
                             ! [ Cmd.map ToMeetings fx ]

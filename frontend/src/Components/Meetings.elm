@@ -1,13 +1,16 @@
 module Components.Meetings exposing (Msg, Model, init, update, view)
 
-import DatePicker exposing (DatePicker)
 import Components.Notifications exposing (info)
 import Components.Page exposing (page)
+import Date
+import DatePicker exposing (DatePicker, defaultSettings)
 import Html exposing (..)
 import Html.App as Html
+import Html.Attributes exposing (..)
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..))
+import Timestamp exposing (Timestamp)
 import Types exposing (AnchorTo, IntegrationStates)
-import Util
+import Util exposing (dateTuple)
 
 
 type Msg
@@ -16,23 +19,33 @@ type Msg
 
 
 type alias Context =
-    { integrationStates : IntegrationStates }
+    { now : Timestamp
+    , integrationStates : IntegrationStates
+    }
 
 
 type alias Model =
-    { datePicker : DatePicker }
+    { datePicker : DatePicker
+    }
 
 
 init : Context -> ( Model, Cmd Msg )
-init { integrationStates } =
+init { now, integrationStates } =
     let
-        ( datePicker, fx ) =
-            DatePicker.init DatePicker.defaultSettings
+        isDisabled date =
+            dateTuple date < dateTuple (Date.fromTime now)
+
+        ( datePicker, datePickerFx ) =
+            DatePicker.init { defaultSettings | isDisabled = isDisabled }
+
+        model =
+            { datePicker = datePicker
+            }
     in
         if integrationStates.gCalendar then
-            { datePicker = datePicker } ! [ Cmd.map ToDatePicker fx ]
+            model ! [ Cmd.map ToDatePicker datePickerFx ]
         else
-            { datePicker = datePicker }
+            model
                 ! [ Routes.navigateTo (IntegrationsR (GCalendarR ()))
                   , info "You must connect your Google Calendar account before you can set up meetings."
                   ]
@@ -55,8 +68,12 @@ update msg model =
 view : Model -> Html Msg
 view model =
     page "Meetings"
-        [ DatePicker.view model.datePicker
-            |> Html.map ToDatePicker
+        [ div [ class "input-group" ]
+            [ div [ class "input" ]
+                [ DatePicker.view model.datePicker
+                    |> Html.map ToDatePicker
+                ]
+            ]
         ]
 
 

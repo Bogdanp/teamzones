@@ -16,6 +16,7 @@ $datepicker-border-color: #CCC;
 
 .#{$datepicker-ns}picker {
   position: absolute;
+  margin-top: 1px;
   border: 1px solid $datepicker-border-color;
   z-index: 10;
 }
@@ -50,6 +51,11 @@ $datepicker-border-color: #CCC;
 
   cursor: default;
   text-align: center;
+  text-transform: uppercase;
+}
+
+.#{$datepicker-ns}month {
+  font-weight: 300;
 }
 
 .#{$datepicker-ns}year {
