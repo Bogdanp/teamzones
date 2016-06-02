@@ -3,9 +3,9 @@ package integrations
 import (
 	"log"
 	"os"
+	"teamzones/utils"
 	"testing"
 
-	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 )
 
@@ -36,7 +36,9 @@ func TestCalendarConfig(t *testing.T) {
 }
 
 func TestCalendarService(t *testing.T) {
-	ctx := context.Background()
+	ctx, done, _ := utils.AEContext()
+	defer done()
+
 	service, err := NewCalendarService(ctx, calendarToken)
 	if err != nil {
 		t.Fatalf("error creating service: %v", err)
@@ -49,7 +51,9 @@ func TestCalendarService(t *testing.T) {
 }
 
 func TestFetchUserCalendars(t *testing.T) {
-	ctx := context.Background()
+	ctx, done, _ := utils.AEContext()
+	defer done()
+
 	primaryID, calendars, err := FetchUserCalendars(ctx, calendarToken)
 	if err != nil {
 		t.Fatalf("error fetching calendars: %v", err)

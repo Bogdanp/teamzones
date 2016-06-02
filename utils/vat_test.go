@@ -1,19 +1,10 @@
 package utils
 
-import (
-	"net/http"
-	"testing"
-
-	"google.golang.org/appengine"
-	"google.golang.org/appengine/aetest"
-)
+import "testing"
 
 func TestCheckVAT(t *testing.T) {
-	// aetest.NewContext doesn't seem to satisfy urlfetch
-	inst, _ := aetest.NewInstance(nil)
-	defer inst.Close()
-	req, _ := inst.NewRequest(http.MethodGet, "/", nil)
-	ctx := appengine.NewContext(req)
+	ctx, done, _ := AEContext()
+	defer done()
 
 	cases := []struct {
 		VATID string
