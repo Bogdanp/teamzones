@@ -35,7 +35,7 @@ func CheckVAT(ctx context.Context, VATID string) bool {
 	var res bool
 
 	k := "CheckVAT:" + VATID
-	if _, err := memcache.JSON.Get(ctx, k, &res); err != nil {
+	if _, err := memcache.JSON.Get(ctx, k, &res); err == nil {
 		return res
 	}
 
@@ -69,12 +69,13 @@ func checkVAT(ctx context.Context, VATID string) bool {
 		Soap    struct {
 			XMLName xml.Name `xml:"Body"`
 			Soap    struct {
-				Valid bool `xml:"valid"`
+				XMLName xml.Name `xml:"checkVatResponse"`
+				Valid   bool     `xml:"valid"`
 			}
 		}
 	}
 
-	if err := xml.NewDecoder(r.Body).Decode(data); err != nil {
+	if err := xml.NewDecoder(r.Body).Decode(&data); err != nil {
 		return false
 	}
 
