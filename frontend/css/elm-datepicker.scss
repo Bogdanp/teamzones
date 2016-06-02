@@ -3,7 +3,7 @@ $datepicker-hl: #F2F2F2;
 $datepicker-arrow: #AAA;
 $datepicker-arrow-hover: #BBB;
 $datepicker-picked-fg: white;
-$datepicker-picked-bg: darkblue;
+$datepicker-picked-bg: #9acc68;
 $datepicker-border-color: #CCC;
 
 .#{$datepicker-ns}container {
@@ -108,6 +108,14 @@ $datepicker-border-color: #CCC;
   border-bottom: 1px solid $datepicker-border-color;
 
   cursor: default;
+}
+
+.#{$datepicker-ns}row {
+  background: white;
+
+  &:hover {
+    background: white;
+  }
 }
 
 .#{$datepicker-ns}day {

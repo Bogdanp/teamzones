@@ -1,5 +1,7 @@
 module Components.Meetings exposing (Msg, Model, init, update, view)
 
+import Components.Common exposing (heading)
+import Components.Form as FC
 import Components.Notifications exposing (info)
 import Components.Page exposing (page)
 import Date
@@ -16,6 +18,7 @@ import Util exposing (dateTuple)
 type Msg
     = RouteTo Sitemap
     | ToDatePicker DatePicker.Msg
+    | Submit
 
 
 type alias Context =
@@ -64,14 +67,21 @@ update msg model =
             in
                 { model | datePicker = datePicker } ! [ Cmd.map ToDatePicker fx ]
 
+        Submit ->
+            model ! []
+
 
 view : Model -> Html Msg
 view model =
     page "Meetings"
-        [ div [ class "input-group" ]
-            [ div [ class "input" ]
-                [ DatePicker.view model.datePicker
-                    |> Html.map ToDatePicker
+        [ FC.form Submit
+            [ heading "Schedule a meeting"
+            , div [ class "input-group" ]
+                [ label [] [ text "Date" ]
+                , div [ class "input" ]
+                    [ DatePicker.view model.datePicker
+                        |> Html.map ToDatePicker
+                    ]
                 ]
             ]
         ]
