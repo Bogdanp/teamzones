@@ -148,6 +148,10 @@
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
 		{
+			"ImportPath": "google.golang.org/appengine/aetest",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
 			"ImportPath": "google.golang.org/appengine/blobstore",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
@@ -216,6 +220,10 @@
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
 		{
+			"ImportPath": "google.golang.org/appengine/internal/user",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
 			"ImportPath": "google.golang.org/appengine/log",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
@@ -233,6 +241,10 @@
 		},
 		{
 			"ImportPath": "google.golang.org/appengine/urlfetch",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/user",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
 		{
