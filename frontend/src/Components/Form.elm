@@ -2,6 +2,7 @@ module Components.Form
     exposing
         ( ButtonOptions
         , form
+        , formWithAttrs
         , submit
         , submitWithOptions
         , InputOptions
@@ -28,11 +29,18 @@ type alias ButtonOptions =
 
 form : msg -> List (Html msg) -> Html msg
 form msg =
+    formWithAttrs msg []
+
+
+formWithAttrs : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
+formWithAttrs msg attrs =
     Html.form
-        [ class "form-group no-pt"
-        , action ""
-        , on' "submit" msg
-        ]
+        ([ class "form-group no-pt"
+         , action ""
+         , on' "submit" msg
+         ]
+            ++ attrs
+        )
 
 
 submit : String -> Html msg

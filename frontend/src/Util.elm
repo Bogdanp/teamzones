@@ -7,8 +7,8 @@ import Html exposing (Html, a, text)
 import Html.Attributes exposing (href)
 import Html.Events exposing (onWithOptions)
 import Json.Decode as Json
-import String
 import Routes exposing (Sitemap(..))
+import String
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (AnchorTo)
 
@@ -223,3 +223,13 @@ ttl seconds =
 (?>) : Maybe a -> a -> a
 (?>) =
     flip Maybe.withDefault
+
+
+(??) : Maybe a -> Maybe a -> Maybe a
+(??) mv md =
+    case mv of
+        Nothing ->
+            md
+
+        v ->
+            v
