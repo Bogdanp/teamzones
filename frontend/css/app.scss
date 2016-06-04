@@ -531,9 +531,40 @@ table {
 }
 
 .scheduler {
+  display: flex;
+  flex-direction: column;
+
+  .column {
+    flex: 1 1 auto;
+
+    &:first-child {
+      flex: 0 0 auto;
+    }
+
+    textarea {
+      height: 150px;
+    }
+
+    table {
+      width: 100%;
+
+      td:first-child {
+        text-align: center;
+      }
+    }
+  }
+
   .range {
     display: flex;
     align-items: center;
+  }
+
+  .description {
+    margin: 10px 0;
+
+    height: 75px;
+    width: 442px;
+    max-width: 442px;
   }
 
   span {
@@ -559,5 +590,20 @@ table {
 @media (min-width: 375px) {
   .sidebar {
     margin-left: -275px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .scheduler {
+    display: flex;
+    flex-direction: row;
+
+    .column {
+      flex: 1 1 auto;
+
+      &:first-child {
+        flex: 0 0 480px;
+      }
+    }
   }
 }

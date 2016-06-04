@@ -1,8 +1,8 @@
 port module Update exposing (init, update, urlUpdate)
 
 import Components.CurrentProfile as CP
-import Components.Invite as Invite
 import Components.Integrations as Integrations
+import Components.Invite as Invite
 import Components.Meetings as Meetings
 import Components.Notifications as Notifications
 import Components.Profile as Profile
@@ -25,7 +25,11 @@ init ({ now, suspended, company, user, team, timezones, integrationStates, viewp
             List.map prepareUser team
 
         ( meetings, _ ) =
-            Meetings.init { now = now, integrationStates = integrationStates }
+            Meetings.init
+                { now = now
+                , teamMembers = teamMembers
+                , integrationStates = integrationStates
+                }
 
         ( integrations, _ ) =
             Integrations.init
@@ -255,7 +259,11 @@ urlUpdate route ({ now, suspended, user, teamMembers, integrationStates } as m) 
                 MeetingsR () ->
                     let
                         ( meetings, fx ) =
-                            Meetings.init { now = now, integrationStates = integrationStates }
+                            Meetings.init
+                                { now = now
+                                , teamMembers = teamMembers
+                                , integrationStates = integrationStates
+                                }
                     in
                         { model | meetings = meetings }
                             ! [ Cmd.map ToMeetings fx ]

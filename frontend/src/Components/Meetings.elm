@@ -14,8 +14,8 @@ import Html.Attributes exposing (..)
 import Html.Lazy exposing (lazy)
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..))
 import Timestamp exposing (Timestamp)
-import Types exposing (AnchorTo, IntegrationStates)
-import Util exposing ((?>), (??), dateTuple)
+import Types exposing (AnchorTo, IntegrationStates, User)
+import Util exposing ((?>), (??), (=>), dateTuple)
 
 
 type Msg
@@ -29,55 +29,67 @@ type Msg
 
 type alias Context =
     { now : Timestamp
+    , teamMembers : List User
     , integrationStates : IntegrationStates
     }
 
 
 type alias Model =
-    { startDate : Maybe Date
+    { startDate : Date
     , startTime : Time
     , startDatePicker : DatePicker
     , startTimePicker : TimePicker.Model
-    , endDate : Maybe Date
+    , endDate : Date
     , endTime : Time
     , endDatePicker : DatePicker
     , endTimePicker : TimePicker.Model
+    , teamMembers : List User
     }
 
 
 init : Context -> ( Model, Cmd Msg )
-init { now, integrationStates } =
+init { now, teamMembers, integrationStates } =
     let
         isDisabled date =
             dateTuple date < dateTuple (Date.fromTime now)
 
-        ( startDatePicker, startDatePickerFx ) =
-            DatePicker.init { defaultSettings | isDisabled = isDisabled }
+        later =
+            now - (toFloat <| floor now `rem` 600000) + 900000
+
+        startDate =
+            Date.fromTime later
 
         startTime =
-            Timestamp.format "h:mmA" now
+            Timestamp.format "h:mmA" later
+
+        endDate =
+            startDate
 
         endTime =
             startTime
+
+        ( startDatePicker, startDatePickerFx ) =
+            DatePicker.init { defaultSettings | isDisabled = isDisabled, pickedDate = Just startDate }
 
         startTimePicker =
             TimePicker.initWithValue startTime
 
         ( endDatePicker, endDatePickerFx ) =
-            DatePicker.init { defaultSettings | isDisabled = isDisabled }
+            DatePicker.init { defaultSettings | isDisabled = isDisabled, pickedDate = Just endDate }
 
         endTimePicker =
             TimePicker.initWithValue endTime
 
         model =
-            { startDate = Nothing
+            { startDate = startDate
             , startTime = Time.parse startTime ?> Time.zero
             , startDatePicker = startDatePicker
             , startTimePicker = startTimePicker
-            , endDate = Nothing
+            , endDate = endDate
             , endTime = Time.parse endTime ?> Time.zero
             , endDatePicker = endDatePicker
             , endTimePicker = endTimePicker
+            , teamMembers = teamMembers
             }
     in
         if integrationStates.gCalendar then
@@ -113,7 +125,7 @@ update msg ({ startDate, startTime, endDate, endTime } as model) =
                                 ( ed, dp, dpFx ) =
                                     initEndDatePicker date model.endDate
                             in
-                                ( Just date, Just ed, dp, dpFx )
+                                ( date, ed, dp, dpFx )
             in
                 prepareTimes
                     { model
@@ -133,7 +145,7 @@ update msg ({ startDate, startTime, endDate, endTime } as model) =
             in
                 prepareTimes
                     { model
-                        | endDate = mdate ?? endDate
+                        | endDate = mdate ?> endDate
                         , endDatePicker = endDatePicker
                     }
                     ! [ Cmd.map ToEndDatePicker endDatePickerFx
@@ -167,20 +179,60 @@ update msg ({ startDate, startTime, endDate, endTime } as model) =
 
 
 view : Model -> Html Msg
-view ({ startDatePicker, startTimePicker, endDatePicker, endTimePicker } as model) =
+view ({ startDatePicker, startTimePicker, endDatePicker, endTimePicker, teamMembers } as model) =
     page "Meetings"
         [ FC.formWithAttrs Submit
             [ class "scheduler" ]
-            [ heading "Schedule a meeting"
-            , div [ class "range" ]
-                [ Html.map ToStartDatePicker <| lazy DatePicker.view startDatePicker
-                , Html.map ToStartTimePicker <| lazy TimePicker.view startTimePicker
-                , span [] [ text "to" ]
-                , Html.map ToEndDatePicker <| lazy DatePicker.view endDatePicker
-                , Html.map ToEndTimePicker <| lazy TimePicker.view endTimePicker
+            [ div [ class "column" ]
+                [ heading "Schedule a meeting"
+                , div [ class "range" ]
+                    [ Html.map ToStartDatePicker <| lazy DatePicker.view startDatePicker
+                    , Html.map ToStartTimePicker <| lazy TimePicker.view startTimePicker
+                    , span [] [ text "to" ]
+                    , Html.map ToEndDatePicker <| lazy DatePicker.view endDatePicker
+                    , Html.map ToEndTimePicker <| lazy TimePicker.view endTimePicker
+                    ]
+                , textarea [ class "description", placeholder "Description" ] []
+                , br [] []
+                , input
+                    [ type' "submit"
+                    , value "Schedule meeting"
+                    ]
+                    []
+                ]
+            , div [ class "column" ]
+                [ heading "Attendees"
+                , table []
+                    [ thead []
+                        [ tr []
+                            [ td [ style [ "width" => "30px" ] ] [ checkbox "all" ]
+                            , td [] [ text "Name" ]
+                            , td [ style [ "width" => "60%" ] ] [ text "Status" ]
+                            ]
+                        ]
+                    , tbody [] (List.map memberRow teamMembers)
+                    ]
                 ]
             ]
         ]
+
+
+checkbox : String -> Html Msg
+checkbox elId =
+    input [ type' "checkbox", id elId ] []
+
+
+memberRow : User -> Html Msg
+memberRow { fullName, email } =
+    let
+        id =
+            "checkbox--" ++ email
+    in
+        tr []
+            [ td [] [ checkbox id ]
+            , td [] [ label [ for id ] [ text fullName ] ]
+            , td [] []
+            ]
 
 
 prepareTimes : Model -> Model
@@ -201,22 +253,17 @@ prepareTimes ({ startDate, startTime, endDate, endTime } as model) =
         }
 
 
-initEndDatePicker : Date -> Maybe Date -> ( Date, DatePicker, Cmd DatePicker.Msg )
+initEndDatePicker : Date -> Date -> ( Date, DatePicker, Cmd DatePicker.Msg )
 initEndDatePicker startDate endDate =
     let
         isDisabled d =
             dateTuple d < dateTuple startDate
 
         endDate' =
-            case endDate of
-                Nothing ->
-                    startDate
-
-                Just endDate ->
-                    if isDisabled endDate then
-                        startDate
-                    else
-                        endDate
+            if isDisabled endDate then
+                startDate
+            else
+                endDate
 
         ( dp, dpFx ) =
             DatePicker.init
@@ -240,9 +287,9 @@ initEndTimePicker startTime endTime =
         ( et, TimePicker.initWithMin startTime et )
 
 
-datesEq : Maybe Date -> Maybe Date -> Bool
+datesEq : Date -> Date -> Bool
 datesEq a b =
-    Maybe.map dateTuple a == Maybe.map dateTuple b
+    dateTuple a == dateTuple b
 
 
 anchorTo : AnchorTo Msg
