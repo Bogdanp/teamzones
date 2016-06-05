@@ -125,6 +125,21 @@ dateTuple date =
     ( year date, monthToInt <| month date, day date )
 
 
+datesEq : Date -> Date -> Bool
+datesEq a b =
+    dateTuple a == dateTuple b
+
+
+unsafeDate : String -> Date
+unsafeDate date =
+    case Date.fromString date of
+        Err e ->
+            Debug.crash ("unsafeDate: failed to parse date:" ++ e)
+
+        Ok date ->
+            date
+
+
 monthToInt : Month -> Int
 monthToInt month =
     case month of
@@ -213,16 +228,6 @@ ttl seconds =
             minutes
         else
             hours ++ " and " ++ minutes
-
-
-unsafeDate : String -> Date
-unsafeDate date =
-    case Date.fromString date of
-        Err e ->
-            Debug.crash ("unsafeDate: failed to parse date:" ++ e)
-
-        Ok date ->
-            date
 
 
 (=>) : a -> b -> ( a, b )

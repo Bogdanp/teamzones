@@ -221,3 +221,30 @@ var createRecoveryToken = delay.Func(
 		sendMail.Call(ctx, email, subject, txtMsg, htmlMsg)
 	},
 )
+
+var scheduleMeeting = delay.Func(
+	"schedule-meeting",
+	func(ctx context.Context, k *datastore.Key) {
+		var meeting models.Meeting
+		var user models.User
+		var token models.OAuth2Token
+		var calendars models.GCalendarData
+
+		_ = nds.Get(ctx, k, &meeting)
+		_ = nds.Get(ctx, k.Parent(), &user)
+		_ = nds.Get(ctx, user.GCalendarToken, &token)
+		_ = nds.Get(ctx, user.GCalendarData, &calendars)
+
+		event, err := integrations.ScheduleMeeting(
+			ctx, &token.Token, calendars.DefaultID,
+			meeting.StartTime, meeting.EndTime,
+			meeting.Summary, meeting.Description, meeting.Attendees,
+		)
+		if err != nil {
+			panic(err)
+		}
+
+		meeting.EventID = event.Id
+		meeting.Put(ctx, k)
+	},
+)

@@ -74,6 +74,7 @@ const (
 	refreshIntegrationRoute
 	disconnectIntegrationRoute
 	gcalendarDataRoute
+	scheduleMeetingRoute
 
 	/// Billing
 	currentSubscriptionRoute

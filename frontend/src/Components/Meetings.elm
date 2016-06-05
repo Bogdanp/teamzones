@@ -1,8 +1,10 @@
 module Components.Meetings exposing (Msg, Model, init, update, view)
 
+import Api exposing (Error, Response)
+import Api.Calendar exposing (Meeting, createMeeting)
 import Components.Common exposing (heading)
 import Components.Form as FC
-import Components.Notifications exposing (info)
+import Components.Notifications exposing (apiError, error, info)
 import Components.Page exposing (page)
 import Components.TimePicker as TimePicker
 import Components.TimePicker.Time as Time exposing (Time)
@@ -11,15 +13,17 @@ import DatePicker exposing (DatePicker, defaultSettings)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
-import Html.Events exposing (onCheck)
+import Html.Events exposing (on, onCheck, targetValue)
 import Html.Lazy exposing (lazy)
-import Json.Encode as Json
+import Json.Decode as Json
+import Json.Encode
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..))
 import Set exposing (Set)
+import Task
 import Timestamp exposing (Timestamp)
 import Types exposing (AnchorTo, IntegrationStates, User)
 import User
-import Util exposing ((?>), (??), (=>), dateTuple)
+import Util exposing ((?>), (??), (=>), datesEq, dateTuple)
 
 
 type AttendeeState
@@ -34,9 +38,13 @@ type Msg
     | ToStartTimePicker TimePicker.Msg
     | ToEndDatePicker DatePicker.Msg
     | ToEndTimePicker TimePicker.Msg
+    | ChangeSummary String
+    | ChangeDescription String
     | CheckAll Bool
     | Check String Bool
     | Submit
+    | CreateError Error
+    | CreateSuccess (Response String)
 
 
 type alias Context =
@@ -56,6 +64,8 @@ type alias Model =
     , endDatePicker : DatePicker
     , endTimePicker : TimePicker.Model
     , teamMembers : List User
+    , summary : String
+    , description : String
     , attendeeState : AttendeeState
     , attendees : Set String
     }
@@ -104,6 +114,8 @@ init { now, teamMembers, integrationStates } =
             , endDatePicker = endDatePicker
             , endTimePicker = endTimePicker
             , teamMembers = teamMembers
+            , summary = ""
+            , description = ""
             , attendeeState = None
             , attendees = Set.empty
             }
@@ -190,6 +202,12 @@ update msg ({ startDate, startTime, endDate, endTime } as model) =
                 }
                     ! []
 
+        ChangeSummary summary ->
+            { model | summary = summary } ! []
+
+        ChangeDescription description ->
+            { model | description = description } ! []
+
         CheckAll checked ->
             let
                 filterSubset u =
@@ -239,7 +257,16 @@ update msg ({ startDate, startTime, endDate, endTime } as model) =
                     ! []
 
         Submit ->
-            model ! []
+            if Set.isEmpty model.attendees then
+                model ! [ error "You must pick at least one attendee!" ]
+            else
+                model ! [ Task.perform CreateError CreateSuccess <| createMeeting <| meetingFromModel model ]
+
+        CreateError err ->
+            model ! apiError err
+
+        CreateSuccess _ ->
+            model ! [ info "Your meeting has been scheduled." ]
 
 
 view : Model -> Html Msg
@@ -260,7 +287,19 @@ view ({ startDatePicker, startTimePicker, endDatePicker, endTimePicker, teamMemb
                         , Html.map ToEndDatePicker <| lazy DatePicker.view endDatePicker
                         , Html.map ToEndTimePicker <| lazy TimePicker.view endTimePicker
                         ]
-                    , textarea [ class "description", placeholder "Description" ] []
+                    , input
+                        [ class "summary"
+                        , type' "text"
+                        , placeholder "Summary"
+                        , on "change" (Json.map ChangeSummary targetValue)
+                        ]
+                        []
+                    , textarea
+                        [ class "description"
+                        , placeholder "Description"
+                        , on "change" (Json.map ChangeDescription targetValue)
+                        ]
+                        []
                     , br [] []
                     , input
                         [ type' "submit"
@@ -289,7 +328,7 @@ checkbox : String -> Bool -> Bool -> (Bool -> Msg) -> Html Msg
 checkbox elId isChecked isIndeterminate msg =
     input
         [ type' "checkbox"
-        , property "indeterminate" (Json.bool isIndeterminate)
+        , property "indeterminate" (Json.Encode.bool isIndeterminate)
         , checked isChecked
         , onCheck msg
         , id elId
@@ -331,6 +370,16 @@ isOffline { startDate, startTime, endDate, endTime } user =
             mkTimestamp endDate endTime
     in
         User.isOffline startTimestamp user || User.isOffline endTimestamp user
+
+
+meetingFromModel : Model -> Meeting
+meetingFromModel { startDate, startTime, endDate, endTime, summary, description, attendees } =
+    { startTime = mkTimestamp startDate startTime
+    , endTime = mkTimestamp endDate endTime
+    , summary = summary
+    , description = description
+    , attendees = Set.toList attendees
+    }
 
 
 mkTimestamp : Date -> Time -> Timestamp
@@ -388,11 +437,6 @@ initEndTimePicker startTime endTime =
                 endTime
     in
         ( et, TimePicker.initWithMin startTime et )
-
-
-datesEq : Date -> Date -> Bool
-datesEq a b =
-    dateTuple a == dateTuple b
 
 
 anchorTo : AnchorTo Msg

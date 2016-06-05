@@ -24,6 +24,10 @@ var fromString = function(string, format) {
   return moment(string, format).toDate().getTime();
 };
 
+var isoFormat = function(timestamp) {
+  return moment(timestamp).toISOString();
+};
+
 var _Bogdanp$teamzones$Native_Timestamp = function() {
   return {
     format: F2(format),
@@ -31,6 +35,7 @@ var _Bogdanp$teamzones$Native_Timestamp = function() {
     offset: offset,
     currentDay: F2(currentDay),
     currentHour: F2(currentHour),
-    fromString: F2(fromString)
+    fromString: F2(fromString),
+    isoFormat: isoFormat
   };
 }();

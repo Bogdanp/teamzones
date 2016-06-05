@@ -563,6 +563,13 @@ table {
     align-items: center;
   }
 
+  input[type=text].summary {
+    margin: 10px 0;
+    margin-bottom: 0;
+
+    width: 442px;
+  }
+
   .description {
     margin: 10px 0;
 

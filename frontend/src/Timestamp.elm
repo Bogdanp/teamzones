@@ -54,3 +54,8 @@ currentHour =
 fromString : String -> String -> Timestamp
 fromString =
     Native.Timestamp.fromString
+
+
+isoFormat : Timestamp -> String
+isoFormat =
+    Native.Timestamp.isoFormat

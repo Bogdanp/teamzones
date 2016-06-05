@@ -30,6 +30,11 @@ func init() {
 		gcalendarDataRoute, "/api/integrations/gcalendar/data",
 		gcalendarDataHandler,
 	)
+	POST(
+		appRouter,
+		scheduleMeetingRoute, "/api/integrations/gcalendar/meetings",
+		scheduleMeetingHandler,
+	)
 }
 
 func refreshIntegrationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
@@ -128,4 +133,24 @@ func gcalendarDataHandler(res http.ResponseWriter, req *http.Request, _ httprout
 	}
 
 	renderer.JSON(res, http.StatusOK, data)
+}
+
+func scheduleMeetingHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	meeting := models.NewMeeting()
+	if err := forms.BindJSON(req, meeting); err != nil {
+		badRequest(res, err.Error())
+		return
+	}
+
+	ctx := appengine.NewContext(req)
+	user := context.Get(req, userCtxKey).(*models.User)
+	k := models.NewMeetingKey(ctx, user.Key(ctx))
+	k, err := nds.Put(ctx, k, meeting)
+	if err != nil {
+		serverError(res)
+		return
+	}
+
+	scheduleMeeting.Call(ctx, k)
+	res.WriteHeader(http.StatusAccepted)
 }

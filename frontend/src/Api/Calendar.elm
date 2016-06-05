@@ -3,17 +3,19 @@ module Api.Calendar
         ( CalendarsStatus(..)
         , Calendar
         , Calendars
+        , Meeting
         , empty
         , disconnect
         , fetchAll
         , refresh
+        , createMeeting
         )
 
 import Api exposing (Errors, Error, Response, getJson, postJson, postPlain)
 import Json.Decode as Json exposing (Decoder, (:=), string, maybe, list)
 import Json.Encode
 import Task exposing (Task)
-import Timestamp exposing (Timezone)
+import Timestamp exposing (Timestamp, Timezone, isoFormat)
 import Util exposing ((=>))
 
 
@@ -28,6 +30,15 @@ type alias Calendars =
     { status : CalendarsStatus
     , defaultId : String
     , calendars : List Calendar
+    }
+
+
+type alias Meeting =
+    { startTime : Timestamp
+    , endTime : Timestamp
+    , summary : String
+    , description : String
+    , attendees : List String
     }
 
 
@@ -90,3 +101,19 @@ fetchAll =
 refresh : Task Error (Response String)
 refresh =
     postPlain integrationPayload "integrations/refresh"
+
+
+encodeMeeting : Meeting -> Json.Encode.Value
+encodeMeeting meeting =
+    Json.Encode.object
+        [ "startTime" => Json.Encode.string (isoFormat meeting.startTime)
+        , "endTime" => Json.Encode.string (isoFormat meeting.endTime)
+        , "summary" => Json.Encode.string meeting.summary
+        , "description" => Json.Encode.string meeting.description
+        , "attendees" => Json.Encode.list (List.map Json.Encode.string meeting.attendees)
+        ]
+
+
+createMeeting : Meeting -> Task Error (Response String)
+createMeeting =
+    encodeMeeting >> flip postPlain "integrations/gcalendar/meetings"

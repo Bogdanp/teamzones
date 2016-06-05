@@ -2,6 +2,7 @@ package integrations
 
 import (
 	"io/ioutil"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -103,4 +104,38 @@ func FetchUserCalendars(ctx context.Context, token *oauth2.Token) (string, []Cal
 	}
 
 	return primaryID, calendars, nil
+}
+
+// ScheduleMeeting creates new calendar events.
+func ScheduleMeeting(
+	ctx context.Context, token *oauth2.Token, calendarID string,
+	startTime, endTime time.Time,
+	summary, description string, attendees []string,
+) (*calendar.Event, error) {
+	service, err := NewCalendarService(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+
+	var evAttendees []*calendar.EventAttendee
+	for _, email := range attendees {
+		evAttendees = append(evAttendees, &calendar.EventAttendee{Email: email})
+	}
+
+	event, err := service.Events.Insert(calendarID, &calendar.Event{
+		Summary:     summary,
+		Description: description,
+		Start: &calendar.EventDateTime{
+			DateTime: startTime.Format(time.RFC3339),
+		},
+		End: &calendar.EventDateTime{
+			DateTime: endTime.Format(time.RFC3339),
+		},
+		Attendees: evAttendees,
+	}).Do()
+	if err != nil {
+		return nil, err
+	}
+
+	return event, nil
 }
