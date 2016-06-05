@@ -1,10 +1,11 @@
-module Components.TimePicker.Time exposing (Period(..), Time, compare, defaultTime, parse, toString, zero)
+module Components.TimePicker.Time exposing (Period(..), Time, compare, defaultTime, parse, toMillis, toString, zero)
 
 import Combine exposing (Parser, choice, end, maybe, or, regex, string, succeed)
 import Combine.Char exposing (char)
 import Combine.Infix exposing ((<$>), (<*>), (<*), (*>))
 import Combine.Num exposing (digit)
 import String
+import Timestamp exposing (Timestamp)
 
 
 type Period
@@ -47,6 +48,18 @@ parse =
 toString : Time -> String
 toString ( h, m, p ) =
     Basics.toString h ++ ":" ++ numToString m ++ periodToString p
+
+
+toMillis : Time -> Timestamp
+toMillis ( h, m, p ) =
+    let
+        h' =
+            if p == PM then
+                h + 12
+            else
+                h
+    in
+        toFloat h' * 3600000 + toFloat m * 60000
 
 
 ws : Parser String

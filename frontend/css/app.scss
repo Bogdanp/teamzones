@@ -551,6 +551,10 @@ table {
       td:first-child {
         text-align: center;
       }
+
+      tr.offline td {
+        opacity: 0.25;
+      }
     }
   }
 

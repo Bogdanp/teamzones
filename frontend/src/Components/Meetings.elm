@@ -11,11 +11,21 @@ import DatePicker exposing (DatePicker, defaultSettings)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
+import Html.Events exposing (onCheck)
 import Html.Lazy exposing (lazy)
+import Json.Encode as Json
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..))
+import Set exposing (Set)
 import Timestamp exposing (Timestamp)
 import Types exposing (AnchorTo, IntegrationStates, User)
+import User
 import Util exposing ((?>), (??), (=>), dateTuple)
+
+
+type AttendeeState
+    = None
+    | Subset
+    | All
 
 
 type Msg
@@ -24,6 +34,8 @@ type Msg
     | ToStartTimePicker TimePicker.Msg
     | ToEndDatePicker DatePicker.Msg
     | ToEndTimePicker TimePicker.Msg
+    | CheckAll Bool
+    | Check String Bool
     | Submit
 
 
@@ -44,6 +56,8 @@ type alias Model =
     , endDatePicker : DatePicker
     , endTimePicker : TimePicker.Model
     , teamMembers : List User
+    , attendeeState : AttendeeState
+    , attendees : Set String
     }
 
 
@@ -63,10 +77,10 @@ init { now, teamMembers, integrationStates } =
             Timestamp.format "h:mmA" later
 
         endDate =
-            startDate
+            Date.fromTime <| later + 3600000
 
         endTime =
-            startTime
+            Timestamp.format "h:mmA" <| later + 3600000
 
         ( startDatePicker, startDatePickerFx ) =
             DatePicker.init { defaultSettings | isDisabled = isDisabled, pickedDate = Just startDate }
@@ -90,6 +104,8 @@ init { now, teamMembers, integrationStates } =
             , endDatePicker = endDatePicker
             , endTimePicker = endTimePicker
             , teamMembers = teamMembers
+            , attendeeState = None
+            , attendees = Set.empty
             }
     in
         if integrationStates.gCalendar then
@@ -174,65 +190,152 @@ update msg ({ startDate, startTime, endDate, endTime } as model) =
                 }
                     ! []
 
+        CheckAll checked ->
+            let
+                filterSubset u =
+                    if isOffline model u then
+                        Nothing
+                    else
+                        Just u.email
+            in
+                case model.attendeeState of
+                    None ->
+                        { model
+                            | attendeeState = Subset
+                            , attendees = Set.fromList <| List.filterMap filterSubset model.teamMembers
+                        }
+                            ! []
+
+                    Subset ->
+                        { model
+                            | attendeeState = All
+                            , attendees = Set.fromList <| List.map .email model.teamMembers
+                        }
+                            ! []
+
+                    All ->
+                        { model
+                            | attendeeState = None
+                            , attendees = Set.empty
+                        }
+                            ! []
+
+        Check email checked ->
+            let
+                attendees =
+                    if checked then
+                        Set.insert email model.attendees
+                    else
+                        Set.remove email model.attendees
+            in
+                { model
+                    | attendeeState =
+                        if Set.isEmpty attendees then
+                            None
+                        else
+                            Subset
+                    , attendees = attendees
+                }
+                    ! []
+
         Submit ->
             model ! []
 
 
 view : Model -> Html Msg
-view ({ startDatePicker, startTimePicker, endDatePicker, endTimePicker, teamMembers } as model) =
-    page "Meetings"
-        [ FC.formWithAttrs Submit
-            [ class "scheduler" ]
-            [ div [ class "column" ]
-                [ heading "Schedule a meeting"
-                , div [ class "range" ]
-                    [ Html.map ToStartDatePicker <| lazy DatePicker.view startDatePicker
-                    , Html.map ToStartTimePicker <| lazy TimePicker.view startTimePicker
-                    , span [] [ text "to" ]
-                    , Html.map ToEndDatePicker <| lazy DatePicker.view endDatePicker
-                    , Html.map ToEndTimePicker <| lazy TimePicker.view endTimePicker
-                    ]
-                , textarea [ class "description", placeholder "Description" ] []
-                , br [] []
-                , input
-                    [ type' "submit"
-                    , value "Schedule meeting"
-                    ]
-                    []
-                ]
-            , div [ class "column" ]
-                [ heading "Attendees"
-                , table []
-                    [ thead []
-                        [ tr []
-                            [ td [ style [ "width" => "30px" ] ] [ checkbox "all" ]
-                            , td [] [ text "Name" ]
-                            , td [ style [ "width" => "60%" ] ] [ text "Status" ]
-                            ]
+view ({ startDatePicker, startTimePicker, endDatePicker, endTimePicker, teamMembers, attendeeState } as model) =
+    let
+        check =
+            checkbox "all" (attendeeState == All) (attendeeState == Subset) CheckAll
+    in
+        page "Meetings"
+            [ FC.formWithAttrs Submit
+                [ class "scheduler" ]
+                [ div [ class "column" ]
+                    [ heading "Schedule a meeting"
+                    , div [ class "range" ]
+                        [ Html.map ToStartDatePicker <| lazy DatePicker.view startDatePicker
+                        , Html.map ToStartTimePicker <| lazy TimePicker.view startTimePicker
+                        , span [] [ text "to" ]
+                        , Html.map ToEndDatePicker <| lazy DatePicker.view endDatePicker
+                        , Html.map ToEndTimePicker <| lazy TimePicker.view endTimePicker
                         ]
-                    , tbody [] (List.map memberRow teamMembers)
+                    , textarea [ class "description", placeholder "Description" ] []
+                    , br [] []
+                    , input
+                        [ type' "submit"
+                        , value "Schedule meeting"
+                        ]
+                        []
+                    ]
+                , div [ class "column" ]
+                    [ heading "Attendees"
+                    , table []
+                        [ thead []
+                            [ tr []
+                                [ td [ style [ "width" => "30px" ] ] [ check ]
+                                , td [ style [ "width" => "40%" ] ] [ text "Name" ]
+                                , td [ style [] ] [ text "Available" ]
+                                ]
+                            ]
+                        , tbody [] (List.map (memberRow model) teamMembers)
+                        ]
                     ]
                 ]
             ]
+
+
+checkbox : String -> Bool -> Bool -> (Bool -> Msg) -> Html Msg
+checkbox elId isChecked isIndeterminate msg =
+    input
+        [ type' "checkbox"
+        , property "indeterminate" (Json.bool isIndeterminate)
+        , checked isChecked
+        , onCheck msg
+        , id elId
         ]
+        []
 
 
-checkbox : String -> Html Msg
-checkbox elId =
-    input [ type' "checkbox", id elId ] []
-
-
-memberRow : User -> Html Msg
-memberRow { fullName, email } =
+memberRow : Model -> User -> Html Msg
+memberRow ({ attendees } as model) ({ fullName, email } as user) =
     let
         id =
             "checkbox--" ++ email
+
+        offline =
+            isOffline model user
     in
-        tr []
-            [ td [] [ checkbox id ]
+        tr [ classList [ "offline" => offline ] ]
+            [ td [] [ checkbox id (email `Set.member` attendees) False (Check email) ]
             , td [] [ label [ for id ] [ text fullName ] ]
-            , td [] []
+            , td [] [ text <| yn <| not offline ]
             ]
+
+
+yn : Bool -> String
+yn x =
+    if x then
+        "Yes"
+    else
+        "No"
+
+
+isOffline : Model -> User -> Bool
+isOffline { startDate, startTime, endDate, endTime } user =
+    let
+        startTimestamp =
+            mkTimestamp startDate startTime
+
+        endTimestamp =
+            mkTimestamp endDate endTime
+    in
+        User.isOffline startTimestamp user || User.isOffline endTimestamp user
+
+
+mkTimestamp : Date -> Time -> Timestamp
+mkTimestamp date time =
+    Date.toTime date + Time.toMillis time
 
 
 prepareTimes : Model -> Model

@@ -49,3 +49,8 @@ currentDay =
 currentHour : Timezone -> Timestamp -> Int
 currentHour =
     Native.Timestamp.currentHour
+
+
+fromString : String -> String -> Timestamp
+fromString =
+    Native.Timestamp.fromString

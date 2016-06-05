@@ -215,6 +215,16 @@ ttl seconds =
             hours ++ " and " ++ minutes
 
 
+unsafeDate : String -> Date
+unsafeDate date =
+    case Date.fromString date of
+        Err e ->
+            Debug.crash ("unsafeDate: failed to parse date:" ++ e)
+
+        Ok date ->
+            date
+
+
 (=>) : a -> b -> ( a, b )
 (=>) =
     (,)

@@ -20,12 +20,17 @@ var currentDay = function(timezone, timestamp)  {
   return moment(timestamp).tz(timezone).isoWeekday();
 };
 
+var fromString = function(string, format) {
+  return moment(string, format).toDate().getTime();
+};
+
 var _Bogdanp$teamzones$Native_Timestamp = function() {
   return {
     format: F2(format),
     formatWithTimezone: F3(formatWithTimezone),
     offset: offset,
     currentDay: F2(currentDay),
-    currentHour: F2(currentHour)
+    currentHour: F2(currentHour),
+    fromString: F2(fromString)
   };
 }();
