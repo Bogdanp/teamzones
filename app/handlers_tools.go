@@ -24,7 +24,7 @@ func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 	company := models.NewCompany("defn", "defn")
 	user, err := models.CreateMainUser(
 		ctx, company,
-		"Bogdan", "Popa", "bogdan@defn.io", "password", "Europe/Bucharest",
+		"Peter", "Parker", "bogdan@defn.io", "password", "Europe/Bucharest",
 	)
 	if err != nil {
 		return
@@ -47,22 +47,22 @@ func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 		Email     string
 		Timezone  string
 	}{
-		{"Casey", "Muratori", "casey@mollyrocket.com", "US/Pacific"},
-		{"Sorin", "Muntean", "me@sorinmuntean.ro", "Europe/Berlin"},
-		{"Dave", "Hayes", "dave@ave81.com", "US/Central"},
-		{"Ben", "Demaree", "ben.demaree@ave81.com", "US/Central"},
-		{"John", "Watson", "john@defn.io", "Europe/London"},
-		{"Simon", "Peyton Jones", "simonpj@microsoft.com", "Europe/London"},
-		{"Paul", "Popa", "paul@defn.io", "Europe/Bucharest"},
-		{"Radu", "Dan", "radu@fullthrottle.ro", "Europe/Bucharest"},
-		{"Andrei", "Baidoc", "baidoc@yahoo.co.uk", "Europe/Bucharest"},
-		{"Rob", "Pike", "rob@google.com", "US/Central"},
-		{"Gary", "Bernhardt", "support@destroyallsoftware.com", "US/Pacific"},
-		{"Mike", "Acton", "me@macton.ninja", "US/Pacific"},
-		{"Ryan", "Singer", "ryan@singer.com", "US/Central"},
-		{"Joshua", "Stein", "jcs@jcs.org", "US/Central"},
-		{"Andrew", "Clarkson", "andrew.clarkson@ave81.com", "US/Central"},
-		{"Dave", "Firnstahl", "dave.firnstahl@ave81.com", "US/Central"},
+		{"Richard", "Parker", "richard.parker@defn.io", "US/Pacific"},
+		{"Ben", "Parker", "ben.parker@defn.io", "Europe/Berlin"},
+		{"May", "Reilly", "may.reilly@defn.io", "US/Central"},
+		{"Mary Jane", "Watson", "mary.jane.watson@defn.io", "US/Central"},
+		{"Jessica", "Drew", "jessica.drew@defn.io", "Europe/London"},
+		{"Gwen", "Stacy", "gwen.stacy@defn.io", "Europe/London"},
+		{"Felicia", "Hardy", "felicia.hardy@defn.io", "Europe/Bucharest"},
+		{"Carol", "Danvers", "carol.danvers@defn.io", "Europe/Bucharest"},
+		{"Curt", "Connors", "curt.connors@defn.io", "Europe/Bucharest"},
+		{"Maxwell", "Dillon", "maxwell.dillon@defn.io", "US/Central"},
+		{"Richard", "Fisk", "richard.fisk@defn.io", "US/Pacific"},
+		{"Eddie", "Brock", "eddie.brock@defn.io", "US/Pacific"},
+		{"Cletus", "Kasady", "cletus.kasady@defn.io", "US/Central"},
+		{"Norman", "Osborn", "norman.osborn@defn.io", "US/Central"},
+		{"Harry", "Osborn", "harry.osborn@defn.io", "US/Central"},
+		{"Mac", "Gragan", "mac.gragan@defn.io", "US/Central"},
 	}
 
 	for i := 0; i < 1; i++ {
