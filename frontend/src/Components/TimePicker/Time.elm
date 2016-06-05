@@ -54,7 +54,7 @@ toMillis : Time -> Timestamp
 toMillis ( h, m, p ) =
     let
         h' =
-            if p == PM then
+            if p == PM && h /= 12 then
                 h + 12
             else
                 h
