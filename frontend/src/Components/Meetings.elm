@@ -203,10 +203,11 @@ update msg ({ startDate, startTime, endDate, endTime } as model) =
                 ( endTimePicker, mtime ) =
                     TimePicker.update msg model.endTimePicker
             in
-                { model
-                    | endTime = mtime ?> endTime
-                    , endTimePicker = endTimePicker
-                }
+                prepareTimes
+                    { model
+                        | endTime = mtime ?> endTime
+                        , endTimePicker = endTimePicker
+                    }
                     ! []
 
         ChangeSummary summary ->
@@ -375,7 +376,7 @@ isOffline ({ timezone, startDate, startTime, endDate, endTime } as model) user =
             mkTimestamp timezone startDate startTime
 
         endTimestamp =
-            mkTimestamp timezone endDate endTime
+            mkTimestamp timezone endDate endTime - 1000
     in
         User.isOffline startTimestamp user || User.isOffline endTimestamp user
 

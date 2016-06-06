@@ -54,12 +54,15 @@ toMillis : Time -> Timestamp
 toMillis ( h, m, p ) =
     let
         h' =
-            if p == PM && h /= 12 then
-                h + 12
+            h `rem` 12
+
+        h'' =
+            if p == PM then
+                h' + 12
             else
-                h
+                h'
     in
-        toFloat h' * 3600000 + toFloat m * 60000
+        toFloat h'' * 3600000 + toFloat m * 60000
 
 
 ws : Parser String
