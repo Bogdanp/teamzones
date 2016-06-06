@@ -1,4 +1,4 @@
-module Components.Integrations.GCalendar exposing (Model, Msg, init, update, view)
+module Pages.Integrations.GCalendar exposing (Model, Msg, init, update, view)
 
 import Api exposing (Error, Response)
 import Api.Calendar as CalendarApi exposing (Calendar, Calendars)

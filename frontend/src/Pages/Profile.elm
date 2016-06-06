@@ -1,4 +1,4 @@
-module Components.Profile exposing (Model, Msg, update, view)
+module Pages.Profile exposing (Model, Msg, update, view)
 
 import Components.Page exposing (page)
 import Html exposing (..)

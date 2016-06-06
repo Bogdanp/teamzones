@@ -1,10 +1,10 @@
-module Components.Settings exposing (Model, Msg, init, update, view)
+module Pages.Settings exposing (Model, Msg, init, update, view)
 
 import Components.Page exposing (pageWithTabs)
-import Components.Settings.Billing as Billing
-import Components.Settings.Team as Team
 import Html exposing (..)
 import Html.App as Html
+import Pages.Settings.Billing as Billing
+import Pages.Settings.Team as Team
 import Routes exposing (Sitemap(..), SettingsSitemap(..))
 import Types exposing (User)
 import Util exposing ((?>))

@@ -1,12 +1,12 @@
 module Model exposing (ContextMsg(..), Msg(..), Model, Flags)
 
-import Components.CurrentProfile as CP
-import Components.Integrations as Integrations
-import Components.Invite as Invite
 import Components.Notifications as Notifications
-import Components.Profile as Profile
-import Components.Meetings as Meetings
-import Components.Settings as Settings
+import Pages.CurrentProfile as CP
+import Pages.Integrations as Integrations
+import Pages.Invite as Invite
+import Pages.Meetings as Meetings
+import Pages.Profile as Profile
+import Pages.Settings as Settings
 import Routes exposing (Sitemap)
 import Time exposing (Time)
 import Timestamp exposing (Timestamp, Timezone)

@@ -1,4 +1,4 @@
-module Components.Settings.Team exposing (Model, Msg, init, update, view)
+module Pages.Settings.Team exposing (Model, Msg, init, update, view)
 
 import Api exposing (Error, Response)
 import Api.Team as TeamApi exposing (deleteUser)

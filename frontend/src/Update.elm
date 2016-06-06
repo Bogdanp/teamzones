@@ -1,14 +1,14 @@
 port module Update exposing (init, update, urlUpdate)
 
-import Components.CurrentProfile as CP
-import Components.Integrations as Integrations
-import Components.Invite as Invite
-import Components.Meetings as Meetings
 import Components.Notifications as Notifications
-import Components.Profile as Profile
-import Components.Settings as Settings
 import Dict exposing (Dict)
 import Model exposing (..)
+import Pages.CurrentProfile as CP
+import Pages.Integrations as Integrations
+import Pages.Invite as Invite
+import Pages.Meetings as Meetings
+import Pages.Profile as Profile
+import Pages.Settings as Settings
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..), SettingsSitemap(..))
 import Timestamp exposing (Timestamp, Timezone, TimezoneOffset)
 import Types exposing (..)

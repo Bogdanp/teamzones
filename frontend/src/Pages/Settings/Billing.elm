@@ -1,4 +1,4 @@
-module Components.Settings.Billing exposing (Model, Msg, init, update, view)
+module Pages.Settings.Billing exposing (Model, Msg, init, update, view)
 
 import Api exposing (Error, Response)
 import Api.Billing as Billing exposing (BillingCycle(..), SubscriptionStatus(..), Subscription, SubscriptionPlan)

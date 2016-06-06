@@ -1,9 +1,9 @@
-module Components.Integrations exposing (Model, Msg, init, update, view)
+module Pages.Integrations exposing (Model, Msg, init, update, view)
 
-import Components.Integrations.GCalendar as GCalendar
 import Components.Page exposing (pageWithTabs)
 import Html exposing (..)
 import Html.App as Html
+import Pages.Integrations.GCalendar as GCalendar
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..))
 import Types exposing (User, IntegrationStates)
 import Util exposing ((?>))

@@ -1,4 +1,4 @@
-module Components.NotFound exposing (view)
+module Pages.NotFound exposing (view)
 
 import Components.Page exposing (page)
 import Html exposing (..)

@@ -1,4 +1,4 @@
-module Components.Invite
+module Pages.Invite
     exposing
         ( Model
         , Msg

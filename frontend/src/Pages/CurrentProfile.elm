@@ -1,4 +1,4 @@
-module Components.CurrentProfile exposing (..)
+module Pages.CurrentProfile exposing (..)
 
 import Api exposing (Error, Response)
 import Api.Profile as ProfileApi exposing (Profile, createUploadUri, deleteAvatar, updateProfile)

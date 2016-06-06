@@ -1,4 +1,4 @@
-module Components.Meetings exposing (Msg, Model, init, update, view)
+module Pages.Meetings exposing (Msg, Model, init, update, view)
 
 import Api exposing (Error, Response)
 import Api.Calendar exposing (Meeting, createMeeting)
