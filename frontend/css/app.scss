@@ -541,9 +541,23 @@
   }
 }
 
-@media (min-width: 375px) {
+@media (max-width: 375px) {
   .sidebar {
     margin-left: -275px;
+  }
+
+  .content {
+    .team {
+      flex-direction: column;
+
+      .zone {
+        flex: 1 1 auto;
+        width: 100%;
+        margin: 0 0 1em 0;
+        padding: 1em;
+        box-sizing: border-box;
+      }
+    }
   }
 }
 
