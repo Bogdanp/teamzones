@@ -1,4 +1,4 @@
-module Components.Page exposing (page, pageWithTabs)
+module Components.Page exposing (page, pageWithTabs, heading)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -29,3 +29,8 @@ tab f currentRoute ( route, label ) =
         [ a [ on' "click" (f route), href (Routes.toString route) ]
             [ text label ]
         ]
+
+
+heading : String -> Html msg
+heading content =
+    h4 [] [ text content ]

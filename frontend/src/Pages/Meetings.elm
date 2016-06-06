@@ -2,10 +2,9 @@ module Pages.Meetings exposing (Msg, Model, init, update, view)
 
 import Api exposing (Error, Response)
 import Api.Calendar exposing (Meeting, createMeeting)
-import Components.Common exposing (heading)
 import Components.Form as FC
 import Components.Notifications exposing (apiError, error, info)
-import Components.Page exposing (page)
+import Components.Page exposing (heading, page)
 import Components.TimePicker as TimePicker
 import Components.TimePicker.Time as Time exposing (Time)
 import Date exposing (Date)
