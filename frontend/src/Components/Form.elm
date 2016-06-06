@@ -35,7 +35,7 @@ form msg =
 formWithAttrs : msg -> List (Attribute msg) -> List (Html msg) -> Html msg
 formWithAttrs msg attrs =
     Html.form
-        ([ class "form-group no-pt"
+        ([ class "form-group form-group--no-top-padding"
          , action ""
          , on' "submit" msg
          ]
@@ -51,10 +51,11 @@ submit label =
 submitWithOptions : ButtonOptions -> Html msg
 submitWithOptions ({ label } as options) =
     div [ class "input-group" ]
-        [ div [ class "spacer" ] []
-        , div [ class "input" ]
+        [ div [ class "input-group__spacer" ] []
+        , div [ class "input-group__input" ]
             [ Html.input
-                [ type' "submit"
+                [ class "button"
+                , type' "submit"
                 , value label
                 , disabled options.disabled
                 ]
@@ -119,14 +120,14 @@ input options inputFn form =
                     ( False, text "" )
 
                 Just error ->
-                    ( True, span [ class "error" ] [ text <| translateError error ] )
+                    ( True, span [ class "input-group__error" ] [ text <| translateError error ] )
 
         inputHtml =
-            div [ class "input" ]
+            div [ class "input-group__input" ]
                 [ inputFn field
                     [ id fieldId
                     , placeholder (options.placeholder ?> "")
-                    , classList ([ "error" => hasError ] ++ options.classList)
+                    , classList ([ "input" => True, "input--error" => hasError ] ++ options.classList)
                     ]
                 , errorsHtml
                 ]
@@ -143,7 +144,11 @@ input options inputFn form =
 
             ( False, Just fieldLabel ) ->
                 div [ class "input-group" ]
-                    [ label [ for fieldId ] [ text fieldLabel ]
+                    [ label
+                        [ class "input-group__label"
+                        , for fieldId
+                        ]
+                        [ text fieldLabel ]
                     , inputHtml
                     ]
 

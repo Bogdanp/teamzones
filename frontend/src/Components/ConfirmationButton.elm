@@ -41,7 +41,7 @@ view { confirming, label } =
     let
         button msg label =
             input
-                [ class "sm-ml"
+                [ class "button button--padded"
                 , type' "button"
                 , value label
                 , onClick msg

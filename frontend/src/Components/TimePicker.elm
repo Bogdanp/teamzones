@@ -74,7 +74,7 @@ update msg ({ value, time } as model) =
 view : Model -> Html Msg
 view model =
     input
-        [ class "timepicker"
+        [ class "input timepicker"
         , type' "text"
         , on "change" (Json.map Change targetValue)
         , value (model.value ?> "")

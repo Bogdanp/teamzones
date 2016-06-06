@@ -288,21 +288,22 @@ view ({ startDatePicker, startTimePicker, endDatePicker, endTimePicker, teamMemb
                         , Html.map ToEndTimePicker <| lazy TimePicker.view endTimePicker
                         ]
                     , input
-                        [ class "summary"
+                        [ class "input summary"
                         , type' "text"
                         , placeholder "Summary"
                         , on "change" (Json.map ChangeSummary targetValue)
                         ]
                         []
                     , textarea
-                        [ class "description"
+                        [ class "input description"
                         , placeholder "Description"
                         , on "change" (Json.map ChangeDescription targetValue)
                         ]
                         []
                     , br [] []
                     , input
-                        [ type' "submit"
+                        [ class "button"
+                        , type' "submit"
                         , value "Schedule meeting"
                         ]
                         []

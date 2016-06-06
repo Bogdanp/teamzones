@@ -1,0 +1,44 @@
+@import "input";
+
+.form-group {
+  max-width: 500px;
+
+  padding: 5px;
+
+  &--no-top-padding {
+    padding-top: 0;
+  }
+}
+
+.input-group {
+  display: flex;
+  flex-direction: row;
+
+  padding: 5px 0;
+
+  &__label,
+  &__spacer {
+    flex: 0 1 120px;
+
+    padding: 6px 0;
+
+    font-size: 0.9em;
+    font-weight: 300;
+  }
+
+  &__input {
+    flex: 3 1 auto;
+  }
+
+  &__error {
+    display: block;
+
+    width: 100%;
+
+    padding: 5px 0;
+
+    color: #AA0000;
+    font-size: 0.8em;
+    font-weight: 400;
+  }
+}

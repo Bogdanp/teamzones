@@ -1,8 +1,8 @@
-$base-line-height: 32px;
-$black: rgb(0, 0, 0);
-$off-black: rgba($black, 0.2);
-$spin-duration: 1s;
-$pulse-duration: 750ms;
+$loading-base-line-height: 32px;
+$loading-black: rgb(0, 0, 0);
+$loading-off-black: rgba($loading-black, 0.2);
+$loading-spin-duration: 1s;
+$loading-pulse-duration: 750ms;
 
 @keyframes spin {
   0% {
@@ -18,11 +18,11 @@ $pulse-duration: 750ms;
 
   div {
     border-radius: 50%;
-    width: $base-line-height;
-    height: $base-line-height;
-    border: .25rem solid $off-black;
+    width: $loading-base-line-height;
+    height: $loading-base-line-height;
+    border: .25rem solid $loading-off-black;
     border-style: double;
-    border-top-color: $black;
-    animation: spin $spin-duration infinite linear;
+    border-top-color: $loading-black;
+    animation: spin $loading-spin-duration infinite linear;
   }
 }

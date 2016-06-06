@@ -239,25 +239,26 @@ view { form, deleteAvatarButton, pending, uploadUri, timezones } =
                             |> Html.map ToForm
             in
                 div [ class "input-group workday" ]
-                    [ Html.label [] [ text label ]
+                    [ Html.label [ class "input-group__label" ] [ text label ]
                     , hours "start"
-                    , Html.label [ class "workday-label" ] [ text "until" ]
+                    , Html.label [ class "input-group__label workday-label" ] [ text "until" ]
                     , hours "end"
                     ]
     in
         page "Your Profile"
             [ Html.form
                 [ action (uploadUri ?> "")
-                , class "form-group no-pt"
+                , class "form-group form-group--no-top-padding"
                 , method "POST"
                 , enctype "multipart/form-data"
                 ]
                 [ div [ class "input-group" ]
-                    [ label [ for "avatar-file" ]
+                    [ label [ class "input-group__label", for "avatar-file" ]
                         [ text "Profile picture" ]
-                    , div [ class "input" ]
+                    , div [ class "input-group__input" ]
                         [ input
                             [ type' "file"
+                            , class "input"
                             , id "avatar-file"
                             , name "avatar-file"
                             , accept "image/*"
@@ -266,10 +267,11 @@ view { form, deleteAvatarButton, pending, uploadUri, timezones } =
                         ]
                     ]
                 , div [ class "input-group" ]
-                    [ div [ class "spacer" ] []
-                    , div [ class "input" ]
+                    [ div [ class "input-group__spacer" ] []
+                    , div [ class "input-group__input" ]
                         [ input
-                            [ type' "submit"
+                            [ class "button"
+                            , type' "submit"
                             , value "Upload"
                             , disabled uploadPending
                             ]

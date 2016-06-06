@@ -126,7 +126,7 @@ auth model =
     div []
         [ p [] [ text "It looks like you haven't authorized your Google Calendar account yet. Connect your account to get started." ]
         , div [ class "input-group" ]
-            [ div [ class "input" ]
+            [ div [ class "input-group__input" ]
                 [ a
                     [ class "button"
                     , href "/integrations/connect/gcalendar"
@@ -159,7 +159,7 @@ connected { calendars, refreshing, disconnectButton } =
         div []
             [ p [] [ text "You have connected your Google Calendar account." ]
             , div [ class "input-group" ]
-                [ div [ class "input" ]
+                [ div [ class "input-group__input" ]
                     [ CB.view disconnectButton |> Html.map ToDisconnectButton ]
                 ]
             , div [ class "sm-ml" ]
@@ -167,7 +167,7 @@ connected { calendars, refreshing, disconnectButton } =
                 , if calendars.status == CalendarApi.Loading then
                     loading
                   else
-                    table []
+                    table [ class "table" ]
                         [ thead []
                             [ tr []
                                 [ td [] [ text "Name" ]
@@ -179,9 +179,10 @@ connected { calendars, refreshing, disconnectButton } =
                         ]
                 , br [] []
                 , div [ class "input-group" ]
-                    [ div [ class "input" ]
+                    [ div [ class "input-group__input" ]
                         [ input
-                            [ type' "button"
+                            [ class "button"
+                            , type' "button"
                             , value "Refresh Calendars"
                             , disabled refreshing
                             , onClick Refresh

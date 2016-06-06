@@ -138,7 +138,7 @@ workdays user currentUser =
     in
         div []
             [ h4 [] [ text "Workdays" ]
-            , table []
+            , table [ class "table" ]
                 [ thead []
                     [ tr []
                         [ td [] [ text "Day" ]

@@ -115,10 +115,10 @@ view { form, pending, bulkInvite } =
                 ]
             , p [] [ text "Want to invite team members in bulk?" ]
             , div [ class "input-group" ]
-                [ div [ class "input" ]
+                [ div [ class "input-group__input" ]
                     [ input
-                        [ type' "button"
-                        , class "sm-ml"
+                        [ class "button button--padded"
+                        , type' "button"
                         , value "Generate bulk invite URL"
                         , disabled pending
                         , onClick CreateBulkInvite

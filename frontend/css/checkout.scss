@@ -1,4 +1,5 @@
 @import "normalize";
+@import "button";
 
 #header {
   position: absolute;
@@ -209,37 +210,6 @@
 
     #submit-wrapper {
       text-align: center;
-    }
-
-    input[type=submit] {
-      background: white;
-      border: 2px solid #EEE;
-
-      padding: 7px 9px;
-
-      cursor: pointer;
-      color: black;
-      font-size: 0.8em;
-      font-weight: 400;
-      text-transform: uppercase;
-
-      &:hover {
-        border: 2px solid black;
-      }
-
-      &:active {
-        background: black;
-        border: 2px solid black;
-
-        color: white;
-      }
-
-      &.disabled,
-      &:disabled {
-        opacity: 0.2;
-      }
-
-      transition: all 0.3s;
     }
   }
 }
