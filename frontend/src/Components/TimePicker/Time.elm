@@ -27,7 +27,7 @@ compare a b =
             GT
 
         ( ( ha, ma, _ ), ( hb, mb, _ ) ) ->
-            Basics.compare ( ha, ma ) ( hb, mb )
+            Basics.compare ( ha `rem` 12, ma `rem` 60 ) ( hb `rem` 12, mb `rem` 60 )
 
 
 defaultTime : Time

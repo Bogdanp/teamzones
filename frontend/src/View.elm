@@ -5,10 +5,10 @@ import Components.CurrentProfile as CurrentProfile
 import Components.CurrentUser as CurrentUser
 import Components.Integrations as Integrations
 import Components.Invite as Invite
+import Components.Meetings as Meetings
 import Components.NotFound as NotFound
 import Components.Notifications as Notifications
 import Components.Profile as Profile
-import Components.Meetings as Meetings
 import Components.Settings as Settings
 import Components.Team as Team
 import Html exposing (..)

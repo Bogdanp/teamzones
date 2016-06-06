@@ -1,6 +1,6 @@
 module User exposing (isOffline)
 
-import Timestamp exposing (Timestamp, Timezone, currentHour, currentDay)
+import Timestamp exposing (Timestamp, Timezone, currentHour, currentDay, offset)
 import Types exposing (User)
 
 

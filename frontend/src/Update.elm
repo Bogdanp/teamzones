@@ -27,6 +27,7 @@ init ({ now, suspended, company, user, team, timezones, integrationStates, viewp
         ( meetings, _ ) =
             Meetings.init
                 { now = now
+                , timezone = currentUser.timezone
                 , teamMembers = teamMembers
                 , integrationStates = integrationStates
                 }
@@ -261,6 +262,7 @@ urlUpdate route ({ now, suspended, user, teamMembers, integrationStates } as m) 
                         ( meetings, fx ) =
                             Meetings.init
                                 { now = now
+                                , timezone = user.timezone
                                 , teamMembers = teamMembers
                                 , integrationStates = integrationStates
                                 }

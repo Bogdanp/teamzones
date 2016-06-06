@@ -20,7 +20,7 @@ import Json.Encode
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..))
 import Set exposing (Set)
 import Task
-import Timestamp exposing (Timestamp)
+import Timestamp exposing (Timestamp, Timezone, offset)
 import Types exposing (AnchorTo, IntegrationStates, User)
 import User
 import Util exposing ((?>), (??), (=>), datesEq, dateTuple)
@@ -49,13 +49,15 @@ type Msg
 
 type alias Context =
     { now : Timestamp
+    , timezone : Timezone
     , teamMembers : List User
     , integrationStates : IntegrationStates
     }
 
 
 type alias Model =
-    { startDate : Date
+    { timezone : Timezone
+    , startDate : Date
     , startTime : Time
     , startDatePicker : DatePicker
     , startTimePicker : TimePicker.Model
@@ -72,7 +74,7 @@ type alias Model =
 
 
 init : Context -> ( Model, Cmd Msg )
-init { now, teamMembers, integrationStates } =
+init { now, timezone, teamMembers, integrationStates } =
     let
         isDisabled date =
             dateTuple date < dateTuple (Date.fromTime now)
@@ -81,13 +83,17 @@ init { now, teamMembers, integrationStates } =
             now - (toFloat <| floor now `rem` 600000) + 900000
 
         startDate =
-            Date.fromTime later
+            Date.fromTime <| later - (toFloat <| floor later `rem` 86400000)
 
         startTime =
             Timestamp.format "h:mmA" later
 
         endDate =
-            Date.fromTime <| later + 3600000
+            let
+                endLater =
+                    later + 3600000
+            in
+                Date.fromTime <| endLater - (toFloat <| floor endLater `rem` 86400000)
 
         endTime =
             Timestamp.format "h:mmA" <| later + 3600000
@@ -105,7 +111,8 @@ init { now, teamMembers, integrationStates } =
             TimePicker.initWithValue endTime
 
         model =
-            { startDate = startDate
+            { timezone = timezone
+            , startDate = startDate
             , startTime = Time.parse startTime ?> Time.zero
             , startDatePicker = startDatePicker
             , startTimePicker = startTimePicker
@@ -362,30 +369,30 @@ yn x =
 
 
 isOffline : Model -> User -> Bool
-isOffline { startDate, startTime, endDate, endTime } user =
+isOffline ({ timezone, startDate, startTime, endDate, endTime } as model) user =
     let
         startTimestamp =
-            mkTimestamp startDate startTime
+            mkTimestamp timezone startDate startTime
 
         endTimestamp =
-            mkTimestamp endDate endTime
+            mkTimestamp timezone endDate endTime
     in
         User.isOffline startTimestamp user || User.isOffline endTimestamp user
 
 
 meetingFromModel : Model -> Meeting
-meetingFromModel { startDate, startTime, endDate, endTime, summary, description, attendees } =
-    { startTime = mkTimestamp startDate startTime
-    , endTime = mkTimestamp endDate endTime
+meetingFromModel { timezone, startDate, startTime, endDate, endTime, summary, description, attendees } =
+    { startTime = mkTimestamp timezone startDate startTime
+    , endTime = mkTimestamp timezone endDate endTime
     , summary = summary
     , description = description
     , attendees = Set.toList attendees
     }
 
 
-mkTimestamp : Date -> Time -> Timestamp
-mkTimestamp date time =
-    Date.toTime date + Time.toMillis time
+mkTimestamp : Timezone -> Date -> Time -> Timestamp
+mkTimestamp timezone date time =
+    Date.toTime date + Time.toMillis time - (toFloat <| offset timezone) * 60000
 
 
 prepareTimes : Model -> Model
