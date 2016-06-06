@@ -15,6 +15,7 @@ import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
 import Html.Events exposing (onWithOptions, onClick)
+import Html.Lazy exposing (lazy)
 import Icons
 import Json.Decode as Json exposing ((:=))
 import Model exposing (Model, Msg(..))
@@ -25,51 +26,52 @@ import Util exposing ((=>))
 
 
 view : Model -> Html Msg
-view ({ now, company, user, team, route, invite, integrations, settings, currentProfile, notifications, sidebarHidden } as model) =
-    let
-        page =
-            case route of
-                DashboardR () ->
-                    Team.view RouteTo team now
-
-                InviteR () ->
-                    Invite.view invite
-                        |> Html.map ToInvite
-
-                ProfileR _ ->
-                    Profile.view model.profile
-                        |> Html.map ToProfile
-
-                MeetingsR () ->
-                    Meetings.view model.meetings
-                        |> Html.map ToMeetings
-
-                IntegrationsR _ ->
-                    Integrations.view integrations
-                        |> Html.map ToIntegrations
-
-                SettingsR _ ->
-                    Settings.view settings
-                        |> Html.map ToSettings
-
-                CurrentProfileR () ->
-                    CurrentProfile.view currentProfile
-                        |> Html.map ToCurrentProfile
-
-                NotFoundR ->
-                    NotFound.view
-    in
-        div [ class "wrapper" ]
-            [ Notifications.view notifications
-                |> Html.map ToNotifications
-            , div [ class "app" ]
-                [ toolbar company user.timezone now
-                , div [ class "content" ]
-                    [ sidebar model
-                    , page
-                    ]
+view ({ now, company, user, notifications } as model) =
+    div [ class "wrapper" ]
+        [ Notifications.view notifications
+            |> Html.map ToNotifications
+        , div [ class "app" ]
+            [ toolbar company user.timezone now
+            , div [ class "content" ]
+                [ sidebar model
+                , lazy page model
                 ]
             ]
+        ]
+
+
+page : Model -> Html Msg
+page ({ now, route, team, invite, profile, meetings, integrations, settings, currentProfile } as model) =
+    case route of
+        DashboardR () ->
+            Team.view RouteTo team now
+
+        InviteR () ->
+            Invite.view invite
+                |> Html.map ToInvite
+
+        ProfileR _ ->
+            Profile.view profile
+                |> Html.map ToProfile
+
+        MeetingsR () ->
+            Meetings.view meetings
+                |> Html.map ToMeetings
+
+        IntegrationsR _ ->
+            Integrations.view integrations
+                |> Html.map ToIntegrations
+
+        SettingsR _ ->
+            Settings.view settings
+                |> Html.map ToSettings
+
+        CurrentProfileR () ->
+            CurrentProfile.view currentProfile
+                |> Html.map ToCurrentProfile
+
+        NotFoundR ->
+            NotFound.view
 
 
 toolbar : Company -> Timezone -> Timestamp -> Html Msg
