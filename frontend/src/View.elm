@@ -19,7 +19,7 @@ import Pages.Meetings as Meetings
 import Pages.NotFound as NotFound
 import Pages.Profile as Profile
 import Pages.Settings as Settings
-import Routes exposing (Sitemap(..), IntegrationsSitemap(..), SettingsSitemap(..))
+import Routes exposing (Sitemap(..), IntegrationsSitemap(..), MeetingsSitemap(..), SettingsSitemap(..))
 import Timestamp exposing (Timestamp, Timezone)
 import Types exposing (Company, User, AnchorTo)
 import Util exposing ((=>))
@@ -54,13 +54,13 @@ page { now, route, team, invite, profile, meetings, integrations, settings, curr
             Profile.view profile
                 |> Html.map ToProfile
 
-        MeetingsR () ->
-            Meetings.view meetings
-                |> Html.map ToMeetings
-
         IntegrationsR _ ->
             Integrations.view integrations
                 |> Html.map ToIntegrations
+
+        MeetingsR _ ->
+            Meetings.view meetings
+                |> Html.map ToMeetings
 
         SettingsR _ ->
             Settings.view settings
@@ -154,7 +154,7 @@ sidebar { user, sidebarHidden, sidebarTouching, sidebarOffsetX } =
             [ CurrentUser.view anchorTo user
             , ul [ class "menu" ]
                 ([ routeTo (DashboardR ()) "Dashboard"
-                 , routeTo (MeetingsR ()) "Meetings"
+                 , routeTo (MeetingsR (ScheduledMeetingsR ())) "Meetings"
                  , routeTo (CurrentProfileR ()) "Your Profile"
                  , routeTo (IntegrationsR (GCalendarR ())) "Integrations"
                  ]

@@ -9,6 +9,7 @@ module Api.Calendar
         , fetchAll
         , refresh
         , createMeeting
+        , fetchMeetings
         )
 
 import Api exposing (Errors, Error, Response, getJson, postJson, postPlain)
@@ -117,3 +118,26 @@ encodeMeeting meeting =
 createMeeting : Meeting -> Task Error (Response String)
 createMeeting =
     encodeMeeting >> flip postPlain "integrations/gcalendar/meetings"
+
+
+meeting : Decoder Meeting
+meeting =
+    Json.object5 Meeting
+        ("startTime" := Json.float)
+        ("endTime" := Json.float)
+        ("summary" := Json.string)
+        ("description" := Json.string)
+        ("attendees" := Json.list Json.string)
+
+
+meetings : Decoder (List Meeting)
+meetings =
+    Json.oneOf
+        [ Json.list meeting
+        , Json.succeed []
+        ]
+
+
+fetchMeetings : Task Error (Response (List Meeting))
+fetchMeetings =
+    getJson meetings "integrations/gcalendar/meetings"

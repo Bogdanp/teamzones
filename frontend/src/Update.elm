@@ -27,7 +27,9 @@ init ({ now, suspended, company, user, team, timezones, integrationStates, viewp
         ( meetings, _ ) =
             Meetings.init
                 { now = now
-                , timezone = currentUser.timezone
+                , fullRoute = route
+                , subRoute = Nothing
+                , currentUser = currentUser
                 , teamMembers = teamMembers
                 , integrationStates = integrationStates
                 }
@@ -257,19 +259,6 @@ urlUpdate route ({ now, suspended, user, teamMembers, integrationStates } as m) 
                         Nothing ->
                             { model | route = NotFoundR } ! []
 
-                MeetingsR () ->
-                    let
-                        ( meetings, fx ) =
-                            Meetings.init
-                                { now = now
-                                , timezone = user.timezone
-                                , teamMembers = teamMembers
-                                , integrationStates = integrationStates
-                                }
-                    in
-                        { model | meetings = meetings }
-                            ! [ Cmd.map ToMeetings fx ]
-
                 IntegrationsR subRoute ->
                     let
                         ( integrations, fx ) =
@@ -282,6 +271,21 @@ urlUpdate route ({ now, suspended, user, teamMembers, integrationStates } as m) 
                     in
                         { model | integrations = integrations }
                             ! [ Cmd.map ToIntegrations fx ]
+
+                MeetingsR subRoute ->
+                    let
+                        ( meetings, fx ) =
+                            Meetings.init
+                                { now = now
+                                , fullRoute = route
+                                , subRoute = Just subRoute
+                                , currentUser = user
+                                , teamMembers = teamMembers
+                                , integrationStates = integrationStates
+                                }
+                    in
+                        { model | meetings = meetings }
+                            ! [ Cmd.map ToMeetings fx ]
 
                 SettingsR subRoute ->
                     let

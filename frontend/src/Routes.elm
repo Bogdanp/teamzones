@@ -2,6 +2,7 @@ module Routes
     exposing
         ( Sitemap(..)
         , IntegrationsSitemap(..)
+        , MeetingsSitemap(..)
         , SettingsSitemap(..)
         , parsePath
         , navigateTo
@@ -16,8 +17,8 @@ type Sitemap
     = DashboardR ()
     | InviteR ()
     | ProfileR String
-    | MeetingsR ()
     | IntegrationsR IntegrationsSitemap
+    | MeetingsR MeetingsSitemap
     | SettingsR SettingsSitemap
     | CurrentProfileR ()
     | NotFoundR
@@ -48,14 +49,14 @@ profileR =
     ProfileR := "profile" <//> string
 
 
-meetingsR : Route Sitemap
-meetingsR =
-    MeetingsR := static "meetings"
-
-
 integrationsR : Route Sitemap
 integrationsR =
     "integrations" <//> child IntegrationsR integrationsRouter
+
+
+meetingsR : Route Sitemap
+meetingsR =
+    "meetings" <//> child MeetingsR meetingsRouter
 
 
 settingsR : Route Sitemap
@@ -90,11 +91,11 @@ toString route =
         ProfileR email ->
             reverse profileR [ email ]
 
-        MeetingsR () ->
-            reverse meetingsR []
-
         IntegrationsR r ->
             reverse integrationsR [] ++ routeIntegrations r
+
+        MeetingsR r ->
+            reverse meetingsR [] ++ routeMeetings r
 
         SettingsR r ->
             reverse settingsR [] ++ routeSettings r
@@ -125,6 +126,36 @@ routeIntegrations r =
     case r of
         GCalendarR () ->
             reverse gCalendarR []
+
+
+type MeetingsSitemap
+    = ScheduledMeetingsR ()
+    | SchedulerR ()
+
+
+scheduledMeetingsR : Route MeetingsSitemap
+scheduledMeetingsR =
+    ScheduledMeetingsR := static ""
+
+
+schedulerR : Route MeetingsSitemap
+schedulerR =
+    SchedulerR := static "scheduler"
+
+
+meetingsRouter : Router MeetingsSitemap
+meetingsRouter =
+    router [ scheduledMeetingsR, schedulerR ]
+
+
+routeMeetings : MeetingsSitemap -> String
+routeMeetings r =
+    case r of
+        ScheduledMeetingsR () ->
+            reverse scheduledMeetingsR []
+
+        SchedulerR () ->
+            reverse schedulerR []
 
 
 type SettingsSitemap

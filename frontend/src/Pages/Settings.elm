@@ -10,6 +10,12 @@ import Types exposing (User)
 import Util exposing ((?>))
 
 
+type Msg
+    = RouteTo Sitemap
+    | ToTeam Team.Msg
+    | ToBilling Billing.Msg
+
+
 type alias Context pmsg =
     { deleteUser : String -> pmsg
     , fullRoute : Sitemap
@@ -17,12 +23,6 @@ type alias Context pmsg =
     , currentUser : User
     , teamMembers : List User
     }
-
-
-type Msg
-    = RouteTo Sitemap
-    | ToTeam Team.Msg
-    | ToBilling Billing.Msg
 
 
 type alias Model pmsg =
