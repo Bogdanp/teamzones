@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/context"
 	"github.com/qedus/nds"
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
 	"gopkg.in/julienschmidt/httprouter.v1"
 )
 
@@ -34,6 +35,11 @@ func init() {
 		appRouter,
 		scheduleMeetingRoute, "/api/integrations/gcalendar/meetings",
 		scheduleMeetingHandler,
+	)
+	GET(
+		appRouter,
+		meetingListRoute, "/api/integrations/gcalendar/meetings",
+		meetingListHandler,
 	)
 }
 
@@ -153,4 +159,18 @@ func scheduleMeetingHandler(res http.ResponseWriter, req *http.Request, _ httpro
 
 	scheduleMeeting.Call(ctx, k)
 	res.WriteHeader(http.StatusAccepted)
+}
+
+func meetingListHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	var meetings []models.Meeting
+
+	ctx := appengine.NewContext(req)
+	user := context.Get(req, userCtxKey).(*models.User)
+	if _, err := models.FindUpcomingMeetings(user.Key(ctx)).GetAll(ctx, &meetings); err != nil {
+		log.Errorf(ctx, "failed to retrieve upcoming meetings: %v", err)
+		serverError(res)
+		return
+	}
+
+	renderer.JSON(res, http.StatusOK, meetings)
 }

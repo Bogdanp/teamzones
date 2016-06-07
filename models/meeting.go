@@ -42,6 +42,14 @@ func NewMeetingKey(ctx context.Context, user *datastore.Key) *datastore.Key {
 	return datastore.NewIncompleteKey(ctx, meetingKind, user)
 }
 
+// FindUpcomingMeetings returns a query that will retrieve all the
+// upcoming meetings belonging to the given user.
+func FindUpcomingMeetings(user *datastore.Key) *datastore.Query {
+	return datastore.NewQuery(meetingKind).
+		Ancestor(user).
+		Filter("StartTime>", time.Now())
+}
+
 // Load tells datastore how to deserialize Meetings when reading them.
 func (m *Meeting) Load(p []datastore.Property) error {
 	return datastore.LoadStruct(m, p)
