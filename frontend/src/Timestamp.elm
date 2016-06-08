@@ -51,7 +51,7 @@ currentHour =
     Native.Timestamp.currentHour
 
 
-fromString : String -> String -> Timestamp
+fromString : String -> Timestamp
 fromString =
     Native.Timestamp.fromString
 

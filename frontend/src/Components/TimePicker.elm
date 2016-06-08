@@ -1,11 +1,10 @@
-module Components.TimePicker exposing (Msg, Model, init, initWithMin, initWithValue, update, view)
+module Components.TimePicker exposing (Msg, Model, init, update, view)
 
 import Components.TimePicker.Time as Time exposing (Period(..), Time)
 import Html exposing (Html, div, input)
 import Html.Attributes exposing (class, type', value)
 import Html.Events exposing (on, targetValue)
 import Json.Decode as Json
-import Util exposing ((?>))
 
 
 type Msg
@@ -13,62 +12,37 @@ type Msg
 
 
 type alias Model =
-    { value : Maybe String
-    , time : Maybe Time
-    , min : Maybe Time
+    { value : String
+    , time : Time
     }
 
 
-init : Model
-init =
-    { value = Nothing
-    , time = Nothing
-    , min = Nothing
+init : Time -> Model
+init time =
+    { value = Time.toString time
+    , time = time
     }
 
 
-initWithValue : String -> Model
-initWithValue value =
-    { init
-        | value = Just value
-        , time = Time.parse value
-    }
-
-
-initWithMin : Time -> Time -> Model
-initWithMin min value =
-    { init
-        | value = Just <| Time.toString value
-        , time =
-            Just
-                <| if Time.compare value min == GT then
-                    value
-                   else
-                    min
-        , min = Just min
-    }
-
-
-update : Msg -> Model -> ( Model, Maybe Time )
+update : Msg -> Model -> ( Model, Time )
 update msg ({ value, time } as model) =
     case msg of
         Change inputValue ->
             let
                 time =
-                    case ( Time.parse inputValue, model.min ) of
-                        ( Nothing, _ ) ->
+                    case Time.parse inputValue of
+                        Nothing ->
                             model.time
 
-                        ( Just time, Just min ) ->
-                            if Time.compare time min == GT then
-                                Just time
-                            else
-                                Just min
-
-                        ( time, _ ) ->
-                            time
+                        Just time' ->
+                            time'
             in
-                ( { model | value = Maybe.map Time.toString time, time = time }, time )
+                ( { model
+                    | value = Time.toString time
+                    , time = time
+                  }
+                , time
+                )
 
 
 view : Model -> Html Msg
@@ -77,6 +51,6 @@ view model =
         [ class "input timepicker"
         , type' "text"
         , on "change" (Json.map Change targetValue)
-        , value (model.value ?> "")
+        , value model.value
         ]
         []

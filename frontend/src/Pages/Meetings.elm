@@ -41,8 +41,11 @@ type alias Model =
 
 
 init : Context -> ( Model, Cmd Msg )
-init { now, fullRoute, subRoute, integrationStates, currentUser, teamMembers } =
+init ({ now, fullRoute, subRoute, integrationStates, currentUser, teamMembers } as model) =
     let
+        ( scheduler, schedulerFx ) =
+            Scheduler.init model
+
         model =
             { now = now
             , fullRoute = fullRoute
@@ -50,14 +53,17 @@ init { now, fullRoute, subRoute, integrationStates, currentUser, teamMembers } =
             , currentUser = currentUser
             , teamMembers = teamMembers
             , meetings = Nothing
-            , scheduler = Scheduler.init
+            , scheduler = scheduler
             }
 
         ( _, meetingsFx ) =
             ScheduledMeetings.init model
     in
         if integrationStates.gCalendar then
-            model ! [ Cmd.map ToScheduledMeetings meetingsFx ]
+            model
+                ! [ Cmd.map ToScheduledMeetings meetingsFx
+                  , Cmd.map ToScheduler schedulerFx
+                  ]
         else
             model
                 ! [ Routes.navigateTo (IntegrationsR (GCalendarR ()))

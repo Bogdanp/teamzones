@@ -20,8 +20,8 @@ var currentDay = function(timezone, timestamp)  {
   return moment(timestamp).tz(timezone).isoWeekday();
 };
 
-var fromString = function(string, format) {
-  return moment(string, format).toDate().getTime();
+var fromString = function(string) {
+  return moment(string).toDate().getTime();
 };
 
 var isoFormat = function(timestamp) {
@@ -35,7 +35,7 @@ var _Bogdanp$teamzones$Native_Timestamp = function() {
     offset: offset,
     currentDay: F2(currentDay),
     currentHour: F2(currentHour),
-    fromString: F2(fromString),
+    fromString: fromString,
     isoFormat: isoFormat
   };
 }();

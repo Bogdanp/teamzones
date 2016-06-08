@@ -1,9 +1,10 @@
-module Components.TimePicker.Time exposing (Period(..), Time, compare, defaultTime, parse, toMillis, toString, zero)
+module Components.TimePicker.Time exposing (Period(..), Time, compare, defaultTime, parse, fromMillis, toMillis, toString, zero)
 
 import Combine exposing (Parser, choice, end, maybe, or, regex, string, succeed)
 import Combine.Char exposing (char)
 import Combine.Infix exposing ((<$>), (<*>), (<*), (*>))
 import Combine.Num exposing (digit)
+import Date
 import String
 import Timestamp exposing (Timestamp)
 
@@ -45,9 +46,34 @@ parse =
     Combine.parse time >> fst >> Result.toMaybe
 
 
+fromMillis : Timestamp -> Time
+fromMillis timestamp =
+    let
+        date =
+            Date.fromTime timestamp
+
+        hour =
+            Date.hour date
+
+        minute =
+            Date.minute date
+    in
+        if hour >= 12 then
+            ( hour `rem` 12, minute `rem` 60, PM )
+        else
+            ( hour `rem` 12, minute `rem` 60, AM )
+
+
 toString : Time -> String
 toString ( h, m, p ) =
-    Basics.toString h ++ ":" ++ numToString m ++ periodToString p
+    let
+        h' =
+            if h == 0 then
+                12
+            else
+                h
+    in
+        Basics.toString h' ++ ":" ++ numToString m ++ periodToString p
 
 
 toMillis : Time -> Timestamp

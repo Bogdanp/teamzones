@@ -120,11 +120,16 @@ createMeeting =
     encodeMeeting >> flip postPlain "integrations/gcalendar/meetings"
 
 
+timestamp : Decoder Timestamp
+timestamp =
+    Json.map Timestamp.fromString Json.string
+
+
 meeting : Decoder Meeting
 meeting =
     Json.object5 Meeting
-        ("startTime" := Json.float)
-        ("endTime" := Json.float)
+        ("startTime" := timestamp)
+        ("endTime" := timestamp)
         ("summary" := Json.string)
         ("description" := Json.string)
         ("attendees" := Json.list Json.string)
