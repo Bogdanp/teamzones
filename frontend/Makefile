@@ -1,17 +1,23 @@
-all: style javascript elm
+STATIC_DIR = ../app/static
+TARGET_CSS = $(STATIC_DIR)/css/app.css
+TARGET_LIB = $(STATIC_DIR)/js/lib.js
+TARGET_APP = $(STATIC_DIR)/js/app.js
+OBJS = $(TARGET_CSS) $(TARGET_LIB) $(TARGET_APP)
+ELM_SOURCES = $(shell find src -name "*.elm" -print)
 
-style: css/*.scss
-	node-sass css/app.scss ../app/static/css/app.css
-	node-sass css/checkout.scss ../app/static/css/checkout.css
+.PHONY: all min
 
-javascript: lib/*.js
-	browserify lib/index.js -o ../app/static/js/lib.js
+all: $(OBJS)
 
-elm: src/*.elm
-	elm make --warn src/Main.elm --output=../app/static/js/app.js
+$(TARGET_CSS): css/*.scss
+	node-sass css/app.scss $(TARGET_CSS)
+	node-sass css/checkout.scss $(STATIC_DIR)/css/checkout.css
 
-watch:
-	fswatch -r css lib src | xargs -n1 ./bin/watch
+$(TARGET_LIB): lib/*.js
+	browserify lib/index.js -o $(TARGET_LIB)
+
+$(TARGET_APP): $(ELM_SOURCES)
+	elm make --warn src/Main.elm --output=$(TARGET_APP)
 
 min: all
 	uglifycss ../app/static/css/app.css  >../app/static/css/app.min.css
