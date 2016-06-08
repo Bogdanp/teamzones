@@ -6,8 +6,8 @@ import Html.Attributes exposing (..)
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone, showTimezone)
 import Types exposing (Workdays, Team, User)
-import User exposing (isOffline)
-import Util exposing ((=>), (?>), initials, initialsColor, on')
+import User exposing (isOffline, initials, initialsColor)
+import Util exposing ((=>), (?>), on')
 
 
 view : (Sitemap -> msg) -> Team -> Timestamp -> Html msg

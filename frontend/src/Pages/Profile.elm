@@ -6,8 +6,8 @@ import Html.Attributes exposing (..)
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (Timestamp, Timezone, offset)
 import Types exposing (AnchorTo, User, Workday)
-import User exposing (isOffline)
-import Util exposing ((=>), initials, initialsColor)
+import User exposing (isOffline, initials, initialsColor)
+import Util exposing ((=>))
 
 
 type Msg

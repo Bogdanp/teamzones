@@ -5,7 +5,8 @@ import Html.Attributes exposing (..)
 import Routes exposing (Sitemap(..))
 import Timestamp exposing (showTimezone)
 import Types exposing (User, AnchorTo)
-import Util exposing ((=>), initials, initialsColor)
+import User exposing (initials, initialsColor)
+import Util exposing ((=>))
 
 
 view : AnchorTo msg -> User -> Html msg

@@ -15,7 +15,7 @@ import Html.Attributes exposing (..)
 import Task
 import Timestamp exposing (Timezone, showTimezone)
 import Types exposing (Workday, Workdays, User)
-import Util exposing ((=>), (?>), boolFromMaybe)
+import Util exposing ((=>), (?>))
 
 
 type ParentMsg
@@ -220,7 +220,12 @@ view { form, deleteAvatarButton, pending, uploadUri, timezones } =
                     |> Html.map ToForm
 
         uploadPending =
-            not <| boolFromMaybe uploadUri
+            case uploadUri of
+                Nothing ->
+                    True
+
+                Just _ ->
+                    False
 
         timezoneValues =
             List.map2 (flip (,) << showTimezone) timezones timezones
