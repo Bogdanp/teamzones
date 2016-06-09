@@ -4,6 +4,12 @@ table {
   border-spacing: 0;
   box-sizing: border-box;
 
+  &.tall-rows {
+    tbody > tr {
+      height: 39px;
+    }
+  }
+
   thead {
     tr {
       td {

@@ -194,6 +194,11 @@ func GET(router *httprouter.Router, name Route, path string, handler httprouter.
 	register(router, name, path, handler, roles, []string{http.MethodGet})
 }
 
+// PATCH creates an HTTP PATCH route handler.
+func PATCH(router *httprouter.Router, name Route, path string, handler httprouter.Handle, roles ...string) {
+	register(router, name, path, handler, roles, []string{http.MethodPatch})
+}
+
 // POST creates an HTTP POST route handler.
 func POST(router *httprouter.Router, name Route, path string, handler httprouter.Handle, roles ...string) {
 	register(router, name, path, handler, roles, []string{http.MethodPost})

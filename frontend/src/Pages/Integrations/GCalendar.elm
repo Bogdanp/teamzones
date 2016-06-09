@@ -24,6 +24,9 @@ type Msg
     | Refresh
     | FetchError Error
     | FetchSuccess (Response Calendars)
+    | SetDefault String
+    | SetDefaultError Error
+    | SetDefaultSuccess (Response Calendars)
 
 
 type alias Model pmsg =
@@ -51,7 +54,7 @@ init disconnectMsg active =
 
 
 update : Msg -> Model pmsg -> ( Model pmsg, Cmd Msg, Maybe pmsg )
-update msg ({ disconnectMsg, disconnectButton } as model) =
+update msg ({ calendars, disconnectMsg, disconnectButton } as model) =
     case msg of
         DisconnectError _ ->
             ( model
@@ -112,6 +115,22 @@ update msg ({ disconnectMsg, disconnectButton } as model) =
             in
                 ( { model | calendars = data }, fetchAll, Nothing )
 
+        SetDefault id ->
+            ( { model | refreshing = True }
+            , CalendarApi.setDefaultCalendar id
+                |> Task.perform SetDefaultError SetDefaultSuccess
+            , Nothing
+            )
+
+        SetDefaultError _ ->
+            ( { model | refreshing = False }
+            , error "We encountered an issue while updating your calendars. Please try again later."
+            , Nothing
+            )
+
+        SetDefaultSuccess { data } ->
+            ( { model | refreshing = False, calendars = data }, Cmd.none, Nothing )
+
 
 view : Model pmsg -> Html Msg
 view ({ active } as model) =
@@ -142,18 +161,30 @@ connected { calendars, refreshing, disconnectButton } =
     let
         calendar c =
             let
+                default =
+                    calendars.defaultId == c.id
+
                 name =
                     c.summary ?> "Unnamed calendar"
             in
                 tr []
                     [ td []
-                        [ if calendars.defaultId == c.id then
+                        [ if default then
                             strong [] [ text name ]
                           else
                             text name
                         ]
                     , td [] [ text (c.timezone ?> "-") ]
-                    , td [] []
+                    , td []
+                        [ if not default then
+                            a
+                                [ class "button"
+                                , onClick (SetDefault c.id)
+                                ]
+                                [ text "Make default" ]
+                          else
+                            text ""
+                        ]
                     ]
     in
         div []
@@ -167,7 +198,7 @@ connected { calendars, refreshing, disconnectButton } =
                 , if calendars.status == CalendarApi.Loading then
                     loading
                   else
-                    table [ class "table" ]
+                    table [ class "table tall-rows" ]
                         [ thead []
                             [ tr []
                                 [ td [] [ text "Name" ]

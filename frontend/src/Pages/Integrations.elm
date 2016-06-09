@@ -6,7 +6,7 @@ import Html.App as Html
 import Pages.Integrations.GCalendar as GCalendar
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..))
 import Types exposing (User, IntegrationStates)
-import Util exposing ((?>))
+import Util exposing ((=>), (?>))
 
 
 type ContextMsg
@@ -80,7 +80,7 @@ view : Model -> Html Msg
 view ({ fullRoute, subRoute, gCalendar } as model) =
     pageWithTabs RouteTo
         fullRoute
-        [ ( IntegrationsR (GCalendarR ()), "Google Calendar" )
+        [ IntegrationsR (GCalendarR ()) => "Google Calendar"
         ]
         [ case subRoute of
             GCalendarR () ->

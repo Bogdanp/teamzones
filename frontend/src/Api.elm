@@ -5,6 +5,8 @@ module Api
         , Response
         , getJson
         , getPlain
+        , patchJson
+        , patchPlain
         , postJson
         , postPlain
         , deleteJson
@@ -13,8 +15,8 @@ module Api
 
 import HttpBuilder as HB exposing (RequestBuilder, BodyReader)
 import Json.Decode as Json exposing ((:=))
-import Time
 import Task exposing (Task)
+import Time
 
 
 type alias Errors =
@@ -94,6 +96,20 @@ deletePlain endpoint =
     prefix endpoint
         |> HB.delete
         |> preparePlain HB.stringReader
+
+
+patchJson : Json.Value -> Json.Decoder a -> String -> Task Error (Response a)
+patchJson val dec endpoint =
+    prefix endpoint
+        |> HB.patch
+        |> prepareJson val (HB.jsonReader dec)
+
+
+patchPlain : Json.Value -> String -> Task Error (Response String)
+patchPlain val endpoint =
+    prefix endpoint
+        |> HB.patch
+        |> prepareJson val HB.stringReader
 
 
 postJson : Json.Value -> Json.Decoder a -> String -> Task Error (Response a)

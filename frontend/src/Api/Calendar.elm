@@ -10,11 +10,12 @@ module Api.Calendar
         , refresh
         , createMeeting
         , fetchMeetings
+        , setDefaultCalendar
         )
 
-import Api exposing (Errors, Error, Response, getJson, postJson, postPlain)
+import Api exposing (Errors, Error, Response, getJson, patchJson, postJson, postPlain)
 import Json.Decode as Json exposing (Decoder, (:=), string, maybe, list)
-import Json.Encode
+import Json.Encode as JE
 import Task exposing (Task)
 import Timestamp exposing (Timestamp, Timezone, isoFormat)
 import Util exposing ((=>))
@@ -84,9 +85,9 @@ calendars =
         ("calendars" := list calendar)
 
 
-integrationPayload : Json.Encode.Value
+integrationPayload : JE.Value
 integrationPayload =
-    Json.Encode.object [ "integration" => Json.Encode.string "gcalendar" ]
+    JE.object [ "integration" => JE.string "gcalendar" ]
 
 
 disconnect : Task Error (Response String)
@@ -104,14 +105,14 @@ refresh =
     postPlain integrationPayload "integrations/refresh"
 
 
-encodeMeeting : Meeting -> Json.Encode.Value
+encodeMeeting : Meeting -> JE.Value
 encodeMeeting meeting =
-    Json.Encode.object
-        [ "startTime" => Json.Encode.string (isoFormat meeting.startTime)
-        , "endTime" => Json.Encode.string (isoFormat meeting.endTime)
-        , "summary" => Json.Encode.string meeting.summary
-        , "description" => Json.Encode.string meeting.description
-        , "attendees" => Json.Encode.list (List.map Json.Encode.string meeting.attendees)
+    JE.object
+        [ "startTime" => JE.string (isoFormat meeting.startTime)
+        , "endTime" => JE.string (isoFormat meeting.endTime)
+        , "summary" => JE.string meeting.summary
+        , "description" => JE.string meeting.description
+        , "attendees" => JE.list (List.map JE.string meeting.attendees)
         ]
 
 
@@ -146,3 +147,8 @@ meetings =
 fetchMeetings : Task Error (Response (List Meeting))
 fetchMeetings =
     getJson meetings "integrations/gcalendar/meetings"
+
+
+setDefaultCalendar : String -> Task Error (Response Calendars)
+setDefaultCalendar id =
+    patchJson (JE.object [ "calendarId" => JE.string id ]) calendars "integrations/gcalendar/meetings"

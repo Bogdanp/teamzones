@@ -41,6 +41,11 @@ func init() {
 		meetingListRoute, "/api/integrations/gcalendar/meetings",
 		meetingListHandler,
 	)
+	PATCH(
+		appRouter,
+		setDefaultCalendarRoute, "/api/integrations/gcalendar/meetings",
+		setDefaultCalendarHandler,
+	)
 }
 
 func refreshIntegrationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
@@ -173,4 +178,46 @@ func meetingListHandler(res http.ResponseWriter, req *http.Request, _ httprouter
 	}
 
 	renderer.JSON(res, http.StatusOK, meetings)
+}
+
+func setDefaultCalendarHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	var calendarData models.GCalendarData
+	var data struct {
+		CalendarID string `json:"calendarId"`
+	}
+
+	if err := forms.BindJSON(req, &data); err != nil {
+		badRequest(res, err.Error())
+		return
+	}
+
+	ctx := appengine.NewContext(req)
+	user := context.Get(req, userCtxKey).(*models.User)
+	if err := nds.Get(ctx, user.GCalendarData, &calendarData); err != nil {
+		log.Errorf(ctx, "failed to get calendar data: %v", err)
+		serverError(res)
+		return
+	}
+
+	found := false
+	for _, c := range calendarData.Calendars {
+		if c.ID == data.CalendarID {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		badRequest(res, "invalid calendarId")
+		return
+	}
+
+	calendarData.DefaultID = data.CalendarID
+	if _, err := nds.Put(ctx, user.GCalendarData, &calendarData); err != nil {
+		log.Errorf(ctx, "failed to save calendar data: %v", err)
+		serverError(res)
+		return
+	}
+
+	renderer.JSON(res, http.StatusOK, calendarData)
 }

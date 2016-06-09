@@ -98,7 +98,7 @@ view { currentUser, teamMembers, deleteMemberButtons } =
     in
         div []
             [ br [] []
-            , table [ class "table" ]
+            , table [ class "table tall-rows" ]
                 [ thead []
                     [ tr []
                         [ td [ style [ "width" => "30%" ] ] [ text "Name" ]

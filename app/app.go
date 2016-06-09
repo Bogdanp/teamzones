@@ -77,6 +77,7 @@ const (
 	gcalendarDataRoute
 	scheduleMeetingRoute
 	meetingListRoute
+	setDefaultCalendarRoute
 
 	/// Billing
 	currentSubscriptionRoute
