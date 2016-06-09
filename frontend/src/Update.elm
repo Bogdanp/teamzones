@@ -213,8 +213,8 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
 
         UpdateSidebar d ->
             -- Ideally, we'd filter the message out in subscriptions
-            -- but there's a bug in animation-frame that prevents
-            -- this.
+            -- but there's a bug in core that prevents this.
+            -- https://github.com/elm-lang/core/issues/628
             if not model.sidebarTouching then
                 model ! []
             else
