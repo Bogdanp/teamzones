@@ -3,7 +3,8 @@ TEST_SOURCES = teamzones/{app,integrations,forms,models,utils}
 .PHONY: serve test deploy
 
 serve:
-	((sleep 2; curl http://teamzones.dev:8080/_tools/provision) &)
+	goapp install -v && go install -v
+	((sleep 3; curl http://teamzones.dev:8080/_tools/provision) &)
 	goapp serve -clear_datastore .
 
 test:
