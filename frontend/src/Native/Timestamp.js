@@ -29,7 +29,7 @@ var isoFormat = function(timestamp) {
 };
 
 var from = function(now, timestamp) {
-  return moment(timestamp).from(now, true);
+  return moment(timestamp).from(now);
 };
 
 var _Bogdanp$teamzones$Native_Timestamp = function() {

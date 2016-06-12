@@ -94,7 +94,7 @@ meeting now { id, summary, description, startTime } =
                 [ text <| format "YYYY-MM-DD HH:mmA" startTime
                 , text " ("
                 , text <| from now startTime
-                , text " from now)"
+                , text ")"
                 ]
             ]
         , td [] [ text summary ]

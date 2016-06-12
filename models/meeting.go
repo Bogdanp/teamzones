@@ -47,7 +47,7 @@ func NewMeetingKey(ctx context.Context, user *datastore.Key) *datastore.Key {
 func FindUpcomingMeetings(user *datastore.Key) *datastore.Query {
 	return datastore.NewQuery(meetingKind).
 		Ancestor(user).
-		Filter("StartTime>", time.Now())
+		Filter("EndTime>", time.Now())
 }
 
 // GetMeetingByID retrives a meeting belonging to the given user by its id.

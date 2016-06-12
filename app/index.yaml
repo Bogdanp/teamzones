@@ -13,4 +13,9 @@ indexes:
 - kind: Meeting
   ancestor: yes
   properties:
+  - name: EndTime
+
+- kind: Meeting
+  ancestor: yes
+  properties:
   - name: StartTime
