@@ -66,6 +66,7 @@ type alias Model =
     , description : String
     , attendeeState : AttendeeState
     , attendees : Set String
+    , pending : Bool
     }
 
 
@@ -108,6 +109,7 @@ init { now, currentUser, teamMembers } =
         , description = ""
         , attendeeState = None
         , attendees = Set.empty
+        , pending = False
         }
             ! [ Cmd.map ToDatePicker datePickerFx
               ]
@@ -207,7 +209,7 @@ update msg model =
             if Set.isEmpty model.attendees then
                 model ! [ error "You must pick at least one attendee!" ]
             else
-                model
+                { model | pending = True }
                     ! [ meetingFromModel model
                             |> createMeeting
                             |> Task.perform CreateError CreateSuccess
@@ -256,6 +258,7 @@ view ({ teamMembers, datePicker, timePicker, durationPicker, attendeeState } as 
                     [ class "button"
                     , type' "submit"
                     , value "Schedule meeting"
+                    , disabled model.pending
                     ]
                     []
                 ]
