@@ -23,7 +23,7 @@ func init() {
 	GET(appRouter, inviteRoute, "/invite", dashboardHandler)
 	GET(appRouter, profileRoute, "/profile/:email", dashboardHandler)
 	GET(appRouter, meetingsRoute, "/meetings/", dashboardHandler)
-	GET(appRouter, meetingSchedulerRoute, "/meetings/scheduler", dashboardHandler)
+	GET(appRouter, meetingRoute, "/meetings/:id", dashboardHandler)
 	GET(appRouter, integrationsGCalRoute, "/integrations/google-calendar", dashboardHandler)
 	GET(appRouter, settingsTeamRoute, "/settings/team", dashboardHandler)
 	GET(appRouter, settingsBillingRoute, "/settings/billing", dashboardHandler)

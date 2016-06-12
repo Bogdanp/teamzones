@@ -350,7 +350,8 @@ meetingFromModel ({ duration, summary, description, attendees } as model) =
         endTime =
             startTime + duration
     in
-        { startTime = startTime
+        { id = ""
+        , startTime = startTime
         , endTime = endTime
         , summary = summary
         , description = description

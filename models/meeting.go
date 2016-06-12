@@ -50,6 +50,11 @@ func FindUpcomingMeetings(user *datastore.Key) *datastore.Query {
 		Filter("StartTime>", time.Now())
 }
 
+// GetMeetingByID retrives a meeting belonging to the given user by its id.
+func GetMeetingByID(ctx context.Context, user *datastore.Key, id int64, meeting interface{}) error {
+	return nds.Get(ctx, datastore.NewKey(ctx, meetingKind, "", id, user), meeting)
+}
+
 // Load tells datastore how to deserialize Meetings when reading them.
 func (m *Meeting) Load(p []datastore.Property) error {
 	return datastore.LoadStruct(m, p)

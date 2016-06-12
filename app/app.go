@@ -49,7 +49,7 @@ const (
 	inviteRoute
 	profileRoute
 	meetingsRoute
-	meetingSchedulerRoute
+	meetingRoute
 	integrationsGCalRoute
 	settingsTeamRoute
 	settingsBillingRoute
@@ -77,6 +77,7 @@ const (
 	gcalendarDataRoute
 	scheduleMeetingRoute
 	meetingListRoute
+	meetingDetailsRoute
 	setDefaultCalendarRoute
 
 	/// Billing

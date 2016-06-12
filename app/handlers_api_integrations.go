@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"teamzones/forms"
 	"teamzones/integrations"
 	"teamzones/models"
@@ -40,6 +41,11 @@ func init() {
 		appRouter,
 		meetingListRoute, "/api/integrations/gcalendar/meetings",
 		meetingListHandler,
+	)
+	GET(
+		appRouter,
+		meetingDetailsRoute, "/api/integrations/gcalendar/meetings/:id",
+		meetingDetailsHandler,
 	)
 	PATCH(
 		appRouter,
@@ -166,18 +172,49 @@ func scheduleMeetingHandler(res http.ResponseWriter, req *http.Request, _ httpro
 	res.WriteHeader(http.StatusAccepted)
 }
 
+type meetingResponse struct {
+	ID string `json:"id"`
+
+	models.Meeting
+}
+
 func meetingListHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	var meetings []models.Meeting
+	var meetings []meetingResponse
 
 	ctx := appengine.NewContext(req)
 	user := context.Get(req, userCtxKey).(*models.User)
-	if _, err := models.FindUpcomingMeetings(user.Key(ctx)).GetAll(ctx, &meetings); err != nil {
+	keys, err := models.FindUpcomingMeetings(user.Key(ctx)).GetAll(ctx, &meetings)
+	if err != nil {
 		log.Errorf(ctx, "failed to retrieve upcoming meetings: %v", err)
 		serverError(res)
 		return
 	}
 
+	for i, k := range keys {
+		meetings[i].ID = strconv.FormatInt(k.IntID(), 10)
+	}
+
 	renderer.JSON(res, http.StatusOK, meetings)
+}
+
+func meetingDetailsHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	ctx := appengine.NewContext(req)
+	user := context.Get(req, userCtxKey).(*models.User)
+
+	sid := params.ByName("id")
+	id, err := strconv.ParseInt(sid, 10, 64)
+	if err != nil {
+		notFound(res)
+		return
+	}
+
+	meeting := meetingResponse{ID: sid}
+	if err := models.GetMeetingByID(ctx, user.Key(ctx), id, &meeting); err != nil {
+		notFound(res)
+		return
+	}
+
+	renderer.JSON(res, http.StatusOK, meeting)
 }
 
 func setDefaultCalendarHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {

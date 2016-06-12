@@ -131,11 +131,17 @@ routeIntegrations r =
 type MeetingsSitemap
     = ScheduledMeetingsR ()
     | SchedulerR ()
+    | MeetingR String
 
 
 scheduledMeetingsR : Route MeetingsSitemap
 scheduledMeetingsR =
     ScheduledMeetingsR := static ""
+
+
+meetingR : Route MeetingsSitemap
+meetingR =
+    MeetingR := string
 
 
 schedulerR : Route MeetingsSitemap
@@ -145,7 +151,7 @@ schedulerR =
 
 meetingsRouter : Router MeetingsSitemap
 meetingsRouter =
-    router [ scheduledMeetingsR, schedulerR ]
+    router [ scheduledMeetingsR, schedulerR, meetingR ]
 
 
 routeMeetings : MeetingsSitemap -> String
@@ -156,6 +162,9 @@ routeMeetings r =
 
         SchedulerR () ->
             reverse schedulerR []
+
+        MeetingR id ->
+            reverse meetingR [ id ]
 
 
 type SettingsSitemap

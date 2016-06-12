@@ -10,6 +10,7 @@ module Api.Calendar
         , refresh
         , createMeeting
         , fetchMeetings
+        , fetchMeeting
         , setDefaultCalendar
         )
 
@@ -36,7 +37,8 @@ type alias Calendars =
 
 
 type alias Meeting =
-    { startTime : Timestamp
+    { id : String
+    , startTime : Timestamp
     , endTime : Timestamp
     , summary : String
     , description : String
@@ -128,7 +130,8 @@ timestamp =
 
 meeting : Decoder Meeting
 meeting =
-    Json.object5 Meeting
+    Json.object6 Meeting
+        ("id" := Json.string)
         ("startTime" := timestamp)
         ("endTime" := timestamp)
         ("summary" := Json.string)
@@ -147,6 +150,11 @@ meetings =
 fetchMeetings : Task Error (Response (List Meeting))
 fetchMeetings =
     getJson meetings "integrations/gcalendar/meetings"
+
+
+fetchMeeting : String -> Task Error (Response Meeting)
+fetchMeeting id =
+    getJson meeting ("integrations/gcalendar/meetings/" ++ id)
 
 
 setDefaultCalendar : String -> Task Error (Response Calendars)

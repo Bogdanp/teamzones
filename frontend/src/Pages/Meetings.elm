@@ -5,6 +5,7 @@ import Components.Notifications exposing (info)
 import Components.Page exposing (pageWithTabs)
 import Html exposing (Html)
 import Html.App as Html
+import Pages.Meetings.Meeting as Meeting
 import Pages.Meetings.ScheduledMeetings as ScheduledMeetings
 import Pages.Meetings.Scheduler as Scheduler
 import Routes exposing (Sitemap(..), IntegrationsSitemap(..), MeetingsSitemap(..))
@@ -17,6 +18,7 @@ type Msg
     = RouteTo Sitemap
     | ToScheduledMeetings ScheduledMeetings.Msg
     | ToScheduler Scheduler.Msg
+    | ToMeeting Meeting.Msg
 
 
 type alias Context =
@@ -36,6 +38,7 @@ type alias Model =
     , currentUser : User
     , teamMembers : List User
     , meetings : Maybe (List Meeting)
+    , meeting : Maybe Meeting
     , scheduler : Scheduler.Model
     }
 
@@ -43,7 +46,7 @@ type alias Model =
 init : Context -> ( Model, Cmd Msg )
 init ({ now, fullRoute, subRoute, integrationStates, currentUser, teamMembers } as model) =
     let
-        ( scheduler, schedulerFx ) =
+        ( scheduler, _ ) =
             Scheduler.init model
 
         model =
@@ -53,22 +56,42 @@ init ({ now, fullRoute, subRoute, integrationStates, currentUser, teamMembers } 
             , currentUser = currentUser
             , teamMembers = teamMembers
             , meetings = Nothing
+            , meeting = Nothing
             , scheduler = scheduler
             }
-
-        ( _, meetingsFx ) =
-            ScheduledMeetings.init model
     in
         if integrationStates.gCalendar then
-            model
-                ! [ Cmd.map ToScheduledMeetings meetingsFx
-                  , Cmd.map ToScheduler schedulerFx
-                  ]
+            urlUpdate model
         else
             model
                 ! [ Routes.navigateTo (IntegrationsR (GCalendarR ()))
                   , info "You must connect your Google Calendar account before you can schedule meetings."
                   ]
+
+
+urlUpdate : Model -> ( Model, Cmd Msg )
+urlUpdate ({ now, fullRoute, subRoute } as model) =
+    case subRoute of
+        ScheduledMeetingsR () ->
+            let
+                ( model', meetingsFx ) =
+                    ScheduledMeetings.init model
+            in
+                model' ! [ Cmd.map ToScheduledMeetings meetingsFx ]
+
+        SchedulerR () ->
+            let
+                ( scheduler, schedulerFx ) =
+                    Scheduler.init model
+            in
+                { model | scheduler = scheduler } ! [ Cmd.map ToScheduler schedulerFx ]
+
+        MeetingR eventId ->
+            let
+                ( model', meetingFx ) =
+                    Meeting.init eventId model
+            in
+                model' ! [ Cmd.map ToMeeting meetingFx ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -91,6 +114,13 @@ update msg ({ scheduler } as model) =
             in
                 { model | scheduler = scheduler } ! [ Cmd.map ToScheduler fx ]
 
+        ToMeeting msg ->
+            let
+                ( model', fx ) =
+                    Meeting.update msg model
+            in
+                model' ! [ Cmd.map ToMeeting fx ]
+
 
 view : Model -> Html Msg
 view ({ fullRoute, subRoute, scheduler } as model) =
@@ -107,4 +137,8 @@ view ({ fullRoute, subRoute, scheduler } as model) =
             SchedulerR () ->
                 Scheduler.view scheduler
                     |> Html.map ToScheduler
+
+            MeetingR _ ->
+                Meeting.view model
+                    |> Html.map ToMeeting
         ]
