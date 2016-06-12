@@ -44,7 +44,7 @@ update : Msg -> Model m -> ( Model m, Cmd Msg )
 update msg model =
     case msg of
         MeetingError err ->
-            model ! [ Routes.navigateTo (MeetingsR (ScheduledMeetingsR ())) ]
+            model ! [ Routes.navigateTo <| MeetingsR (ScheduledMeetingsR ()) ]
 
         MeetingSuccess { data } ->
             { model | meeting = Just data } ! []

@@ -118,9 +118,9 @@ encodeMeeting meeting =
         ]
 
 
-createMeeting : Meeting -> Task Error (Response String)
-createMeeting =
-    encodeMeeting >> flip postPlain "integrations/gcalendar/meetings"
+createMeeting : Meeting -> Task Error (Response Meeting)
+createMeeting m =
+    postJson (encodeMeeting m) meeting "integrations/gcalendar/meetings"
 
 
 timestamp : Decoder Timestamp

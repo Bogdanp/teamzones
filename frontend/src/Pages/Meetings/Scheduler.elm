@@ -17,6 +17,7 @@ import Html.Events exposing (on, onCheck, targetValue)
 import Html.Lazy exposing (lazy)
 import Json.Decode as Json
 import Json.Encode as JE
+import Routes exposing (Sitemap(..), MeetingsSitemap(..))
 import Set exposing (Set)
 import Task
 import Timestamp exposing (Timestamp)
@@ -35,7 +36,7 @@ type Msg
     | Check String Bool
     | Submit
     | CreateError Error
-    | CreateSuccess (Response String)
+    | CreateSuccess (Response Meeting)
 
 
 type AttendeeState
@@ -215,8 +216,11 @@ update msg model =
         CreateError err ->
             model ! apiError err
 
-        CreateSuccess _ ->
-            model ! [ info "Your meeting has been scheduled." ]
+        CreateSuccess { data } ->
+            model
+                ! [ Routes.navigateTo <| MeetingsR (MeetingR data.id)
+                  , info "Your meeting has been scheduled."
+                  ]
 
 
 view : Model -> Html Msg

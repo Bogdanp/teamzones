@@ -55,8 +55,8 @@ view model =
 
 
 meetings : List Meeting -> Html Msg
-meetings meetings =
-    if List.isEmpty meetings then
+meetings ms =
+    if List.isEmpty ms then
         div []
             [ p [] [ text "You don't have any upcoming meetings." ]
             , anchorTo (MeetingsR (SchedulerR ())) [ class "button" ] [ text "Schedule a meeting" ]

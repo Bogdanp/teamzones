@@ -152,6 +152,12 @@ func gcalendarDataHandler(res http.ResponseWriter, req *http.Request, _ httprout
 	renderer.JSON(res, http.StatusOK, data)
 }
 
+type meetingResponse struct {
+	ID string `json:"id"`
+
+	models.Meeting
+}
+
 func scheduleMeetingHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	meeting := models.NewMeeting()
 	if err := forms.BindJSON(req, meeting); err != nil {
@@ -169,13 +175,9 @@ func scheduleMeetingHandler(res http.ResponseWriter, req *http.Request, _ httpro
 	}
 
 	scheduleMeeting.Call(ctx, k)
-	res.WriteHeader(http.StatusAccepted)
-}
 
-type meetingResponse struct {
-	ID string `json:"id"`
-
-	models.Meeting
+	sid := strconv.FormatInt(k.IntID(), 10)
+	renderer.JSON(res, http.StatusOK, meetingResponse{sid, *meeting})
 }
 
 func meetingListHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
