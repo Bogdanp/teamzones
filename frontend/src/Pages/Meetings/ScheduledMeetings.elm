@@ -4,12 +4,13 @@ import Api exposing (Error, Response)
 import Api.Calendar exposing (Meeting, fetchMeetings)
 import Components.Loading exposing (loading)
 import Components.Notifications exposing (apiError)
-import Html exposing (Html, div, p, text)
-import Html.Attributes exposing (class)
+import Html exposing (Html, br, div, p, text, table, thead, tbody, tr, td)
+import Html.Attributes exposing (class, style)
 import Routes exposing (Sitemap(..), MeetingsSitemap(..))
 import Task
+import Timestamp exposing (Timestamp, format, from)
 import Types exposing (AnchorTo, User)
-import Util
+import Util exposing ((=>))
 
 
 type Msg
@@ -20,7 +21,8 @@ type Msg
 
 type alias Model m =
     { m
-        | currentUser : User
+        | now : Timestamp
+        , currentUser : User
         , teamMembers : List User
         , meetings : Maybe (List Meeting)
     }
@@ -51,18 +53,53 @@ view model =
             loading
 
         Just ms ->
-            meetings ms
+            meetings model.now ms
 
 
-meetings : List Meeting -> Html Msg
-meetings ms =
-    if List.isEmpty ms then
-        div []
-            [ p [] [ text "You don't have any upcoming meetings." ]
-            , anchorTo (MeetingsR (SchedulerR ())) [ class "button" ] [ text "Schedule a meeting" ]
+meetings : Timestamp -> List Meeting -> Html Msg
+meetings now ms =
+    let
+        schedule =
+            anchorTo (MeetingsR (SchedulerR ())) [ class "button" ] [ text "Schedule a meeting" ]
+    in
+        if List.isEmpty ms then
+            div []
+                [ p [] [ text "You don't have any upcoming meetings." ]
+                , schedule
+                ]
+        else
+            div []
+                [ br [] []
+                , table []
+                    [ thead []
+                        [ tr []
+                            [ td [ style [ "width" => "33%" ] ] [ text "When" ]
+                            , td [ style [ "width" => "33%" ] ] [ text "Summary" ]
+                            , td [ style [ "width" => "33%" ] ] [ text "Description" ]
+                            ]
+                        ]
+                    , tbody [] (List.map (meeting now) ms)
+                    ]
+                , br [] []
+                , schedule
+                ]
+
+
+meeting : Timestamp -> Meeting -> Html Msg
+meeting now { id, summary, description, startTime } =
+    tr []
+        [ td []
+            [ anchorTo (MeetingsR (MeetingR id))
+                []
+                [ text <| format "YYYY-MM-DD HH:mmA" startTime
+                , text " ("
+                , text <| from now startTime
+                , text " from now)"
+                ]
             ]
-    else
-        div [] []
+        , td [] [ text summary ]
+        , td [] [ text description ]
+        ]
 
 
 anchorTo : AnchorTo Msg

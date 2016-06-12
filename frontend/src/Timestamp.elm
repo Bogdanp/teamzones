@@ -59,3 +59,8 @@ fromString =
 isoFormat : Timestamp -> String
 isoFormat =
     Native.Timestamp.isoFormat
+
+
+from : Timestamp -> Timestamp -> String
+from =
+    Native.Timestamp.from
