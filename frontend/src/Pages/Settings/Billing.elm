@@ -228,12 +228,8 @@ activeOverview data plan cancelButton =
         , row "Payment amount" [ text <| amount data plan ]
         , row "Next payment due" [ text <| nextDate data ]
         , row ""
-            [ div [ class "input-group" ]
-                [ div [ class "input" ]
-                    [ CB.view cancelButton
-                        |> Html.map ToCancelButton
-                    ]
-                ]
+            [ CB.view cancelButton
+                |> Html.map ToCancelButton
             ]
         ]
 
@@ -330,7 +326,7 @@ plans ({ plans } as data) plan buttons =
     in
         div []
             [ h4 [] [ title ]
-            , table []
+            , table [ class "tall-rows" ]
                 [ thead []
                     [ tr []
                         [ td [ style [ "width" => "20%" ] ] [ text "Plan" ]
