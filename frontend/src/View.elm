@@ -44,7 +44,7 @@ page : Model -> Html Msg
 page { now, route, team, invite, profile, meetings, integrations, settings, currentProfile } =
     case route of
         DashboardR () ->
-            Team.view RouteTo team now
+            Team.view RouteTo now team
 
         InviteR () ->
             Invite.view invite

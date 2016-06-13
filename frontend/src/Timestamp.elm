@@ -26,6 +26,11 @@ format =
     Native.Timestamp.format
 
 
+defaultFormat : Timestamp -> String
+defaultFormat =
+    format "YYYY-MM-DD HH:mmA"
+
+
 tzFormat : Timezone -> Format -> Timestamp -> String
 tzFormat =
     Native.Timestamp.formatWithTimezone

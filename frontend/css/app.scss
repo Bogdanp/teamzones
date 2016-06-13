@@ -195,7 +195,7 @@
 
     .page-header,
     .page-content {
-      min-width: 780px;
+      min-width: 540px;
     }
 
     .page-header {
@@ -277,6 +277,10 @@
 
       margin: 0 7px;
       width: 192px;
+
+      &--fluid {
+        width: auto;
+      }
 
       h4, h6 {
         cursor: default;
@@ -540,6 +544,39 @@
   }
 }
 
+.meeting {
+  display: flex;
+  flex-direction: column;
+
+  .column {
+    flex: 1 1 auto;
+  }
+
+  h4, h5, h6 {
+    margin-left: 5px;
+  }
+
+  h4 {
+    margin-bottom: 0.25em;
+  }
+
+  h5 {
+    margin-bottom: 0.25em;
+  }
+
+  h5, h6 {
+    margin-top: 0;
+  }
+
+  .summary {
+    font-weight: 400;
+  }
+
+  .description {
+    white-space: pre-wrap;
+  }
+}
+
 @media (max-width: 375px) {
   .sidebar {
     margin-left: -275px;
@@ -571,6 +608,15 @@
       &:first-child {
         flex: 0 0 480px;
       }
+    }
+  }
+
+  .meeting {
+    display: flex;
+    flex-direction: row;
+
+    .column {
+      flex: 1 1 50%;
     }
   }
 }

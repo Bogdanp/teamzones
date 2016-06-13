@@ -113,3 +113,11 @@ ttl seconds =
 (?>) : Maybe a -> a -> a
 (?>) =
     flip Maybe.withDefault
+
+
+(?|) : String -> String -> String
+(?|) a b =
+    if a == "" then
+        b
+    else
+        a

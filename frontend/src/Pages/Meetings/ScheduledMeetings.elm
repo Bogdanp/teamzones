@@ -7,10 +7,11 @@ import Components.Notifications exposing (apiError)
 import Html exposing (Html, br, div, p, text, table, thead, tbody, tr, td)
 import Html.Attributes exposing (class, style)
 import Routes exposing (Sitemap(..), MeetingsSitemap(..))
+import String
 import Task
-import Timestamp exposing (Timestamp, format, from)
+import Timestamp exposing (Timestamp, defaultFormat, from)
 import Types exposing (AnchorTo, User)
-import Util exposing ((=>))
+import Util exposing ((=>), (?|))
 
 
 type Msg
@@ -73,9 +74,9 @@ meetings now ms =
                 , table []
                     [ thead []
                         [ tr []
-                            [ td [ style [ "width" => "33%" ] ] [ text "When" ]
-                            , td [ style [ "width" => "33%" ] ] [ text "Summary" ]
-                            , td [ style [ "width" => "33%" ] ] [ text "Description" ]
+                            [ td [ style [ "width" => "25%" ] ] [ text "When" ]
+                            , td [ style [ "width" => "25%" ] ] [ text "Summary" ]
+                            , td [ style [] ] [ text "Description" ]
                             ]
                         ]
                     , tbody [] (List.map (meeting now) ms)
@@ -91,15 +92,26 @@ meeting now { id, summary, description, startTime } =
         [ td []
             [ anchorTo (MeetingsR (MeetingR id))
                 []
-                [ text <| format "YYYY-MM-DD HH:mmA" startTime
+                [ text <| defaultFormat startTime
                 , text " ("
                 , text <| from now startTime
                 , text ")"
                 ]
             ]
-        , td [] [ text summary ]
-        , td [] [ text description ]
+        , td [] [ text <| trim 20 summary ?| "No summary" ]
+        , td [] [ text <| trim 75 description ?| "No description" ]
         ]
+
+
+trim : Int -> String -> String
+trim n s =
+    if String.length s > n then
+        String.toList s
+            |> List.take n
+            |> String.fromList
+            |> flip (++) "..."
+    else
+        s
 
 
 anchorTo : AnchorTo Msg
