@@ -1,8 +1,10 @@
 STATIC_DIR = ../app/static
+EMAIL_DIR = ../app/templates/_emails
 TARGET_CSS = $(STATIC_DIR)/css/app.css
 TARGET_LIB = $(STATIC_DIR)/js/lib.js
 TARGET_APP = $(STATIC_DIR)/js/app.js
-OBJS = $(TARGET_CSS) $(TARGET_LIB) $(TARGET_APP)
+TARGET_INVITE_EMAIL = $(EMAIL_DIR)/invite.html.tmpl
+OBJS = $(TARGET_CSS) $(TARGET_LIB) $(TARGET_APP) $(TARGET_INVITE_EMAIL)
 ELM_SOURCES = $(shell find src -name "*.elm" -print)
 
 .PHONY: all min
@@ -18,6 +20,9 @@ $(TARGET_LIB): lib/*.js
 
 $(TARGET_APP): $(ELM_SOURCES)
 	elm make --warn src/Main.elm --output=$(TARGET_APP)
+
+$(TARGET_INVITE_EMAIL): email/invite.mjml
+	mjml -s email/invite.mjml > $(TARGET_INVITE_EMAIL)
 
 min: all
 	uglifycss ../app/static/css/app.css  >../app/static/css/app.min.css

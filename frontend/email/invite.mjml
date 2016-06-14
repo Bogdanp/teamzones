@@ -1,0 +1,67 @@
+<mjml>
+  <mj-body>
+    <mj-container background="#FFFFFF">
+      <mj-section padding-bottom="0">
+        <mj-column width="100%">
+          <mj-button align="center"
+                     background-color="#FFFFFF"
+                     color="#000000"
+                     href="http://teamzones.io">
+            Teamzones
+          </mj-button>
+          <mj-divider horizontal-spacing="0"
+                      vertical-spacing="0"
+                      padding-top="20"
+                      padding-bottom="0"
+                      padding-left="0"
+                      padding-right="0"
+                      border-width="1px"
+                      border-color="#f8f8f8" />
+        </mj-column>
+      </mj-section>
+
+      <mj-section padding-bottom="0" background-color="#FCFCFC">
+        <mj-column width="100%">
+          <mj-text align="center">
+            You have been invited to join {{.Company.name}}!
+          </mj-text>
+          <mj-divider horizontal-spacing="0"
+                      vertical-spacing="0"
+                      padding-top="20"
+                      padding-bottom="0"
+                      padding-left="0"
+                      padding-right="0"
+                      border-width="1px"
+                      border-color="#f8f8f8" />
+        </mj-column>
+      </mj-section>
+
+      <mj-section padding-bottom="0">
+        <mj-column width="100%">
+          <mj-text align="center">
+            {{.Main.FullName}} ({{.Main.Email}}) has sent you this invitation.
+          </mj-text>
+          <mj-button href="{{.Location}}">
+            Click here to create your account
+          </mj-button>
+          <mj-divider horizontal-spacing="0"
+                      vertical-spacing="0"
+                      padding-top="20"
+                      padding-bottom="0"
+                      padding-left="0"
+                      padding-right="0"
+                      border-width="1px"
+                      border-color="#f8f8f8" />
+        </mj-column>
+      </mj-section>
+
+      <mj-section padding-bottom="0">
+        <mj-column width="100%">
+          <mj-text align="center">
+            &copy; 2016 Teamzones.io
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-container>
+  </mj-body>
+</mjml>

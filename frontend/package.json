@@ -9,6 +9,7 @@
   "private": true,
   "devDependencies": {
     "browserify": "^13.0.0",
+    "mjml": "^2.2.0",
     "node-sass": "^3.6.0"
   },
   "dependencies": {
