@@ -10,7 +10,7 @@ module Pages.Invite
 import Api exposing (Error, Response)
 import Api.Invite as InviteApi exposing (Invite, BulkInvite, createInvite, createBulkInvite)
 import Components.Form as FC exposing (form, submitWithOptions)
-import Components.Notifications exposing (apiError)
+import Components.Notifications exposing (apiError, info)
 import Components.Page exposing (page)
 import Form exposing (Form)
 import Form.Validate as Validate exposing (..)
@@ -86,7 +86,11 @@ update msg model =
             { model | pending = False } ! apiError error
 
         InviteSuccess _ ->
-            { model | form = Form.initial [] validate, pending = False } ! []
+            { model
+                | form = Form.initial [] validate
+                , pending = False
+            }
+                ! [ info "Your invitation has been sent." ]
 
         BulkInviteError error ->
             { model | pending = False } ! apiError error
