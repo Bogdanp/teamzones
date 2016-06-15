@@ -154,9 +154,9 @@ sidebar { user, sidebarHidden, sidebarTouching, sidebarOffsetX } =
             [ CurrentUser.view anchorTo user
             , ul [ class "menu" ]
                 ([ routeTo (DashboardR ()) "Dashboard"
-                 , routeTo (MeetingsR (ScheduledMeetingsR ())) "Meetings"
                  , routeTo (CurrentProfileR ()) "Your Profile"
                  , routeTo (IntegrationsR (GCalendarR ())) "Integrations"
+                 , routeTo (MeetingsR (ScheduledMeetingsR ())) "Meetings"
                  ]
                     ++ links
                     ++ [ linkTo "/sign-out" "Sign out" ]
