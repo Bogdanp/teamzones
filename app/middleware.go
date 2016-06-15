@@ -20,6 +20,7 @@ var (
 		"/sign-up",
 		"/recover-password",
 		"/reset-password",
+		"/api/location",
 	}
 
 	billingPaths = []string{

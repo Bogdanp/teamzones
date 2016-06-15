@@ -49,10 +49,17 @@ type locationResponse struct {
 
 func locationHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	var timezoneID string
+	var userID string
 
 	ctx := appengine.NewContext(req)
-	user := context.Get(req, userCtxKey).(*models.User)
-	cacheKey := fmt.Sprintf("timezone:%s", user.Email)
+	user := context.Get(req, userCtxKey)
+	if user != nil {
+		userID = user.(*models.User).Email
+	} else {
+		userID = req.RemoteAddr
+	}
+
+	cacheKey := fmt.Sprintf("timezone:%s", userID)
 	timezone, err := memcache.Get(ctx, cacheKey)
 
 	if err == nil {

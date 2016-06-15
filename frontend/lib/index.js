@@ -11,6 +11,13 @@ function seconds() {
   return (new Date).getSeconds();
 }
 
+window.loadTimezone = function(el) {
+  el.value = moment.tz.guess();
+  service.fetchLocation().then(function(location) {
+    el.value = location.timezone;
+  });
+};
+
 window.moment = moment;
 window.Checkout = Checkout;
 window.init = function(Elm, el, context) {
