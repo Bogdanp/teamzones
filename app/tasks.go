@@ -128,7 +128,7 @@ var sendMail = delay.Func(
 		log.Debugf(ctx, "Sending email to %q with subject %q and message %q...", to, subject, txtMsg)
 		mail.Send(ctx, &mail.Message{
 			To:       []string{to},
-			Sender:   "support@teamzones.io",
+			Sender:   "Teamzones.io <support@teamzones.io>",
 			Subject:  subject,
 			Body:     txtMsg,
 			HTMLBody: htmlMsg,
