@@ -28,17 +28,17 @@ OBJS = $(EMAIL_TARGETS) $(CSS_TARGETS) $(JS_TARGET) $(ELM_TARGET)
 
 all: $(OBJS)
 
-deploy: test
+deploy: $(OBJS) test
 	appcfg.py update --no_cookies app
 
-deploy_:
+deploy_: $(OBJS)
 	appcfg.py update --no_cookies app
 
 install:
 	goapp install -v teamzones/...
 	go install -v teamzones/...
 
-serve: install
+serve: $(OBJS) install
 	((sleep 3; curl http://teamzones.dev:8080/_tools/provision) &)
 	goapp serve -clear_datastore app
 
