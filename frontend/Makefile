@@ -4,7 +4,8 @@ TARGET_CSS = $(STATIC_DIR)/css/app.css
 TARGET_LIB = $(STATIC_DIR)/js/lib.js
 TARGET_APP = $(STATIC_DIR)/js/app.js
 TARGET_INVITE_EMAIL = $(EMAIL_DIR)/invite.html.tmpl
-OBJS = $(TARGET_CSS) $(TARGET_LIB) $(TARGET_APP) $(TARGET_INVITE_EMAIL)
+TARGET_RECOVER_EMAIL = $(EMAIL_DIR)/recover-password.html.tmpl
+OBJS = $(TARGET_CSS) $(TARGET_LIB) $(TARGET_APP) $(TARGET_INVITE_EMAIL) $(TARGET_RECOVER_EMAIL)
 ELM_SOURCES = $(shell find src -name "*.elm" -print)
 
 .PHONY: all min
@@ -23,6 +24,9 @@ $(TARGET_APP): $(ELM_SOURCES)
 
 $(TARGET_INVITE_EMAIL): email/invite.mjml
 	mjml -s email/invite.mjml > $(TARGET_INVITE_EMAIL)
+
+$(TARGET_RECOVER_EMAIL): email/recover-password.mjml
+	mjml -s email/recover-password.mjml > $(TARGET_RECOVER_EMAIL)
 
 min: all
 	uglifycss ../app/static/css/app.css  >../app/static/css/app.min.css
