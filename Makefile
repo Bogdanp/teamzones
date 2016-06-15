@@ -24,9 +24,12 @@ TEST_SOURCES = teamzones/{app,integrations,forms,models,utils}
 
 OBJS = $(EMAIL_TARGETS) $(CSS_TARGETS) $(JS_TARGET) $(ELM_TARGET)
 
-.PHONY: all install serve test deploy
+.PHONY: all deploy install min serve test
 
 all: $(OBJS)
+
+deploy: test
+	appcfg.py update --no_cookies app
 
 install:
 	goapp install -v teamzones/...
@@ -38,9 +41,6 @@ serve: install
 
 test: install
 	goapp test $(TEST_SOURCES)
-
-deploy: test
-	appcfg.py update --no_cookies app
 
 $(CSS_APP_T): $(CSS_SOURCES)
 	node-sass $(CSS_ROOT)/app.scss $(CSS_APP_T)

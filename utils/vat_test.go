@@ -1,9 +1,12 @@
 package utils
 
-import "testing"
+import (
+	"teamzones/testutils"
+	"testing"
+)
 
 func TestCheckVAT(t *testing.T) {
-	ctx, done, _ := AEContext()
+	ctx, done, _ := testutils.AEContext()
 	defer done()
 
 	cases := []struct {

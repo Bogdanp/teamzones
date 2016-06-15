@@ -3,7 +3,7 @@ package integrations
 import (
 	"log"
 	"os"
-	"teamzones/utils"
+	"teamzones/testutils"
 	"testing"
 
 	"golang.org/x/oauth2"
@@ -36,7 +36,7 @@ func TestCalendarConfig(t *testing.T) {
 }
 
 func TestCalendarService(t *testing.T) {
-	ctx, done, _ := utils.AEContext()
+	ctx, done, _ := testutils.AEContext()
 	defer done()
 
 	service, err := NewCalendarService(ctx, calendarToken)
@@ -51,7 +51,7 @@ func TestCalendarService(t *testing.T) {
 }
 
 func TestFetchUserCalendars(t *testing.T) {
-	ctx, done, _ := utils.AEContext()
+	ctx, done, _ := testutils.AEContext()
 	defer done()
 
 	primaryID, calendars, err := FetchUserCalendars(ctx, calendarToken)
