@@ -20,6 +20,9 @@ var (
 		"/sign-up",
 		"/recover-password",
 		"/reset-password",
+	}
+
+	sharedPaths = []string{
 		"/api/location",
 	}
 
@@ -44,7 +47,7 @@ func isSubpath(path string, paths []string) bool {
 // current Company's billing status.  The ACLs only apply to static
 // paths!
 func Access(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
-	if isSubpath(req.URL.Path, guestPaths) {
+	if isSubpath(req.URL.Path, guestPaths) || isSubpath(req.URL.Path, sharedPaths) {
 		next(res, req)
 		return
 	}
@@ -91,17 +94,23 @@ func redirectAuth(res http.ResponseWriter, req *http.Request, r string) {
 // a resource.  It also injects the User into the context.
 func Auth(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 	isGuestPath := isSubpath(req.URL.Path, guestPaths)
+	isSharedPath := isSubpath(req.URL.Path, sharedPaths)
 	session := sessions.GetSession(req)
 	email := session.Get(uidSessionKey)
 
 	if email == nil {
-		if isGuestPath {
+		if isGuestPath || isSharedPath {
 			next(res, req)
 			return
 		}
 
 		redirectAuth(res, req, req.URL.String())
 		return
+
+	} else if isSharedPath {
+		next(res, req)
+		return
+
 	} else if isGuestPath {
 		http.Redirect(res, req, "/", http.StatusFound)
 		return
