@@ -24,11 +24,14 @@ TEST_SOURCES = teamzones/{app,integrations,forms,models,utils}
 
 OBJS = $(EMAIL_TARGETS) $(CSS_TARGETS) $(JS_TARGET) $(ELM_TARGET)
 
-.PHONY: all deploy install min serve test
+.PHONY: all deploy deploy_ install min serve test
 
 all: $(OBJS)
 
 deploy: test
+	appcfg.py update --no_cookies app
+
+deploy_:
 	appcfg.py update --no_cookies app
 
 install:
