@@ -11,6 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
+	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
 	"google.golang.org/appengine/urlfetch"
 )
@@ -57,9 +58,13 @@ func checkVAT(ctx context.Context, VATID string) bool {
 		return false
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
 	c := urlfetch.Client(ctx)
 	r, err := c.Post(vatServiceURL, "text/xml;charset=UTF-8", e)
 	if err != nil {
+		log.Infof(ctx, "checkVat: %v", err)
 		return false
 	}
 	defer r.Body.Close()
@@ -76,6 +81,7 @@ func checkVAT(ctx context.Context, VATID string) bool {
 	}
 
 	if err := xml.NewDecoder(r.Body).Decode(&data); err != nil {
+		log.Infof(ctx, "checkVat: %v", err)
 		return false
 	}
 
