@@ -4,14 +4,20 @@ module Api.Billing
         , SubscriptionStatus(..)
         , Subscription
         , SubscriptionPlan
+        , TransactionType(..)
+        , TransactionStatus(..)
+        , Transaction
         , cancelSubscription
         , fetchSubscription
+        , fetchInvoices
+        , fetchInvoice
         , updatePlan
         , updateVatId
         )
 
 import Api exposing (Errors, Error, Response, deletePlain, getJson, postPlain)
-import Json.Decode as Json exposing (Decoder, (:=), bool, int, list, maybe, string)
+import Json.Decode as Json exposing (Decoder, (:=), bool, int, list, maybe, string, succeed)
+import Json.Decode.Extra exposing ((|:))
 import Json.Encode
 import Task exposing (Task)
 import Timestamp exposing (Timestamp)
@@ -50,6 +56,28 @@ type alias Subscription =
     , planId : String
     , status : SubscriptionStatus
     , validUntil : Timestamp
+    }
+
+
+type TransactionType
+    = Sale
+
+
+type TransactionStatus
+    = Settled
+
+
+type alias Transaction =
+    { id : String
+    , subscriptionId : String
+    , subscriptionPlanId : String
+    , subscriptionCountry : String
+    , subscriptionVatId : String
+    , subscriptionVatPercent : Int
+    , transactionId : String
+    , transactionAmount : Int
+    , transactionType : TransactionType
+    , transactionStatus : TransactionStatus
     }
 
 
@@ -104,26 +132,69 @@ subscriptionStatus =
 
 subscriptionPlan : Decoder SubscriptionPlan
 subscriptionPlan =
-    Json.object7 SubscriptionPlan
-        ("id" := string)
-        ("label" := string)
-        ("price" := int)
-        ("monthlyPrice" := int)
-        ("billingCycle" := billingCycle)
-        ("members" := int)
-        ("summary" := string)
+    succeed SubscriptionPlan
+        |: ("id" := string)
+        |: ("label" := string)
+        |: ("price" := int)
+        |: ("monthlyPrice" := int)
+        |: ("billingCycle" := billingCycle)
+        |: ("members" := int)
+        |: ("summary" := string)
 
 
 subscription : Decoder Subscription
 subscription =
-    Json.object7 Subscription
-        ("needVat" := bool)
-        ("vat" := int)
-        ("vatId" := string)
-        ("plans" := list subscriptionPlan)
-        ("planId" := string)
-        ("status" := subscriptionStatus)
-        ("validUntil" := timestamp)
+    succeed Subscription
+        |: ("needVat" := bool)
+        |: ("vat" := int)
+        |: ("vatId" := string)
+        |: ("plans" := list subscriptionPlan)
+        |: ("planId" := string)
+        |: ("status" := subscriptionStatus)
+        |: ("validUntil" := timestamp)
+
+
+transactionType : Decoder TransactionType
+transactionType =
+    let
+        decode s =
+            case s of
+                "sale" ->
+                    Ok Sale
+
+                _ ->
+                    Err "invalid transaction type"
+    in
+        Json.customDecoder string decode
+
+
+transactionStatus : Decoder TransactionStatus
+transactionStatus =
+    let
+        decode s =
+            case s of
+                "settled" ->
+                    Ok Settled
+
+                _ ->
+                    Err "invalid transaction status"
+    in
+        Json.customDecoder string decode
+
+
+transaction : Decoder Transaction
+transaction =
+    succeed Transaction
+        |: ("id" := string)
+        |: ("subscriptionId" := string)
+        |: ("subscriptionPlanId" := string)
+        |: ("subscriptionCountry" := string)
+        |: ("subscriptionVatId" := string)
+        |: ("subscriptionVatPercent" := int)
+        |: ("transactionId" := string)
+        |: ("transactionAmount" := int)
+        |: ("transactionType" := transactionType)
+        |: ("transactionStatus" := transactionStatus)
 
 
 cancelSubscription : Task Error (Response String)
@@ -134,6 +205,16 @@ cancelSubscription =
 fetchSubscription : Task Error (Response Subscription)
 fetchSubscription =
     getJson subscription "billing/subscriptions/current"
+
+
+fetchInvoices : Task Error (Response (List Transaction))
+fetchInvoices =
+    getJson (list transaction) "billing/invoices"
+
+
+fetchInvoice : String -> Task Error (Response Transaction)
+fetchInvoice invoiceId =
+    getJson transaction ("billing/invoices/" ++ invoiceId)
 
 
 updatePlan : String -> Task Error (Response String)
