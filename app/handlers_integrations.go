@@ -21,12 +21,26 @@ import (
 )
 
 func init() {
-	GET(appRouter, initiateOAuthRoute, "/integrations/connect/:integration", initiateOAuthHandler)
-	GET(siteRouter, gcalendarOAuthRoute, "/integrations/gcalendar/oauth2-callback", gcalendarOAuthHandler)
-	GET(appRouter, gcalendarOAuthTeamRoute, "/integrations/gcalendar/oauth2-callback", gcalendarOAuthTeamHandler)
+	GET(
+		appRouter,
+		"integrations-connect", "/integrations/connect/:integration",
+		initiateOAuthHandler,
+	)
+	GET(
+		siteRouter,
+		"integrations-gcalendar-callback", "/integrations/gcalendar/oauth2-callback",
+		gcalendarOAuthHandler,
+	)
+	GET(
+		appRouter,
+		"integrations-gcalendar-callback-team", "/integrations/gcalendar/oauth2-callback",
+		gcalendarOAuthTeamHandler,
+	)
 
 	// Hook up the Google Calendar OAuth2 URL.
-	integrations.SetCalendarRedirectURL(ReverseRoute(gcalendarOAuthRoute).Absolute().Build())
+	integrations.SetCalendarRedirectURL(
+		ReverseRoute("integrations-gcalendar-callback").Absolute().Build(),
+	)
 }
 
 func initiateOAuthHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
@@ -68,7 +82,7 @@ func gcalendarOAuthHandler(res http.ResponseWriter, req *http.Request, _ httprou
 		return
 	}
 
-	location := ReverseRoute(gcalendarOAuthTeamRoute).
+	location := ReverseRoute("integrations-gcalendar-callback-team").
 		Subdomain(segments[0]).
 		Query("state", segments[1]).
 		Query("code", req.FormValue("code")).
@@ -126,6 +140,6 @@ func gcalendarOAuthTeamHandler(res http.ResponseWriter, req *http.Request, _ htt
 		return
 	}
 
-	location := ReverseRoute(integrationsGCalRoute).Build()
+	location := ReverseRoute("integrations-calendar").Build()
 	http.Redirect(res, req, location, http.StatusFound)
 }

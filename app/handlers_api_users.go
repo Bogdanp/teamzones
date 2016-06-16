@@ -27,17 +27,17 @@ const (
 func init() {
 	POST(
 		appRouter,
-		sendInviteRoute, "/api/invites",
+		"invites-send", "/api/invites",
 		sendInviteHandler, models.RoleMain, models.RoleManager,
 	)
 	POST(
 		appRouter,
-		createBulkInviteRoute, "/api/bulk-invites",
+		"invites-create-bulk", "/api/bulk-invites",
 		createBulkInviteHandler, models.RoleMain, models.RoleManager,
 	)
 	DELETE(
 		appRouter,
-		deleteUserRoute, "/api/users/:email",
+		"users-delete", "/api/users/:email",
 		deleteUserHandler,
 	)
 }
@@ -106,7 +106,7 @@ func createBulkInviteHandler(res http.ResponseWriter, req *http.Request, _ httpr
 		})
 	}
 
-	location := ReverseRoute(teamSignUpRoute).
+	location := ReverseRoute("team-sign-up").
 		Param("invite", inviteIDStr).
 		Subdomain(company.Subdomain).
 		Build()

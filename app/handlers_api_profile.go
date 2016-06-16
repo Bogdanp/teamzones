@@ -20,22 +20,22 @@ import (
 func init() {
 	GET(
 		appRouter,
-		locationRoute, "/api/location",
+		"location", "/api/location",
 		locationHandler,
 	)
 	POST(
 		appRouter,
-		updateProfileRoute, "/api/profile",
+		"profile-update", "/api/profile",
 		updateProfileHandler,
 	)
 	ALL(
 		appRouter,
-		avatarUploadRoute, "/api/upload",
+		"avatar-upload", "/api/upload",
 		avatarUploadHandler,
 	)
 	DELETE(
 		appRouter,
-		deleteAvatarRoute, "/api/avatar",
+		"avatar-delete", "/api/avatar",
 		deleteAvatarHandler,
 	)
 }
@@ -116,7 +116,7 @@ func avatarUploadHandler(res http.ResponseWriter, req *http.Request, _ httproute
 
 	if req.Method == http.MethodPost {
 		redirect := func() {
-			http.Redirect(res, req, ReverseSimple(currentProfileRoute), http.StatusFound)
+			http.Redirect(res, req, ReverseSimple("current-profile"), http.StatusFound)
 		}
 
 		blobs, _, err := blobstore.ParseUpload(req)
@@ -161,7 +161,7 @@ func avatarUploadHandler(res http.ResponseWriter, req *http.Request, _ httproute
 		return
 	}
 
-	location := ReverseSimple(avatarUploadRoute)
+	location := ReverseSimple("avatar-upload")
 	uri, err := blobstore.UploadURL(ctx, location, &blobstore.UploadURLOptions{
 		MaxUploadBytesPerBlob: 1024 * 1024 * 8,
 

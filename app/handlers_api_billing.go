@@ -17,22 +17,22 @@ import (
 func init() {
 	GET(
 		appRouter,
-		currentSubscriptionRoute, "/api/billing/subscriptions/current",
+		"billing-get-subscription", "/api/billing/subscriptions/current",
 		currentSubscriptionHandler, models.RoleMain,
 	)
 	DELETE(
 		appRouter,
-		currentSubscriptionRoute, "/api/billing/subscriptions/current",
+		"billing-delete-subscription", "/api/billing/subscriptions/current",
 		cancelSubscriptionHandler, models.RoleMain,
 	)
 	POST(
 		appRouter,
-		updateVATIDRoute, "/api/billing/vat-id",
+		"billing-update-vat-id", "/api/billing/vat-id",
 		updateVATIDHandler, models.RoleMain,
 	)
 	POST(
 		appRouter,
-		updatePlanRoute, "/api/billing/plans",
+		"billing-update-plan", "/api/billing/plans",
 		updatePlanHandler, models.RoleMain,
 	)
 }

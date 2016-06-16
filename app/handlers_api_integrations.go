@@ -19,37 +19,37 @@ import (
 func init() {
 	POST(
 		appRouter,
-		refreshIntegrationRoute, "/api/integrations/refresh",
+		"integrations-refresh", "/api/integrations/refresh",
 		refreshIntegrationHandler,
 	)
 	POST(
 		appRouter,
-		disconnectIntegrationRoute, "/api/integrations/disconnect",
+		"integrations-disconnect", "/api/integrations/disconnect",
 		disconnectIntegrationHandler,
 	)
 	GET(
 		appRouter,
-		gcalendarDataRoute, "/api/integrations/gcalendar/data",
+		"integrations-calendar-data", "/api/integrations/gcalendar/data",
 		gcalendarDataHandler,
 	)
 	POST(
 		appRouter,
-		scheduleMeetingRoute, "/api/integrations/gcalendar/meetings",
+		"integrations-calendar-schedule", "/api/integrations/gcalendar/meetings",
 		scheduleMeetingHandler,
 	)
 	GET(
 		appRouter,
-		meetingListRoute, "/api/integrations/gcalendar/meetings",
+		"integrations-calendar-meetings", "/api/integrations/gcalendar/meetings",
 		meetingListHandler,
 	)
 	GET(
 		appRouter,
-		meetingDetailsRoute, "/api/integrations/gcalendar/meetings/:id",
+		"integrations-calendar-meeting", "/api/integrations/gcalendar/meetings/:id",
 		meetingDetailsHandler,
 	)
 	PATCH(
 		appRouter,
-		setDefaultCalendarRoute, "/api/integrations/gcalendar/meetings",
+		"integrations-calendar-set-default", "/api/integrations/gcalendar/meetings",
 		setDefaultCalendarHandler,
 	)
 }

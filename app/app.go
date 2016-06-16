@@ -28,68 +28,6 @@ var (
 var siteRouter, appRouter = createRouters()
 
 const (
-	// Site
-	homeRoute = iota
-	plansRoute
-	signUpRoute
-	siteSignInRoute
-	findTeamRoute
-
-	btTokenRoute
-	btWebhookRoute
-
-	// Integrations
-	initiateOAuthRoute
-	gcalendarOAuthRoute
-	gcalendarOAuthTeamRoute
-
-	// Application
-	dashboardRoute
-	currentProfileRoute
-	inviteRoute
-	profileRoute
-	meetingsRoute
-	meetingRoute
-	integrationsGCalRoute
-	settingsTeamRoute
-	settingsBillingRoute
-	teamSignUpRoute
-	signInRoute
-	signOutRoute
-	recoverPasswordRoute
-	resetPasswordRoute
-
-	// API
-	/// User management
-	sendInviteRoute
-	createBulkInviteRoute
-	deleteUserRoute
-
-	/// Profile
-	locationRoute
-	updateProfileRoute
-	avatarUploadRoute
-	deleteAvatarRoute
-
-	/// Integrations
-	refreshIntegrationRoute
-	disconnectIntegrationRoute
-	gcalendarDataRoute
-	scheduleMeetingRoute
-	meetingListRoute
-	meetingDetailsRoute
-	setDefaultCalendarRoute
-
-	/// Billing
-	currentSubscriptionRoute
-	updateVATIDRoute
-	updatePlanRoute
-
-	// Tools
-	provisionRoute
-)
-
-const (
 	companyCtxKey = iota
 	userCtxKey
 )

@@ -11,7 +11,7 @@ import (
 )
 
 // Route is the type of route identifiers.
-type Route int
+type Route string
 
 var sitemap = make(map[Route]RouteBuilder)
 var sitemapACL = make(map[string][]string) // path -> list of roles

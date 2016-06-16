@@ -19,20 +19,20 @@ import (
 )
 
 func init() {
-	GET(appRouter, dashboardRoute, "/", dashboardHandler)
-	GET(appRouter, inviteRoute, "/invite", dashboardHandler)
-	GET(appRouter, profileRoute, "/profile/:email", dashboardHandler)
-	GET(appRouter, meetingsRoute, "/meetings/", dashboardHandler)
-	GET(appRouter, meetingRoute, "/meetings/:id", dashboardHandler)
-	GET(appRouter, integrationsGCalRoute, "/integrations/google-calendar", dashboardHandler)
-	GET(appRouter, settingsTeamRoute, "/settings/team", dashboardHandler)
-	GET(appRouter, settingsBillingRoute, "/settings/billing", dashboardHandler)
-	GET(appRouter, currentProfileRoute, "/profile", dashboardHandler)
-	ALL(appRouter, teamSignUpRoute, "/sign-up/:invite", teamSignUpHandler)
-	ALL(appRouter, signInRoute, "/sign-in/", signInHandler)
-	GET(appRouter, signOutRoute, "/sign-out/", signOutHandler)
-	ALL(appRouter, recoverPasswordRoute, "/recover-password/", recoverPasswordHandler)
-	ALL(appRouter, resetPasswordRoute, "/reset-password/:token", resetPasswordHandler)
+	GET(appRouter, "dashboard", "/", dashboardHandler)
+	GET(appRouter, "invite", "/invite", dashboardHandler)
+	GET(appRouter, "current-profile", "/profile", dashboardHandler)
+	GET(appRouter, "teammate-profile", "/profile/:email", dashboardHandler)
+	GET(appRouter, "meetings", "/meetings/", dashboardHandler)
+	GET(appRouter, "meeting", "/meetings/:id", dashboardHandler)
+	GET(appRouter, "integrations-calendar", "/integrations/google-calendar", dashboardHandler)
+	GET(appRouter, "settings-team", "/settings/team", dashboardHandler)
+	GET(appRouter, "settings-billing", "/settings/billing", dashboardHandler)
+	ALL(appRouter, "team-sign-up", "/sign-up/:invite", teamSignUpHandler)
+	ALL(appRouter, "team-sign-in", "/sign-in/", signInHandler)
+	GET(appRouter, "team-sign-out", "/sign-out/", signOutHandler)
+	ALL(appRouter, "team-recover-password", "/recover-password/", recoverPasswordHandler)
+	ALL(appRouter, "team-reset-password", "/reset-password/:token", resetPasswordHandler)
 }
 
 type integrationsPayload struct {
@@ -166,7 +166,7 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 				models.DeleteInvite(ctx, companyKey, inviteID)
 			}
 
-			location := ReverseRoute(signInRoute).
+			location := ReverseRoute("team-sign-in").
 				Subdomain(company.Subdomain).
 				Build()
 			http.Redirect(res, req, location, http.StatusTemporaryRedirect)
@@ -247,7 +247,7 @@ func signInHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Para
 func signOutHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	session := sessions.GetSession(req)
 	session.Delete(uidSessionKey)
-	http.Redirect(res, req, ReverseSimple(signInRoute), http.StatusFound)
+	http.Redirect(res, req, ReverseSimple("team-sign-in"), http.StatusFound)
 }
 
 func recoverPasswordHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
@@ -317,7 +317,7 @@ func resetPasswordHandler(res http.ResponseWriter, req *http.Request, params htt
 		}
 
 		nds.Delete(ctx, models.NewRecoveryTokenKey(ctx, companyKey, tokenID))
-		location := ReverseRoute(signInRoute).Build()
+		location := ReverseRoute("team-sign-in").Build()
 		http.Redirect(res, req, location, http.StatusFound)
 		return
 	}

@@ -156,7 +156,7 @@ var inviteUser = delay.Func(
 			panic(err)
 		}
 
-		location := ReverseRoute(teamSignUpRoute).
+		location := ReverseRoute("team-sign-up").
 			Param("invite", strconv.FormatInt(key.IntID(), 10)).
 			Subdomain(company.Subdomain).
 			Build()
@@ -199,7 +199,7 @@ var createRecoveryToken = delay.Func(
 			panic(err)
 		}
 
-		location := ReverseRoute(resetPasswordRoute).
+		location := ReverseRoute("team-reset-password").
 			Param("token", key.StringID()).
 			Subdomain(company.Subdomain).
 			Build()

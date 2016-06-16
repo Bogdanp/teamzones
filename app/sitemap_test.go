@@ -2,8 +2,6 @@ package handlers
 
 import "testing"
 
-const aRoute = iota
-
 func TestBuilderStaticParsing(t *testing.T) {
 	b := newBuilder("/hello")
 	if b.Build() != "/hello" {
@@ -43,9 +41,9 @@ func TestBuilderPanicsIfMissingParams(t *testing.T) {
 }
 
 func TestBuildersAreSafe(t *testing.T) {
-	sitemap[aRoute] = newBuilder("/foo")
-	b1 := ReverseRoute(aRoute).Query("a", "hello")
-	b2 := ReverseRoute(aRoute).Query("a", "goodbye")
+	sitemap["a-route"] = newBuilder("/foo")
+	b1 := ReverseRoute("a-route").Query("a", "hello")
+	b2 := ReverseRoute("a-route").Query("a", "goodbye")
 	if b1.Build() == b2.Build() {
 		t.Error("builders are not safe")
 	}

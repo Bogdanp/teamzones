@@ -18,14 +18,22 @@ import (
 )
 
 func init() {
-	GET(siteRouter, homeRoute, "/", homeHandler)
-	GET(siteRouter, plansRoute, "/plans/", plansHandler)
-	ALL(siteRouter, signUpRoute, "/sign-up/:plan/", signUpHandler)
-	ALL(siteRouter, siteSignInRoute, "/sign-in/", siteSignInHandler)
-	ALL(siteRouter, findTeamRoute, "/find-team/", findTeamHandler)
+	GET(siteRouter, "home", "/", homeHandler)
+	GET(siteRouter, "plans", "/plans/", plansHandler)
+	ALL(siteRouter, "sign-up", "/sign-up/:plan/", signUpHandler)
+	ALL(siteRouter, "sign-in", "/sign-in/", siteSignInHandler)
+	ALL(siteRouter, "find-team", "/find-team/", findTeamHandler)
 
-	GET(siteRouter, btTokenRoute, "/api/bt-token", braintreeTokenHandler)
-	POST(siteRouter, btWebhookRoute, "/api/bt-webhooks", braintreeWebhookHandler)
+	GET(
+		siteRouter,
+		"braintree-token", "/api/bt-token",
+		braintreeTokenHandler,
+	)
+	POST(
+		siteRouter,
+		"braintree-webhook", "/api/bt-webhooks",
+		braintreeWebhookHandler,
+	)
 }
 
 func homeHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
@@ -234,7 +242,7 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 
 		switch err {
 		case nil:
-			location := ReverseRoute(signInRoute).
+			location := ReverseRoute("team-sign-in").
 				Subdomain(form.CompanySubdomain.Value).
 				Build()
 			http.Redirect(res, req, location, http.StatusTemporaryRedirect)
@@ -276,7 +284,7 @@ func siteSignInHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 			return
 		}
 
-		location := ReverseRoute(signInRoute).
+		location := ReverseRoute("team-sign-in").
 			Subdomain(company.Subdomain).
 			Build()
 

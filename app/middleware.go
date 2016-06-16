@@ -63,7 +63,7 @@ func Access(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 		}
 
 		if !isSubpath(req.URL.Path, billingPaths) {
-			http.Redirect(res, req, ReverseSimple(settingsBillingRoute), http.StatusFound)
+			http.Redirect(res, req, ReverseSimple("settings-billing"), http.StatusFound)
 			return
 		}
 	}
@@ -84,7 +84,7 @@ func Access(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 }
 
 func redirectAuth(res http.ResponseWriter, req *http.Request, r string) {
-	path := ReverseRoute(signInRoute).
+	path := ReverseRoute("team-sign-in").
 		Query("r", r).
 		Build()
 	http.Redirect(res, req, path, http.StatusFound)

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	GET(siteRouter, provisionRoute, "/_tools/provision", provisionHandler)
+	GET(siteRouter, "tools-provision", "/_tools/provision", provisionHandler)
 }
 
 func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
