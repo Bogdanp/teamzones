@@ -65,6 +65,10 @@ func createRenderer() *render.Render {
 		"asset": func(filename string) string {
 			return fmt.Sprintf("/static/%s?v=%s", filename, metadata.Version)
 		},
+
+		"route": func(name Route, params ...string) string {
+			return ReverseRoute(name).Params(params...).Build()
+		},
 	}
 
 	return render.New(render.Options{

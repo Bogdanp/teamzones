@@ -49,6 +49,24 @@ func (b RouteBuilder) Param(name, value string) RouteBuilder {
 	return b
 }
 
+// Params sets the parameters on a RouteBuilder from a slice of
+// strings in the order that they were defined.
+func (b RouteBuilder) Params(params ...string) RouteBuilder {
+	if b.params == nil {
+		b.params = make(map[string]string)
+	}
+
+	i := 0
+	for _, segment := range b.segments {
+		if segment.kind == segmentDynamic {
+			b.params[segment.value] = params[i]
+			i++
+		}
+	}
+
+	return b
+}
+
 // Query sets a list of query string parameters on the RouterBuilder.
 func (b RouteBuilder) Query(name string, value ...string) RouteBuilder {
 	if b.query == nil {
