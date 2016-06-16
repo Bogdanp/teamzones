@@ -18,11 +18,9 @@ import (
 )
 
 func init() {
-	GET(
-		appRouter,
-		"location", "/api/location",
-		locationHandler,
-	)
+	GET(siteRouter, "site-location", "/api/location", locationHandler)
+	GET(appRouter, "team-location", "/api/location", locationHandler)
+
 	POST(
 		appRouter,
 		"profile-update", "/api/profile",
