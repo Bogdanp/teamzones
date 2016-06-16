@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"teamzones/utils"
 
 	"github.com/lionelbarrow/braintree-go"
@@ -11,24 +12,31 @@ import (
 	"google.golang.org/appengine/datastore"
 )
 
+var (
+	// ErrTransactionNotInvoice is returned when a requested
+	// transaction is not an invoice.
+	ErrTransactionNotInvoice = errors.New("transaction is not an invoice")
+)
+
 const (
-	transactionKind = "Transaction"
+	transactionKind          = "Transaction"
+	transactionInvoiceStatus = "settled"
 )
 
 // Transaction represents a successful payment.
 type Transaction struct {
-	Company *datastore.Key
+	Company *datastore.Key `json:"-"`
 
-	SubscriptionID         string
-	SubscriptionPlanID     string
-	SubscriptionCountry    string
-	SubscriptionVATID      string
-	SubscriptionVATPercent int
+	SubscriptionID         string `json:"subscriptionId"`
+	SubscriptionPlanID     string `json:"subscriptionPlanId"`
+	SubscriptionCountry    string `json:"subscriptionCountry"`
+	SubscriptionVATID      string `json:"subscriptionVatId"`
+	SubscriptionVATPercent int    `json:"subscriptionVatPercent"`
 
-	TransactionID     string
-	TransactionAmount int64
-	TransactionType   string
-	TransactionStatus string
+	TransactionID     string `json:"transactionId"`
+	TransactionAmount int64  `json:"transactionAmount"`
+	TransactionType   string `json:"transactionType"`
+	TransactionStatus string `json:"transactionStatus"`
 
 	Times
 }
@@ -71,4 +79,32 @@ func SyncTransactions(
 	}
 
 	return nil
+}
+
+// FindInvoices returns a query that finds all settled transactions belonging to a company.
+func FindInvoices(company *datastore.Key) *datastore.Query {
+	return datastore.NewQuery(transactionKind).
+		Ancestor(company).
+		Filter("TransactionType=", "sale").
+		Filter("TransactionStatus=", transactionInvoiceStatus).
+		Order("-CreatedAt")
+}
+
+// GetInvoice gets an invoice by id.
+func GetInvoice(ctx context.Context, company *datastore.Key, id string) (*Transaction, error) {
+	t := &Transaction{}
+	err := nds.Get(ctx, datastore.NewKey(ctx, transactionKind, id, 0, company), t)
+	if err != nil {
+		return nil, err
+	}
+
+	if !t.isInvoice() {
+		return nil, ErrTransactionNotInvoice
+	}
+
+	return t, nil
+}
+
+func (t *Transaction) isInvoice() bool {
+	return t.TransactionType == "sale" && t.TransactionStatus == transactionInvoiceStatus
 }

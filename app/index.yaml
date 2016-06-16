@@ -19,3 +19,18 @@ indexes:
   ancestor: yes
   properties:
   - name: StartTime
+
+- kind: Transaction
+  ancestor: yes
+  properties:
+  - name: TransactionStatus
+  - name: CreatedAt
+    direction: desc
+
+- kind: Transaction
+  ancestor: yes
+  properties:
+  - name: TransactionStatus
+  - name: TransactionType
+  - name: CreatedAt
+    direction: desc

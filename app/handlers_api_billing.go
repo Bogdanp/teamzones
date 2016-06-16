@@ -35,6 +35,16 @@ func init() {
 		"billing-update-plan", "/api/billing/plans",
 		updatePlanHandler, models.RoleMain,
 	)
+	GET(
+		appRouter,
+		"billing-invoices", "/api/billing/invoices",
+		invoiceListHandler, models.RoleMain,
+	)
+	GET(
+		appRouter,
+		"billing-invoice", "/api/billing/invoices/:id",
+		invoiceHandler, models.RoleMain,
+	)
 }
 
 type subscriptionResponse struct {
@@ -150,4 +160,42 @@ func updatePlanHandler(res http.ResponseWriter, req *http.Request, _ httprouter.
 	}
 
 	res.WriteHeader(http.StatusOK)
+}
+
+type invoiceResponse struct {
+	ID string `json:"id"`
+
+	models.Transaction
+}
+
+func invoiceListHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	var invoices []invoiceResponse
+
+	ctx := appengine.NewContext(req)
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	keys, err := models.FindInvoices(company.Key(ctx)).GetAll(ctx, &invoices)
+	if err != nil {
+		log.Errorf(ctx, "failed to find invoices: %v", err)
+		serverError(res)
+		return
+	}
+
+	for i, k := range keys {
+		invoices[i].ID = k.StringID()
+	}
+
+	renderer.JSON(res, http.StatusOK, invoices)
+}
+
+func invoiceHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	id := params.ByName("id")
+	ctx := appengine.NewContext(req)
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	invoice, err := models.GetInvoice(ctx, company.Key(ctx), id)
+	if err != nil {
+		notFound(res)
+		return
+	}
+
+	renderer.JSON(res, http.StatusOK, invoiceResponse{id, *invoice})
 }
