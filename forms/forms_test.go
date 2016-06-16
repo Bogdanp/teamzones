@@ -6,23 +6,25 @@ import (
 	"testing"
 )
 
-var jsonTests = []struct {
-	input string
-	pass  bool
-}{
-	{`{"name":"Bogdan Popa","email":"bogdan@defn.io"}`, true},
-	{`{"name":"Bo","email":"bogdan@defn.io"}`, false},
-	{`{"name":"Bogdan","email":"bogdan"}`, false},
-	{`{"name":"","email":""}`, false},
-}
-
 func TestBindJSON(t *testing.T) {
+	t.Parallel()
+
 	var data struct {
 		Name  string `json:"name" validate:"MinLength:3,MaxLength:50"`
 		Email string `json:"email" validate:"Email"`
 	}
 
-	for i, test := range jsonTests {
+	cases := []struct {
+		input string
+		pass  bool
+	}{
+		{`{"name":"Bogdan Popa","email":"bogdan@defn.io"}`, true},
+		{`{"name":"Bo","email":"bogdan@defn.io"}`, false},
+		{`{"name":"Bogdan","email":"bogdan"}`, false},
+		{`{"name":"","email":""}`, false},
+	}
+
+	for i, test := range cases {
 		req, err := http.NewRequest("GET", "http://example.com", strings.NewReader(test.input))
 		if err != nil {
 			t.Fatal(err)
@@ -38,6 +40,8 @@ func TestBindJSON(t *testing.T) {
 }
 
 func TestSubdomainValidator(t *testing.T) {
+	t.Parallel()
+
 	cases := []struct {
 		Value string
 		Valid bool

@@ -3,6 +3,8 @@ package handlers
 import "testing"
 
 func TestBuilderStaticParsing(t *testing.T) {
+	t.Parallel()
+
 	b := newBuilder("/hello")
 	if b.Build() != "/hello" {
 		t.Error("bad parse")
@@ -10,6 +12,8 @@ func TestBuilderStaticParsing(t *testing.T) {
 }
 
 func TestBuilding(t *testing.T) {
+	t.Parallel()
+
 	cases := []struct {
 		builder  RouteBuilder
 		expected string
@@ -32,6 +36,8 @@ func TestBuilding(t *testing.T) {
 }
 
 func TestBuilderPanicsIfMissingParams(t *testing.T) {
+	t.Parallel()
+
 	defer func() {
 		if r := recover(); r == nil {
 			t.Error("did not panic")
@@ -42,6 +48,8 @@ func TestBuilderPanicsIfMissingParams(t *testing.T) {
 }
 
 func TestBuildersAreSafe(t *testing.T) {
+	t.Parallel()
+
 	sitemap["a-route"] = newBuilder("/foo")
 	b1 := ReverseRoute("a-route").Query("a", "hello")
 	b2 := ReverseRoute("a-route").Query("a", "goodbye")
