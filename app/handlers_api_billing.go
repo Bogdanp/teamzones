@@ -45,6 +45,11 @@ func init() {
 		"billing-invoice", "/api/billing/invoices/:id",
 		invoiceHandler, models.RoleMain,
 	)
+	GET(
+		appRouter,
+		"billing-invoice-html", "/api/billing/invoices/:id/html",
+		invoiceHTMLHandler, models.RoleMain,
+	)
 }
 
 type subscriptionResponse struct {
@@ -198,4 +203,26 @@ func invoiceHandler(res http.ResponseWriter, req *http.Request, params httproute
 	}
 
 	renderer.JSON(res, http.StatusOK, invoiceResponse{id, *invoice})
+}
+
+func invoiceHTMLHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	ctx := appengine.NewContext(req)
+	company := context.Get(req, companyCtxKey).(*models.Company)
+	invoice, err := models.GetInvoice(ctx, company.Key(ctx), params.ByName("id"))
+	if err != nil {
+		notFound(res)
+		return
+	}
+
+	plan, err := integrations.LookupBraintreePlan(invoice.SubscriptionPlanID)
+	if err != nil {
+		serverError(res)
+		return
+	}
+
+	renderer.HTML(res, http.StatusOK, "billing/invoice", struct {
+		Company *models.Company
+		Plan    *integrations.BraintreePlan
+		Invoice *models.Transaction
+	}{company, plan, invoice})
 }

@@ -13,9 +13,10 @@ JS_TARGET_M = $(JS_TARGET).min
 CSS_DIR	 	= app/static/css
 CSS_ROOT    = frontend/css
 CSS_SOURCES = $(shell find $(CSS_ROOT) -name "*.scss" -print)
+CSS_PRES_T  = $(CSS_DIR)/presentation.css
 CSS_APP_T   = $(CSS_DIR)/app.css
 CSS_CHECK_T = $(CSS_DIR)/checkout.css
-CSS_TARGETS = $(CSS_APP_T) $(CSS_CHECK_T)
+CSS_TARGETS = $(CSS_PRES_T) $(CSS_APP_T) $(CSS_CHECK_T)
 
 ELM_ROOT     = frontend/src
 ELM_SOURCES  = $(shell find $(ELM_ROOT) -name "*.elm"  -print)
@@ -52,6 +53,9 @@ serve: $(OBJS) install
 
 test: install
 	goapp test $(TEST_SOURCES)
+
+$(CSS_PRES_T): $(CSS_SOURCES)
+	node-sass $(CSS_ROOT)/presentation.scss $(CSS_PRES_T)
 
 $(CSS_APP_T): $(CSS_SOURCES)
 	node-sass $(CSS_ROOT)/app.scss $(CSS_APP_T)

@@ -1,0 +1,29 @@
+.invoice {
+  width: 600px;
+  margin: 0 auto;
+  padding: 2em 0;
+
+  &__header {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-bottom: 1px solid #F9F9F9;
+
+    color: black;
+    font-size: 1.2em;
+    font-weight: 400;
+    text-align: center;
+  }
+
+  &__items {
+    width: 100%;
+
+    td {
+      padding: 10px 15px;
+      border-bottom: 1px solid #DDD;
+
+      &:nth-child(2) {
+        font-weight: bold;
+      }
+    }
+  }
+}

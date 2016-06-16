@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"teamzones/utils"
 
 	"github.com/lionelbarrow/braintree-go"
@@ -107,4 +108,21 @@ func GetInvoice(ctx context.Context, company *datastore.Key, id string) (*Transa
 
 func (t *Transaction) isInvoice() bool {
 	return t.TransactionType == "sale" && t.TransactionStatus == transactionInvoiceStatus
+}
+
+// DollarAmount returns the formatted amount of a Transaction.
+func (t *Transaction) DollarAmount() string {
+	return fmt.Sprintf("$%d.%02d", t.TransactionAmount/100, t.TransactionAmount%100)
+}
+
+// VATDollarAmount returns the formatted VAT amount of a Transaction.
+func (t *Transaction) VATDollarAmount() string {
+	p := 1 + float64(t.SubscriptionVATPercent)/100
+	vat := t.TransactionAmount - int64(float64(t.TransactionAmount)/p)
+	return fmt.Sprintf("$%d.%02d", vat/100, vat%100)
+}
+
+// IncludesVAT is true when a Transaction includes VAT in its amount.
+func (t *Transaction) IncludesVAT() bool {
+	return t.SubscriptionVATPercent != 0
 }

@@ -1,0 +1,40 @@
+{{define "head-billing/invoice"}}
+<link rel="stylesheet"
+      type="text/css"
+      href="{{asset "css/presentation.css"}}" />
+{{end}}
+
+<div class="invoice">
+  <h1 class="invoice__header">Teamzones Invoice</h1>
+
+  <table class="invoice__items">
+    <tbody>
+      <tr>
+        <td>Transaction ID</td>
+        <td>{{.Invoice.TransactionID}}</td>
+      </tr>
+      <tr>
+        <td>Date</td>
+        <td>{{.Invoice.CreatedAt}}</td>
+      </tr>
+      <tr>
+        <td>Account billed</td>
+        <td>{{.Company.Name}} ({{.Company.SubscriptionFirstName}} {{.Company.SubscriptionLastName}})</td>
+      </tr>
+      <tr>
+        <td>Item</td>
+        <td>{{.Plan.Label}}</td>
+      </tr>
+      <tr>
+        <td>Amount</td>
+        <td>{{.Invoice.DollarAmount}}</td>
+      </tr>
+      {{if .Invoice.IncludesVAT}}
+      <tr>
+        <td>VAT</td>
+        <td>{{.Invoice.VATDollarAmount}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
