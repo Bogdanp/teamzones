@@ -188,6 +188,7 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 
 		nonce := req.PostFormValue("payment_method_nonce")
 		if nonce == "" {
+			log.Warningf(ctx, "signUpHandler: missing payment method nonce")
 			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}

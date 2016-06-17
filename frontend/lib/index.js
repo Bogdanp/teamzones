@@ -14,7 +14,9 @@ function seconds() {
 window.loadTimezone = function(el) {
   el.value = moment.tz.guess();
   service.fetchLocation().then(function(location) {
-    el.value = location.timezone;
+    if (location.timezone) {
+      el.value = location.timezone;
+    }
   });
 };
 
