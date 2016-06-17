@@ -16,8 +16,9 @@ module Api.Billing
         )
 
 import Api exposing (Errors, Error, Response, deletePlain, getJson, postPlain)
+import Date exposing (Date)
 import Json.Decode as Json exposing (Decoder, (:=), bool, int, list, maybe, string, succeed)
-import Json.Decode.Extra exposing ((|:))
+import Json.Decode.Extra exposing ((|:), date)
 import Json.Encode
 import Task exposing (Task)
 import Timestamp exposing (Timestamp)
@@ -78,6 +79,8 @@ type alias Transaction =
     , transactionAmount : Int
     , transactionType : TransactionType
     , transactionStatus : TransactionStatus
+    , createdAt : Date
+    , updatedAt : Date
     }
 
 
@@ -195,6 +198,8 @@ transaction =
         |: ("transactionAmount" := int)
         |: ("transactionType" := transactionType)
         |: ("transactionStatus" := transactionStatus)
+        |: ("createdAt" := date)
+        |: ("updatedAt" := date)
 
 
 cancelSubscription : Task Error (Response String)
@@ -209,7 +214,7 @@ fetchSubscription =
 
 fetchInvoices : Task Error (Response (List Transaction))
 fetchInvoices =
-    getJson (list transaction) "billing/invoices"
+    getJson (Json.oneOf [ list transaction, succeed [] ]) "billing/invoices"
 
 
 fetchInvoice : String -> Task Error (Response Transaction)

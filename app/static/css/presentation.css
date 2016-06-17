@@ -166,11 +166,11 @@ textarea {
   -webkit-appearance: button;
   font: inherit; }
 
-.invoice {
+.receipt {
   width: 600px;
   margin: 0 auto;
   padding: 2em 0; }
-  .invoice__header {
+  .receipt__header {
     margin: 2em 0;
     padding: 1em 0;
     border-bottom: 1px solid #F9F9F9;
@@ -178,10 +178,10 @@ textarea {
     font-size: 1.2em;
     font-weight: 400;
     text-align: center; }
-  .invoice__items {
+  .receipt__items {
     width: 100%; }
-    .invoice__items td {
+    .receipt__items td {
       padding: 10px 15px;
       border-bottom: 1px solid #DDD; }
-      .invoice__items td:nth-child(2) {
+      .receipt__items td:nth-child(2) {
         font-weight: bold; }

@@ -1,7 +1,7 @@
 module Pages.Settings.Billing exposing (Model, Msg, init, update, view)
 
 import Api exposing (Error, Response)
-import Api.Billing as Billing exposing (BillingCycle(..), SubscriptionStatus(..), Subscription, SubscriptionPlan)
+import Api.Billing as Billing exposing (BillingCycle(..), SubscriptionStatus(..), Subscription, SubscriptionPlan, Transaction)
 import Components.ConfirmationButton as CB
 import Components.Form as FC
 import Components.Loading exposing (loading)
@@ -14,13 +14,15 @@ import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
 import Task
-import Timestamp
-import Util exposing ((=>))
+import Timestamp exposing (formatDate)
+import Util exposing ((=>), (?>))
 
 
 type Msg
     = SubscriptionError Error
     | SubscriptionSuccess (Response Subscription)
+    | InvoicesError Error
+    | InvoicesSuccess (Response (List Transaction))
     | CancelSubscriptionError Error
     | CancelSubscriptionSuccess (Response String)
     | ActivatePlanError Error
@@ -35,6 +37,7 @@ type Msg
 
 type alias Model =
     { data : Maybe Subscription
+    , invoices : Maybe (List Transaction)
     , vatPending : Bool
     , vatForm : Form () String
     , cancelButton : CB.Model
@@ -47,6 +50,11 @@ fetchSubscription =
     Task.perform SubscriptionError SubscriptionSuccess Billing.fetchSubscription
 
 
+fetchInvoices : Cmd Msg
+fetchInvoices =
+    Task.perform InvoicesError InvoicesSuccess Billing.fetchInvoices
+
+
 validateVatForm : Validation () String
 validateVatForm =
     (Validate.get "vat-id" <| Validate.oneOf [ Validate.emptyString, Validate.string ])
@@ -55,12 +63,13 @@ validateVatForm =
 init : ( Model, Cmd Msg )
 init =
     { data = Nothing
+    , invoices = Nothing
     , vatPending = False
     , vatForm = Form.initial [] validateVatForm
     , cancelButton = CB.init "Cancel your subscription"
     , activateButtons = Dict.empty
     }
-        ! [ fetchSubscription ]
+        ! [ fetchSubscription, fetchInvoices ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -84,6 +93,12 @@ update msg model =
                     , vatForm = vatForm
                 }
                     ! []
+
+        InvoicesError _ ->
+            model ! [ error "We failed to retrieve your invoices. Please try again later or contact support if the error persists." ]
+
+        InvoicesSuccess { data } ->
+            { model | invoices = Just data } ! []
 
         CancelSubscriptionError _ ->
             model ! [ error "We encountered an issue while trying to cancel your subscription. Please try again later." ]
@@ -158,7 +173,7 @@ update msg model =
 
 
 view : Model -> Html Msg
-view { data, vatPending, vatForm, cancelButton, activateButtons } =
+view ({ data, vatPending, vatForm, cancelButton, activateButtons } as model) =
     case data of
         Nothing ->
             loading
@@ -171,6 +186,7 @@ view { data, vatPending, vatForm, cancelButton, activateButtons } =
                 div []
                     [ overview data plan cancelButton
                     , plans data plan activateButtons
+                    , Maybe.map invoices model.invoices ?> loading
                     , if data.status == Active && (data.vat /= 0 || data.vatId /= "") then
                         vat data vatPending vatForm
                       else
@@ -341,6 +357,34 @@ plans ({ plans } as data) plan buttons =
             ]
 
 
+invoices : List Transaction -> Html Msg
+invoices is =
+    let
+        invoice i =
+            tr []
+                [ td [] [ a [ href ("/receipts/" ++ i.id) ] [ text <| formatDate "YYYY-MM-DD" i.createdAt ] ]
+                , td [] [ text <| formatAmount i.transactionAmount ]
+                ]
+    in
+        div []
+            [ h4 [] [ text "Payment history" ]
+            , table [ class "tall-rows" ]
+                [ thead []
+                    [ tr []
+                        [ td [ style [ "width" => "30%" ] ] [ text "Date" ]
+                        , td [ style [] ] [ text "Total amount" ]
+                        ]
+                    ]
+                , tbody []
+                    (if List.isEmpty is then
+                        [ tr [] [ td [ colspan 3 ] [ text "You don't have any receipts yet..." ] ] ]
+                     else
+                        List.map invoice is
+                    )
+                ]
+            ]
+
+
 lookupPlan : Subscription -> String -> SubscriptionPlan
 lookupPlan data planId =
     case List.filter ((==) planId << .id) data.plans |> List.head of
@@ -364,6 +408,28 @@ label p =
             p.label
 
 
+formatAmount : Int -> String
+formatAmount amount =
+    let
+        dollars =
+            toString <| amount // 100
+
+        cents =
+            let
+                x =
+                    amount `rem` 100
+            in
+                if x < 10 then
+                    "0" ++ toString x
+                else
+                    toString x
+    in
+        "$"
+            ++ dollars
+            ++ "."
+            ++ cents
+
+
 amount : Subscription -> SubscriptionPlan -> String
 amount data p =
     let
@@ -373,24 +439,8 @@ amount data p =
             else
                 p.monthlyPrice
 
-        dollars =
-            toString <| price // 100
-
-        cents =
-            let
-                x =
-                    price `rem` 100
-            in
-                if x < 10 then
-                    "0" ++ toString x
-                else
-                    toString x
-
         amount =
-            "$"
-                ++ dollars
-                ++ "."
-                ++ cents
+            formatAmount price
                 ++ "/mo"
                 ++ if data.needVat then
                     " (incl. VAT)"

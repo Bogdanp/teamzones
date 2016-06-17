@@ -47,8 +47,8 @@ func init() {
 	)
 	GET(
 		appRouter,
-		"billing-invoice-html", "/api/billing/invoices/:id/html",
-		invoiceHTMLHandler, models.RoleMain,
+		"billing-receipt", "/receipts/:id",
+		receiptHandler, models.RoleMain,
 	)
 }
 
@@ -205,7 +205,7 @@ func invoiceHandler(res http.ResponseWriter, req *http.Request, params httproute
 	renderer.JSON(res, http.StatusOK, invoiceResponse{id, *invoice})
 }
 
-func invoiceHTMLHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+func receiptHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	ctx := appengine.NewContext(req)
 	company := context.Get(req, companyCtxKey).(*models.Company)
 	invoice, err := models.GetInvoice(ctx, company.Key(ctx), params.ByName("id"))
@@ -220,7 +220,7 @@ func invoiceHTMLHandler(res http.ResponseWriter, req *http.Request, params httpr
 		return
 	}
 
-	renderer.HTML(res, http.StatusOK, "billing/invoice", struct {
+	renderer.HTML(res, http.StatusOK, "billing/receipt", struct {
 		Company *models.Company
 		Plan    *integrations.BraintreePlan
 		Invoice *models.Transaction

@@ -1,5 +1,6 @@
 module Timestamp exposing (..)
 
+import Date exposing (Date)
 import Native.Timestamp
 import Regex exposing (HowMany(..), regex, replace)
 import Time
@@ -26,9 +27,19 @@ format =
     Native.Timestamp.format
 
 
+formatDate : Format -> Date -> String
+formatDate =
+    Native.Timestamp.format
+
+
 defaultFormat : Timestamp -> String
 defaultFormat =
     format "YYYY-MM-DD HH:mmA"
+
+
+defaultFormatDate : Date -> String
+defaultFormatDate =
+    formatDate "YYYY-MM-DD HH:mmA"
 
 
 tzFormat : Timezone -> Format -> Timestamp -> String
