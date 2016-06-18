@@ -279,7 +279,8 @@
       width: 192px;
 
       &--fluid {
-        width: 100;
+        width: 100%;
+        overflow: hidden;
       }
 
       h4, h6 {
