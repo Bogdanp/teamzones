@@ -1,7 +1,7 @@
-var moment = require("moment-timezone");
+import moment from "moment-timezone";
 
-var Checkout = require("./checkout");
-var service = require("./service");
+import Checkout from "./checkout";
+import {fetchLocation} from "./service";
 
 function now() {
   return (new Date).getTime();
@@ -13,7 +13,7 @@ function seconds() {
 
 window.loadTimezone = function(el) {
   el.value = moment.tz.guess();
-  service.fetchLocation().then(function(location) {
+  fetchLocation().then(location => {
     if (location.timezone) {
       el.value = location.timezone;
     }
@@ -26,29 +26,29 @@ window.init = function(Elm, el, context) {
   context.viewportWidth = window.innerWidth;
   context.now = now();
   context.user.integrations = context.integrations;
-  context.timezones = moment.tz.names().filter(function(tz) {
+  context.timezones = moment.tz.names().filter(tz => {
     return tz.indexOf("/") !== -1 && tz.indexOf("Etc/") !== 0;
   });
 
-  var app = Elm.Main.embed(el, context);
+  const app = Elm.Main.embed(el, context);
 
   // Time{zone,stamp} subs
-  service.fetchLocation().then(function(location) {
+  fetchLocation().then(location => {
     if (location.timezone && location.timezone !== context.user.timezone) {
       app.ports.timezones.send(location.timezone);
     }
   });
 
   // Notifications
-  app.ports.notify.subscribe(function(message) {
-    app.ports.notifications.send(message);
-  });
+  app.ports.notify.subscribe(
+    app.ports.notifications.send
+  );
 
-  var sendTimestamp = function() {
+  const sendTimestamp = function() {
     app.ports.timestamps.send(now());
   };
 
-  setTimeout(function() {
+  setTimeout(() => {
     setInterval(sendTimestamp, 60000);
 
     sendTimestamp();

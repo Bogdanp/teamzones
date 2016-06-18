@@ -1,15 +1,15 @@
-var service = require("./service");
+import {fetchBraintreeToken} from "./service";
 
 function formatPrice(price) {
-  var cents = price % 100;
+  let cents = price % 100;
   if (cents < 10) {
-    cents = "0" + cents;
+    cents = `0${cents}`;
   }
 
-  return "$" + Math.floor(price / 100) + "." + cents;
+  return `$${Math.floor(price / 100)}.${cents}`;
 };
 
-var Checkout = function(btContainer, vatCountries, plan, elements) {
+export default function(btContainer, vatCountries, plan, elements) {
   var handleVAT = function(code) {
     for (var i = 0; i < vatCountries.length; i++) {
       var country = vatCountries[i];
@@ -24,7 +24,6 @@ var Checkout = function(btContainer, vatCountries, plan, elements) {
         }
 
         elements.orderVAT.style.display = "flex";
-
         elements.orderVATAmount.innerHTML = formatPrice(vat);
         elements.orderTotalAmount.innerHTML = formatPrice(vat + plan.price);
         return;
@@ -35,7 +34,7 @@ var Checkout = function(btContainer, vatCountries, plan, elements) {
     elements.euVAT.style.display = "none";
   };
 
-  service.fetchBraintreeToken().then(function(token) {
+  fetchBraintreeToken().then(function(token) {
     braintree.setup(token, "dropin", {
       container: btContainer,
       onReady: function() {
@@ -54,7 +53,7 @@ var Checkout = function(btContainer, vatCountries, plan, elements) {
   };
 
   elements.vatId.onblur = function(e) {
-    var value = e.target.value.trim();
+    let value = e.target.value.trim();
     handleVAT(elements.country.value);
 
     // Hide VAT if they provide a VAT ID.
@@ -69,5 +68,3 @@ var Checkout = function(btContainer, vatCountries, plan, elements) {
     elements.submit.disabled = true;
   };
 };
-
-module.exports = Checkout;

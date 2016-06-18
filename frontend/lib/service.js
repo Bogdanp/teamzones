@@ -1,7 +1,7 @@
-require("whatwg-fetch");
+import "whatwg-fetch";
 
 function request(endpoint, userOptions) {
-  var options = {
+  let options = {
     credentials: "same-origin"
   };
 
@@ -11,7 +11,7 @@ function request(endpoint, userOptions) {
     }
   }
 
-  return fetch("/api/" + endpoint, options).then(function(response) {
+  return fetch(`/api/${endpoint}`, options).then(response => {
     if (response.status < 400) {
       return response.json();
     }
@@ -22,15 +22,10 @@ function request(endpoint, userOptions) {
   });
 }
 
-function fetchBraintreeToken() {
+export function fetchBraintreeToken() {
   return request("bt-token");
 }
 
-function fetchLocation() {
+export function fetchLocation() {
   return request("location");
 }
-
-module.exports = {
-  fetchBraintreeToken: fetchBraintreeToken,
-  fetchLocation: fetchLocation
-};

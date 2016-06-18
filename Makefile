@@ -64,7 +64,7 @@ $(CSS_CHECK_T): $(CSS_SOURCES)
 	node-sass $(CSS_ROOT)/checkout.scss $(CSS_CHECK_T)
 
 $(JS_TARGET): $(JS_SOURCES)
-	browserify $(JS_ROOT)/index.js -o $(JS_TARGET)
+	cd frontend && browserify ../$(JS_ROOT)/index.js -o ../$(JS_TARGET)
 
 $(ELM_TARGET): $(ELM_SOURCES)
 	cd frontend && elm make --warn src/Main.elm --output=../$(ELM_TARGET)
