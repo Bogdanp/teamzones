@@ -35,6 +35,11 @@ const (
 func CheckVAT(ctx context.Context, VATID string) bool {
 	var res bool
 
+	// XXX: We must not accept VAT ids from Romania.
+	if strings.HasPrefix(strings.ToUpper(VATID), "RO") {
+		return false
+	}
+
 	k := "CheckVAT:" + VATID
 	if _, err := memcache.JSON.Get(ctx, k, &res); err == nil {
 		return res

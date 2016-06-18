@@ -17,8 +17,12 @@ var Checkout = function(btContainer, vatCountries, plan, elements) {
       if (country.Code === code) {
         var vat = country.VAT / 100 * plan.price;
 
-        elements.vatPrefix.value = country.Code;
-        elements.euVAT.style.display = "block";
+        // XXX: always compute VAT for Romanians.
+        if (country.Code !== "RO") {
+          elements.vatPrefix.value = country.Code;
+          elements.euVAT.style.display = "block";
+        }
+
         elements.orderVAT.style.display = "flex";
 
         elements.orderVATAmount.innerHTML = formatPrice(vat);
