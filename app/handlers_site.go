@@ -19,7 +19,6 @@ import (
 
 func init() {
 	GET(siteRouter, "home", "/", homeHandler)
-	GET(siteRouter, "plans", "/plans/", plansHandler)
 	ALL(siteRouter, "sign-up", "/sign-up/:plan/", signUpHandler)
 	ALL(siteRouter, "sign-in", "/sign-in/", siteSignInHandler)
 	ALL(siteRouter, "find-team", "/find-team/", findTeamHandler)
@@ -38,10 +37,6 @@ func init() {
 
 func homeHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	renderer.HTML(res, http.StatusOK, "index", nil)
-}
-
-func plansHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	renderer.HTML(res, http.StatusOK, "plans", integrations.BraintreePlans())
 }
 
 type signUpForm struct {

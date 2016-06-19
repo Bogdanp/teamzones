@@ -71,7 +71,11 @@ func dashboardHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 		panic(err)
 	}
 
-	renderer.HTML(res, http.StatusOK, "dashboard", template.JS(data))
+	if err := renderer.TemplateLookup("dashboard").Execute(res, template.JS(data)); err != nil {
+		log.Errorf(ctx, "failed to render dashboard: %v", err)
+		serverError(res)
+		return
+	}
 }
 
 type teamSignUpForm struct {

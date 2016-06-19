@@ -1,9 +1,17 @@
 {{define "title-team-sign-in"}} - Sign In{{end}}
 
-<p>Enter your team's <strong>Teamzones domain</strong>.</p>
+<div class="content">
+  <div class="container">
+    <div class="row">
+      <div class="column">
+        <p>Enter your team's <strong>Teamzones domain</strong>.</p>
 
-<form action="" method="post">
-  {{template "_fields/text" .Subdomain}}.teamzones.io
+        <form action="" method="post">
+          {{template "_fields/text" .Subdomain}}.teamzones.io
 
-  <input type="submit" />
-</form>
+          <input type="submit" />
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

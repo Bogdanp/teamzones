@@ -5,9 +5,16 @@
     <title>Teamzones.io{{partial "title"}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{asset "css/presentation.css"}}" />
+
     {{partial "head"}}
   </head>
   <body>
+    {{template "nav"}}
     {{yield}}
+    {{template "footer"}}
   </body>
 </html>
