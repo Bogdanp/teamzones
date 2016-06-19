@@ -7,6 +7,24 @@ plans:
     summary: >-
       The free plan.
 
+  - id: t-s1
+    label: Small
+    price: 800
+    mprice: 800
+    cycle: month
+    members: 10
+    summary: >-
+      For teams of up to 10 people.
+
+  - id: t-s12
+    label: Small
+    price: 7200
+    mprice: 600
+    cycle: year
+    members: 10
+    summary: >-
+      For teams of up to 10 people.
+
   - id: t-m1
     label: Medium
     price: 1200
@@ -36,8 +54,8 @@ plans:
 
   - id: t-l12
     label: Large
-    price: 20400
-    mprice: 1700
+    price: 21600
+    mprice: 1800
     cycle: year
     members: 50
     summary: >-

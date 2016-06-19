@@ -1,2 +1,272 @@
 @import "normalize";
 @import "receipt";
+
+$light-border: #EEE;
+$darker-border: #EBEBEB;
+$dark-border: #BBB;
+
+$primary: #4162FF;
+
+body {
+  height: auto;
+}
+
+a {
+  &:hover {
+    color: $primary;
+  }
+}
+
+.container {
+  position: relative;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.nav {
+  overflow: hidden;
+  border-bottom: 1px solid $light-border;
+  box-shadow: 5px 3px 12px rgba(0,0,0,0.05);
+  box-sizing: border-box;
+
+  background: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+
+  &__logo {
+    float: left;
+
+    a {
+      display: block;
+      padding: 14px 0;
+
+      color: black;
+      font-size: 1em;
+      font-weight: 400;
+      text-transform: uppercase;
+    }
+  }
+
+  &__items {
+    list-style-type: none;
+
+    float: right;
+    overflow: hidden;
+
+    margin: 16px 0;
+    padding: 0;
+
+    &__item {
+      float: left;
+
+      a {
+        display: block;
+        padding: 0px 7px;
+
+        font-size: 0.8em;
+        text-transform: uppercase;
+      }
+    }
+  }
+}
+
+.hero {
+  height: 320px;
+}
+
+.content {
+  margin-top: 47px;
+}
+
+.row {
+  display: flex;
+
+  &__title {
+    padding: 16px 0;
+
+    font-size: 1.2em;
+    font-weight: 400;
+    text-transform: capitalize;
+
+    &-centered {
+      text-align: center;
+    }
+  }
+
+  &-bordered {
+    border-top: 1px solid $light-border;
+  }
+}
+
+.column {
+  flex: 1 1 auto;
+}
+
+.plan-selector {
+  text-align: center;
+  margin: 0 0 32px 0;
+
+  &__button {
+    display: inline-block;
+    width: 60px;
+    margin: 0 0 0 -0.5em;
+    padding: 5px 7px;
+    background: white;
+    border: 1px solid $light-border;
+    border-radius: 0 16px 16px 0;
+
+    cursor: pointer;
+    color: #999;
+    font-size: 0.6em;
+    font-weight: 300;
+    text-align: center;
+    text-transform: uppercase;
+
+    &-left {
+      border-radius: 16px 0 0 16px;
+      margin: 0 -0.5em 0 0;
+    }
+
+    &-active {
+      background: $primary;
+      color: white;
+      border: 1px solid $primary;
+    }
+  }
+}
+
+.plans {
+  display: flex;
+  align-items: stretch;
+
+  box-sizing: border-box;
+  margin: 0 auto 16px auto;
+
+  &-hidden {
+    display: none;
+  }
+
+  &__plan {
+    flex: 1 1 auto;
+
+    margin: 32px 0 0 0;
+    padding: 16px 32px;
+
+    border: 1px solid #EEE;
+
+    &__title,
+    &__summary {
+      text-align: center;
+    }
+
+    &__title {
+      color: black;
+      font-size: 1.2em;
+      font-weight: 800;
+    }
+
+    &__summary {
+      padding: 8px 0;
+
+      color: #454545;
+      font-size: 1em;
+      font-weight: 300;
+    }
+
+    &__price {
+      padding: 8px 0;
+      text-align: center;
+
+      &__price {
+        color: black;
+        font-size: 2.4em;
+        font-weight: 800;
+
+        sup {
+          font-size: 0.6em;
+        }
+      }
+
+      &__cycle {
+        display: block;
+        font-size: 0.8em;
+        font-weight: 300;
+      }
+    }
+
+    &__action_button {
+      text-align: center;
+      display: block;
+      width: 100%;
+
+      a {
+        background: $primary;
+        display: inline-block;
+        margin: 8px auto;
+        padding: 12px 16px;
+        border-radius: 32px;
+
+        color: white;
+        font-size: 0.8em;
+        font-weight: 300;
+        text-transform: uppercase;
+
+        &:hover {
+          color: white;
+        }
+      }
+    }
+
+    &-featured {
+      margin: 0 -1px 0 -1px;
+      border: 1px solid $darker-border;
+      box-shadow: 2px 3px 5px rgba(0,0,0,0.05);
+    }
+  }
+}
+
+.footer {
+  border-top: 1px solid $dark-border;
+
+  padding: 16px 0;
+
+  font-size: 0.8em;
+  font-weight: 300;
+
+  &__nav {
+    list-style-type: none;
+
+    float: right;
+    overflow: hidden;
+
+    &__item {
+      float: left;
+
+      a {
+        display: block;
+        padding: 0 7px;
+      }
+    }
+  }
+}
+
+@media (min-width: 960px) {
+  .plans {
+    width: 80%;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    width: 92%;
+  }
+}
+
+@media (min-width: 470px) {
+  .container {
+    width: 87.5%;
+  }
+}

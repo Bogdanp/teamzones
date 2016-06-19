@@ -185,3 +185,178 @@ textarea {
       border-bottom: 1px solid #DDD; }
       .receipt__items td:nth-child(2) {
         font-weight: bold; }
+
+body {
+  height: auto; }
+
+a:hover {
+  color: #4162FF; }
+
+.container {
+  position: relative;
+  max-width: 960px;
+  margin: 0 auto; }
+
+.nav {
+  overflow: hidden;
+  border-bottom: 1px solid #EEE;
+  box-shadow: 5px 3px 12px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  background: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1; }
+  .nav__logo {
+    float: left; }
+    .nav__logo a {
+      display: block;
+      padding: 14px 0;
+      color: black;
+      font-size: 1em;
+      font-weight: 400;
+      text-transform: uppercase; }
+  .nav__items {
+    list-style-type: none;
+    float: right;
+    overflow: hidden;
+    margin: 16px 0;
+    padding: 0; }
+    .nav__items__item {
+      float: left; }
+      .nav__items__item a {
+        display: block;
+        padding: 0px 7px;
+        font-size: 0.8em;
+        text-transform: uppercase; }
+
+.hero {
+  height: 320px; }
+
+.content {
+  margin-top: 47px; }
+
+.row {
+  display: flex; }
+  .row__title {
+    padding: 16px 0;
+    font-size: 1.2em;
+    font-weight: 400;
+    text-transform: capitalize; }
+    .row__title-centered {
+      text-align: center; }
+  .row-bordered {
+    border-top: 1px solid #EEE; }
+
+.column {
+  flex: 1 1 auto; }
+
+.plan-selector {
+  text-align: center;
+  margin: 0 0 32px 0; }
+  .plan-selector__button {
+    display: inline-block;
+    width: 60px;
+    margin: 0 0 0 -0.5em;
+    padding: 5px 7px;
+    background: white;
+    border: 1px solid #EEE;
+    border-radius: 0 16px 16px 0;
+    cursor: pointer;
+    color: #999;
+    font-size: 0.6em;
+    font-weight: 300;
+    text-align: center;
+    text-transform: uppercase; }
+    .plan-selector__button-left {
+      border-radius: 16px 0 0 16px;
+      margin: 0 -0.5em 0 0; }
+    .plan-selector__button-active {
+      background: #4162FF;
+      color: white;
+      border: 1px solid #4162FF; }
+
+.plans {
+  display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  margin: 0 auto 16px auto; }
+  .plans-hidden {
+    display: none; }
+  .plans__plan {
+    flex: 1 1 auto;
+    margin: 32px 0 0 0;
+    padding: 16px 32px;
+    border: 1px solid #EEE; }
+    .plans__plan__title, .plans__plan__summary {
+      text-align: center; }
+    .plans__plan__title {
+      color: black;
+      font-size: 1.2em;
+      font-weight: 800; }
+    .plans__plan__summary {
+      padding: 8px 0;
+      color: #454545;
+      font-size: 1em;
+      font-weight: 300; }
+    .plans__plan__price {
+      padding: 8px 0;
+      text-align: center; }
+      .plans__plan__price__price {
+        color: black;
+        font-size: 2.4em;
+        font-weight: 800; }
+        .plans__plan__price__price sup {
+          font-size: 0.6em; }
+      .plans__plan__price__cycle {
+        display: block;
+        font-size: 0.8em;
+        font-weight: 300; }
+    .plans__plan__action_button {
+      text-align: center;
+      display: block;
+      width: 100%; }
+      .plans__plan__action_button a {
+        background: #4162FF;
+        display: inline-block;
+        margin: 8px auto;
+        padding: 12px 16px;
+        border-radius: 32px;
+        color: white;
+        font-size: 0.8em;
+        font-weight: 300;
+        text-transform: uppercase; }
+        .plans__plan__action_button a:hover {
+          color: white; }
+    .plans__plan-featured {
+      margin: 0 -1px 0 -1px;
+      border: 1px solid #EBEBEB;
+      box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.05); }
+
+.footer {
+  border-top: 1px solid #BBB;
+  padding: 16px 0;
+  font-size: 0.8em;
+  font-weight: 300; }
+  .footer__nav {
+    list-style-type: none;
+    float: right;
+    overflow: hidden; }
+    .footer__nav__item {
+      float: left; }
+      .footer__nav__item a {
+        display: block;
+        padding: 0 7px; }
+
+@media (min-width: 960px) {
+  .plans {
+    width: 80%; } }
+
+@media (min-width: 768px) {
+  .container {
+    width: 92%; } }
+
+@media (min-width: 470px) {
+  .container {
+    width: 87.5%; } }
