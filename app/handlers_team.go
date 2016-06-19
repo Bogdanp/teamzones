@@ -68,7 +68,9 @@ func dashboardHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 		},
 	})
 	if err != nil {
-		panic(err)
+		log.Errorf(ctx, "failed to marshal team: %v", err)
+		serverError(res)
+		return
 	}
 
 	if err := renderer.TemplateLookup("dashboard").Execute(res, template.JS(data)); err != nil {
