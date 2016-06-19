@@ -42,9 +42,9 @@ view { now, user, currentUser } =
                         , h3 [] [ Util.time user.timezone now ]
                         , h6 []
                             [ if offline then
-                                text "Offline"
+                                text "Unavailable"
                               else
-                                text "Online"
+                                text "Available"
                             ]
                         ]
                     ]
