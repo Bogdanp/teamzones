@@ -85,6 +85,18 @@ a {
 
 .hero {
   height: 320px;
+
+  &__title {
+    margin: 64px 0 16px 0;
+    text-align: center;
+  }
+
+  &__summary {
+    margin: 0 auto 32px auto;
+    width: 60%;
+    font-weight: 300;
+    text-align: center;
+  }
 }
 
 .content {
@@ -268,14 +280,18 @@ a {
   }
 }
 
-@media (min-width: 768px) {
+@media (max-width: 768px) {
   .container {
     width: 92%;
   }
 }
 
-@media (min-width: 470px) {
+@media (max-width: 470px) {
   .container {
     width: 87.5%;
+  }
+
+  .row {
+    flex-direction: column;
   }
 }
