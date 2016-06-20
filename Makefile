@@ -27,14 +27,17 @@ TEST_SOURCES = teamzones/{app,integrations,forms,models,utils}
 
 OBJS = $(EMAIL_TARGETS) $(CSS_TARGETS) $(JS_TARGET) $(ELM_TARGET)
 
-.PHONY: all deploy deploy_ install min serve test
+.PHONY: all credentials deploy deploy_ install min serve test
 
 all: $(OBJS)
 
-deploy: min test
+credentials:
+	test -f app/credentials/braintree_production.yaml
+
+deploy: credentials min test
 	appcfg.py update --no_cookies app
 
-deploy_: min
+deploy_: credentials min
 	appcfg.py update --no_cookies app
 
 install:
