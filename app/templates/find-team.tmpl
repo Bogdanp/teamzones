@@ -1,7 +1,21 @@
 {{define "title-find-team"}} - Find your team{{end}}
 
-<form action="" method="post">
-  {{template "_fields/email" .Email}}
+<div class="row row-page-content">
+  <div class="column">
+    <h1 class="row__title row__title-centered">
+      <span class="ib-underlined">Find your team</span>
+    </h1>
 
-  <input type="submit" />
-</form>
+    <div class="block-centered">
+      <p>Enter your email and we'll send you a list of all your teams.</p>
+
+      <form action="" method="post" class="sign-in-form">
+        {{template "_fields/email" .Email}}
+
+        <input type="submit"
+               class="button-primary button-primary-extra-margin"
+               value="Find your team" />
+      </form>
+    </div>
+  </div>
+</div>

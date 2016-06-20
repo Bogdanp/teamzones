@@ -1,12 +1,27 @@
 {{define "title-sign-in"}} - Sign In{{end}}
 
-<div class="row">
+<div class="row row-page-content">
   <div class="column">
-    <form action="" method="post">
-      {{template "_fields/email" .Form.Email}}
-      {{template "_fields/password" .Form.Password}}
+    <h1 class="row__title row__title-centered">
+      <span class="ib-underlined">Sign in to {{.Company.Subdomain}}.teamzones.io</span>
+    </h1>
 
-      <input type="submit" />
-    </form>
+    <div class="block-centered">
+      <p>Enter your email and password to sign in.</p>
+
+      <form action="" method="post" class="sign-in-form">
+        {{template "_fields/email" .Form.Email}}
+        {{template "_fields/password" .Form.Password}}
+
+        <input type="submit" class="button-primary button-primary-extra-margin" value="Sign in" />
+      </form>
+
+      <p>
+        <small>
+          Don't remember your password?
+          <a href="{{route "team-recover-password"}}">Reset your password</a>.
+        </small>
+      </p>
+    </div>
   </div>
 </div>

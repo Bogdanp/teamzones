@@ -1,0 +1,24 @@
+.find-team {
+  overflow: hidden;
+
+  width: 245px;
+  margin: 0 auto 16px auto;
+
+  &__subdomain {
+    float: left;
+  }
+
+  &__domain {
+    float: left;
+
+    padding: 8px 2px;
+
+    font-size: 0.8em;
+    font-weight: 300;
+  }
+}
+
+.sign-in-form {
+  width: 320px;
+  margin: 0 auto;
+}

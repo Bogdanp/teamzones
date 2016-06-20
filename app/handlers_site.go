@@ -296,9 +296,12 @@ func findTeamHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Pa
 		Email forms.Field
 	}{
 		forms.Field{
-			Name:       "email",
-			Label:      "Email",
-			Validators: []forms.Validator{forms.Email},
+			Name:        "email",
+			Label:       "Email",
+			Validators:  []forms.Validator{forms.Email},
+			HideLabel:   true,
+			Placeholder: "Email",
+			Attributes:  map[string]string{"class": "input"},
 		},
 	}
 

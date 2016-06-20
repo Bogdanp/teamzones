@@ -1,17 +1,42 @@
 {{define "title-team-sign-in"}} - Sign In{{end}}
 
-<div class="content">
-  <div class="container">
-    <div class="row">
-      <div class="column">
-        <p>Enter your team's <strong>Teamzones domain</strong>.</p>
+<div class="row row-page-content">
+  <div class="column">
+    <h1 class="row__title row__title-centered">
+      <span class="ib-underlined">Sign in to a team</span>
+    </h1>
 
-        <form action="" method="post">
-          {{template "_fields/text" .Subdomain}}.teamzones.io
+    <div class="block-centered">
+      <p>Enter your team's <strong>Teamzones domain</strong>.</p>
 
-          <input type="submit" />
-        </form>
-      </div>
+      <form action="" method="post">
+        <div class="find-team">
+          <div class="find-team__subdomain {{if .Subdomain.Errors}}errors{{end}}">
+            <input type="text"
+                   class="input"
+                   id="{{.Subdomain.Name}}"
+                   name="{{.Subdomain.Name}}"
+                   value="{{.Subdomain.Value}}"
+                   placeholder="ateam"
+                   required />
+            {{if .Subdomain.Errors}}
+              <span class="input-group__error">That team doesn't exist.</span>
+            {{end}}
+          </div>
+          <div class="find-team__domain">
+            .teamzones.io
+          </div>
+        </div>
+
+        <input type="submit" class="button-primary" value="Sign in" />
+      </form>
+
+      <p>
+        <small>
+          Don't remember your team's domain?
+          <a href="{{route "find-team"}}">Find your team</a>.
+        </small>
+      </p>
     </div>
   </div>
 </div>

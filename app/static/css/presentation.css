@@ -166,6 +166,121 @@ textarea {
   -webkit-appearance: button;
   font: inherit; }
 
+.button {
+  background: white;
+  border: 2px solid #EEE;
+  display: inline-block;
+  padding: 7px 9px;
+  cursor: pointer;
+  color: black;
+  font-size: 0.7em;
+  font-weight: 400;
+  text-transform: uppercase;
+  transition: all 0.3s; }
+  .button:hover {
+    border: 2px solid black; }
+  .button:active {
+    background: black;
+    border: 2px solid black;
+    color: white; }
+  .button:disabled, .button--disabled {
+    opacity: 0.2; }
+  .button--padded {
+    margin-left: 5px; }
+
+.confirmation-button {
+  display: inline-block; }
+
+.button-primary {
+  background: #4162FF;
+  display: inline-block;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 32px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.25s cubic-bezier(0, 0, 0.3, 0.5);
+  cursor: pointer;
+  color: white;
+  font-size: 0.8em;
+  font-weight: 300;
+  text-transform: uppercase; }
+  .button-primary:hover {
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    color: white; }
+  .button-primary-extra-margin {
+    margin: 8px auto; }
+
+.input,
+.elm-datepicker--input {
+  width: 100%;
+  margin: 4px 0;
+  padding: 5px 7px;
+  box-sizing: border-box;
+  color: #666;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 0.8em;
+  font-weight: 300;
+  border: 1px solid #F2F2F2;
+  border-right: 1px solid #DDD;
+  border-bottom: 1px solid #DDD; }
+  .input:focus,
+  .elm-datepicker--input:focus {
+    border: 1px solid #CCC; }
+
+.errors .input,
+.input--error {
+  border: 1px solid #CC0000;
+  border-right: 1px solid #AA0000;
+  border-bottom: 1px solid #AA0000; }
+
+.form-group {
+  max-width: 500px;
+  padding: 5px; }
+  .form-group--no-top-padding {
+    padding-top: 0; }
+
+.input-group {
+  display: flex;
+  flex-direction: row;
+  padding: 5px 0; }
+  .input-group__label, .input-group__spacer {
+    flex: 0 1 120px;
+    padding: 6px 0;
+    font-size: 0.9em;
+    font-weight: 300; }
+  .input-group__input {
+    flex: 3 1 auto; }
+  .input-group__error {
+    display: block;
+    width: 100%;
+    padding: 5px 0;
+    color: #AA0000;
+    font-size: 0.8em;
+    font-weight: 400; }
+
+.input,
+.elm-datepicker--input {
+  width: 100%;
+  margin: 4px 0;
+  padding: 5px 7px;
+  box-sizing: border-box;
+  color: #666;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 0.8em;
+  font-weight: 300;
+  border: 1px solid #F2F2F2;
+  border-right: 1px solid #DDD;
+  border-bottom: 1px solid #DDD; }
+  .input:focus,
+  .elm-datepicker--input:focus {
+    border: 1px solid #CCC; }
+
+.errors .input,
+.input--error {
+  border: 1px solid #CC0000;
+  border-right: 1px solid #AA0000;
+  border-bottom: 1px solid #AA0000; }
+
 .receipt {
   width: 600px;
   margin: 0 auto;
@@ -186,13 +301,38 @@ textarea {
       .receipt__items td:nth-child(2) {
         font-weight: bold; }
 
+.find-team {
+  overflow: hidden;
+  width: 245px;
+  margin: 0 auto 16px auto; }
+  .find-team__subdomain {
+    float: left; }
+  .find-team__domain {
+    float: left;
+    padding: 8px 2px;
+    font-size: 0.8em;
+    font-weight: 300; }
+
+.sign-in-form {
+  width: 320px;
+  margin: 0 auto; }
+
 body {
   height: auto; }
 
 a:hover {
   color: #4162FF; }
 
+.ib-underlined {
+  display: inline-block;
+  padding: 8px 0;
+  border-bottom: 1px solid #EEE; }
+
+.block-centered {
+  text-align: center; }
+
 .container {
+  overflow: hidden;
   position: relative;
   max-width: 960px;
   margin: 0 auto; }
@@ -240,14 +380,17 @@ a:hover {
 .row {
   display: flex; }
   .row__title {
+    cursor: default;
     padding: 16px 0;
     font-size: 1.2em;
-    font-weight: 400;
-    text-transform: capitalize; }
+    font-weight: 400; }
     .row__title-centered {
       text-align: center; }
   .row-bordered {
     border-top: 1px solid #EEE; }
+  .row-page-content {
+    margin: 16px auto 32px auto;
+    width: 80%; }
 
 .column {
   flex: 1 1 auto; }
@@ -322,21 +465,6 @@ a:hover {
       text-align: center;
       display: block;
       width: 100%; }
-      .plans__plan__action_button a {
-        background: #4162FF;
-        display: inline-block;
-        margin: 8px auto;
-        padding: 12px 16px;
-        border-radius: 32px;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-        transition: box-shadow 0.25s cubic-bezier(0, 0, 0.3, 0.5);
-        color: white;
-        font-size: 0.8em;
-        font-weight: 300;
-        text-transform: uppercase; }
-        .plans__plan__action_button a:hover {
-          box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-          color: white; }
     .plans__plan-featured {
       margin: 0 -1px 0 -1px;
       padding-top: 24px;

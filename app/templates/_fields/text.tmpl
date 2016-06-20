@@ -1,5 +1,8 @@
 <div class="col {{if.Errors}}errors{{end}}">
-  {{template "_fields/label" .}}
+  {{if .HideLabel}}
+  {{else}}
+    {{template "_fields/label" .}}
+  {{end}}
   <input type="text"
          id="{{.Name}}"
          name="{{.Name}}"

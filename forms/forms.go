@@ -35,6 +35,7 @@ type Field struct {
 	Optional    bool
 	Errors      []string
 	Validators  []Validator
+	HideLabel   bool
 	Attributes  map[string]string
 }
 

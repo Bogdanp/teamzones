@@ -1,22 +1,30 @@
 {{define "title-sign-up"}} - Sign Up{{end}}
 
-<form action="" method="post">
-  {{if .Error}}
-  <div class="error">
-    {{.Error}}
+<div class="row row-page-content">
+  <div class="column">
+    <h1 class="row__title row__title-centered">
+      <span class="ib-underlined">Sign up for {{.Company.Subdomain}}.teamzones.io</span>
+    </h1>
+
+    <div class="block-centered">
+      <form action="" method="post" class="sign-in-form">
+        {{if .Error}}
+        <div class="error">
+          {{.Error}}
+        </div>
+        {{end}}
+
+        {{template "_fields/text" .Form.FirstName}}
+        {{template "_fields/text" .Form.LastName}}
+        {{template "_fields/email" .Form.Email}}
+        {{template "_fields/password" .Form.Password}}
+        {{template "_fields/hidden" .Form.Timezone}}
+
+        <input type="submit" class="button-primary button-primary-extra-margin" value="Sign up" />
+      </form>
+    </div>
   </div>
-  {{end}}
-
-  {{template "_fields/text" .Form.FirstName}}
-  {{template "_fields/text" .Form.LastName}}
-  {{template "_fields/email" .Form.Email}}
-  {{template "_fields/password" .Form.Password}}
-  {{template "_fields/hidden" .Form.Timezone}}
-
-  <input type="submit" />
-</form>
+</div>
 
 <script src="/static/js/lib.js"></script>
-<script>
-  loadTimezone(document.getElementById("timezone"));
-</script>
+<script>loadTimezone(document.getElementById("timezone"))</script>

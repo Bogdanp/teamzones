@@ -102,27 +102,39 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 
 	form := teamSignUpForm{
 		forms.Field{
-			Name:       "first-name",
-			Label:      "First Name",
-			Value:      invite.FirstName,
-			Validators: []forms.Validator{forms.Name},
+			Name:        "first-name",
+			Label:       "First Name",
+			Value:       invite.FirstName,
+			Validators:  []forms.Validator{forms.Name},
+			HideLabel:   true,
+			Placeholder: "First name",
+			Attributes:  map[string]string{"class": "input"},
 		},
 		forms.Field{
-			Name:       "last-name",
-			Label:      "Last Name",
-			Value:      invite.LastName,
-			Validators: []forms.Validator{forms.Name},
+			Name:        "last-name",
+			Label:       "Last Name",
+			Value:       invite.LastName,
+			Validators:  []forms.Validator{forms.Name},
+			HideLabel:   true,
+			Placeholder: "Last name",
+			Attributes:  map[string]string{"class": "input"},
 		},
 		forms.Field{
-			Name:       "email",
-			Label:      "E-mail address",
-			Value:      invite.Email,
-			Validators: []forms.Validator{forms.Email},
+			Name:        "email",
+			Label:       "E-mail address",
+			Value:       invite.Email,
+			Validators:  []forms.Validator{forms.Email},
+			HideLabel:   true,
+			Placeholder: "Email",
+			Attributes:  map[string]string{"class": "input"},
 		},
 		forms.Field{
-			Name:       "password",
-			Label:      "Password",
-			Validators: []forms.Validator{forms.MinLength(6)},
+			Name:        "password",
+			Label:       "Password",
+			Validators:  []forms.Validator{forms.MinLength(6)},
+			HideLabel:   true,
+			Placeholder: "Password",
+			Attributes:  map[string]string{"class": "input"},
 		},
 		forms.Field{
 			Name:       "timezone",
@@ -132,11 +144,13 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 	}
 
 	data := struct {
-		Form  *teamSignUpForm
-		Error string
+		Company *models.Company
+		Form    *teamSignUpForm
+		Error   string
 	}{
-		Form:  &form,
-		Error: "",
+		Company: company,
+		Form:    &form,
+		Error:   "",
 	}
 
 	if req.Method == http.MethodPost {
@@ -195,13 +209,19 @@ func signInHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Para
 	company := context.Get(req, companyCtxKey).(*models.Company)
 	form := signInForm{
 		forms.Field{
-			Name:       "email",
-			Label:      "E-mail address",
-			Validators: []forms.Validator{forms.Email},
+			Name:        "email",
+			Label:       "E-mail address",
+			Validators:  []forms.Validator{forms.Email},
+			Placeholder: "Email",
+			HideLabel:   true,
+			Attributes:  map[string]string{"class": "input"},
 		},
 		forms.Field{
-			Name:  "password",
-			Label: "Password",
+			Name:        "password",
+			Label:       "Password",
+			Placeholder: "Password",
+			HideLabel:   true,
+			Attributes:  map[string]string{"class": "input"},
 		},
 	}
 
@@ -257,9 +277,12 @@ func recoverPasswordHandler(res http.ResponseWriter, req *http.Request, _ httpro
 		Email forms.Field
 	}{
 		forms.Field{
-			Name:       "email",
-			Label:      "Email",
-			Validators: []forms.Validator{forms.Email},
+			Name:        "email",
+			Label:       "Email",
+			Validators:  []forms.Validator{forms.Email},
+			Placeholder: "Email",
+			HideLabel:   true,
+			Attributes:  map[string]string{"class": "input"},
 		},
 	}
 
@@ -301,9 +324,12 @@ func resetPasswordHandler(res http.ResponseWriter, req *http.Request, params htt
 		Password forms.Field
 	}{
 		forms.Field{
-			Name:       "password",
-			Label:      "Password",
-			Validators: []forms.Validator{forms.MinLength(6)},
+			Name:        "password",
+			Label:       "Password",
+			Validators:  []forms.Validator{forms.MinLength(6)},
+			Placeholder: "Password",
+			HideLabel:   true,
+			Attributes:  map[string]string{"class": "input"},
 		},
 	}
 
