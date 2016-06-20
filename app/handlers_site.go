@@ -19,6 +19,9 @@ import (
 
 func init() {
 	GET(siteRouter, "home", "/", homeHandler)
+	GET(siteRouter, "about", "/about/", aboutHandler)
+	GET(siteRouter, "contact", "/contact/", contactHandler)
+	GET(siteRouter, "terms", "/terms/", termsHandler)
 	ALL(siteRouter, "sign-up", "/sign-up/:plan/", signUpHandler)
 	ALL(siteRouter, "sign-in", "/sign-in/", siteSignInHandler)
 	ALL(siteRouter, "find-team", "/find-team/", findTeamHandler)
@@ -37,6 +40,18 @@ func init() {
 
 func homeHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	renderer.HTML(res, http.StatusOK, "index", nil)
+}
+
+func aboutHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	renderer.HTML(res, http.StatusOK, "about", nil)
+}
+
+func contactHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	renderer.HTML(res, http.StatusOK, "contact", nil)
+}
+
+func termsHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+	renderer.HTML(res, http.StatusOK, "terms", nil)
 }
 
 type signUpForm struct {
