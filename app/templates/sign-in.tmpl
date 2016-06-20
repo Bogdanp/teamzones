@@ -1,8 +1,12 @@
 {{define "title-sign-in"}} - Sign In{{end}}
 
-<form action="" method="post">
-  {{template "_fields/email" .Form.Email}}
-  {{template "_fields/password" .Form.Password}}
+<div class="row">
+  <div class="column">
+    <form action="" method="post">
+      {{template "_fields/email" .Form.Email}}
+      {{template "_fields/password" .Form.Password}}
 
-  <input type="submit" />
-</form>
+      <input type="submit" />
+    </form>
+  </div>
+</div>

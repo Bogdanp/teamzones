@@ -163,28 +163,28 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 
 	if req.Method == http.MethodPost {
 		if !forms.Bind(req, &form) {
-			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
+			renderTemplate(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}
 
 		// ZZ is returned by GAE for localhost.
 		if country != "ZZ" && country != form.Country.Value {
 			form.Country.Errors = []string{"Your selected country does not match your IP address."}
-			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
+			renderTemplate(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}
 
 		ctx := appengine.NewContext(req)
 		if form.VATID.Value != "" && !utils.CheckVAT(ctx, form.Country.Value+form.VATID.Value) {
 			form.VATID.Errors = []string{"The provided VAT ID is not valid."}
-			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
+			renderTemplate(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}
 
 		nonce := req.PostFormValue("payment_method_nonce")
 		if nonce == "" {
 			log.Warningf(ctx, "signUpHandler: missing payment method nonce")
-			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
+			renderTemplate(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}
 
@@ -203,7 +203,7 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 		if err != nil {
 			log.Errorf(ctx, "error while subscribing customer: %v", err)
 			data.Error = "We encountered an issue while processing your credit card. You have not been billed."
-			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
+			renderTemplate(res, http.StatusBadRequest, "sign-up", data)
 			return
 		}
 
@@ -245,14 +245,14 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 			return
 		case models.ErrSubdomainTaken:
 			form.CompanySubdomain.Errors = []string{err.Error()}
-			renderer.HTML(res, http.StatusBadRequest, "sign-up", data)
+			renderTemplate(res, http.StatusBadRequest, "sign-up", data)
 			return
 		default:
 			panic(err)
 		}
 	}
 
-	renderer.HTML(res, http.StatusOK, "sign-up", data)
+	renderTemplate(res, http.StatusOK, "sign-up", data)
 }
 
 func siteSignInHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {

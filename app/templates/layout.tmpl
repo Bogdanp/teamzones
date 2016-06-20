@@ -13,8 +13,60 @@
     {{partial "head"}}
   </head>
   <body>
-    {{template "nav"}}
-    {{yield}}
-    {{template "footer"}}
+    <div class="nav">
+      <div class="container">
+        <div class="nav__logo">
+          <a href="/">Teamzones</a>
+        </div>
+
+        <ul class="nav__items">
+          <li class="nav__items__item">
+            <a href="/#product">Product</a>
+          </li>
+          <li class="nav__items__item">
+            <a href="/#plans">Plans</a>
+          </li>
+          <li class="nav__items__item">
+            <a href="{{route "sign-in"}}">Sign in</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="container">
+        {{yield}}
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="container">
+        <div class="row">
+          <div class="column">
+            <p>&copy;2016 <a href="{{route "home"}}">Teamzones.io</a></p>
+          </div>
+
+          <div class="column">
+            <ul class="footer__nav">
+              <li class="footer__nav__item">
+                <a href="">About</a>
+              </li>
+              <li class="footer__nav__item">
+                <a href="">Terms</a>
+              </li>
+              <li class="footer__nav__item">
+                <a href="/#product">Product</a>
+              </li>
+              <li class="footer__nav__item">
+                <a href="/#plans">Plans</a>
+              </li>
+              <li class="footer__nav__item">
+                <a href="{{route "sign-in"}}">Sign in</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

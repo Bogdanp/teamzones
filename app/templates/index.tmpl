@@ -1,161 +1,151 @@
-<div class="content">
-  <div class="container">
-    <div name="hero" class="hero row">
+<div name="hero" class="hero row">
+</div>
+
+<div id="product" class="row row-bordered">
+  <div class="column">
+    <h1 class="row__title row__title-centered">
+      Product
+    </h1>
+  </div>
+</div>
+
+<div id="plans" class="row row-bordered">
+  <div class="column">
+    <h1 class="row__title row__title-centered">
+      Plans
+    </h1>
+
+    <div class="plan-selector">
+      <span id="monthly-plan-button" data-target="monthly-plans" class="plan-selector__button plan-selector__button-left">Monthly</span>
+      <span id="annual-plan-button" data-target="annual-plans" class="plan-selector__button plan-selector__button-active">Annual</span>
     </div>
 
-    <div id="product" class="row row-bordered">
-      <div class="column">
-        <h1 class="row__title row__title-centered">
-          Product
+    <div id="monthly-plans" class="plans plans-hidden">
+      <div class="plans__plan">
+        <h1 class="plans__plan__title">
+          Small
         </h1>
+
+        <p class="plans__plan__summary">
+          For distributed teams of up to 10 people.
+        </p>
+
+        <p class="plans__plan__price">
+          <span class="plans__plan__price__price"><sup>$</sup>8<sub>/mo</sub></span>
+          <span class="plans__plan__price__cycle">paid monthly</span>
+        </p>
+
+        <div class="plans__plan__action_button">
+          <a href="{{route "sign-up" "t-s1"}}">
+            Sign up now
+          </a>
+        </div>
+      </div>
+
+      <div class="plans__plan plans__plan-featured">
+        <h1 class="plans__plan__title">
+          Medium
+        </h1>
+
+        <p class="plans__plan__summary">
+          For distributed teams of up to 25 people.
+        </p>
+
+        <p class="plans__plan__price">
+          <span class="plans__plan__price__price"><sup>$</sup>12<sub>/mo</sub></span>
+          <span class="plans__plan__price__cycle">paid monthly</span>
+        </p>
+
+        <div class="plans__plan__action_button">
+          <a href="{{route "sign-up" "t-m1"}}">
+            Sign up now
+          </a>
+        </div>
+      </div>
+
+      <div class="plans__plan">
+        <h1 class="plans__plan__title">
+          Large
+        </h1>
+
+        <p class="plans__plan__summary">
+          For distributed teams of up to 100 people.
+        </p>
+
+        <p class="plans__plan__price">
+          <span class="plans__plan__price__price"><sup>$</sup>20<sub>/mo</sub></span>
+          <span class="plans__plan__price__cycle">paid monthly</span>
+        </p>
+
+        <div class="plans__plan__action_button">
+          <a href="{{route "sign-up" "t-l1"}}">
+            Sign up now
+          </a>
+        </div>
       </div>
     </div>
 
-    <div id="plans" class="row row-bordered">
-      <div class="column">
-        <h1 class="row__title row__title-centered">
-          Plans
+    <div id="annual-plans" class="plans">
+      <div class="plans__plan">
+        <h1 class="plans__plan__title">
+          Small
         </h1>
 
-        <div class="plan-selector">
-          <span id="monthly-plan-button" data-target="monthly-plans" class="plan-selector__button plan-selector__button-left">Monthly</span>
-          <span id="annual-plan-button" data-target="annual-plans" class="plan-selector__button plan-selector__button-active">Annual</span>
+        <p class="plans__plan__summary">
+          For distributed teams of up to 10 people.
+        </p>
+
+        <p class="plans__plan__price">
+          <span class="plans__plan__price__price"><sup>$</sup>6<sub>/mo</sub></span>
+          <span class="plans__plan__price__cycle">paid annually</span>
+        </p>
+
+        <div class="plans__plan__action_button">
+          <a href="{{route "sign-up" "t-s12"}}">
+            Sign up now
+          </a>
         </div>
+      </div>
 
-        <div id="monthly-plans" class="plans plans-hidden">
-          <div class="plans__plan">
-            <h1 class="plans__plan__title">
-              Small
-            </h1>
+      <div class="plans__plan plans__plan-featured">
+        <h1 class="plans__plan__title">
+          Medium
+        </h1>
 
-            <p class="plans__plan__summary">
-              For distributed teams of up to 10 people.
-            </p>
+        <p class="plans__plan__summary">
+          For distributed teams of up to 25 people.
+        </p>
 
-            <p class="plans__plan__price">
-              <span class="plans__plan__price__price"><sup>$</sup>8</span>
-              <span class="plans__plan__price__cycle">per month</span>
-              <span class="plans__plan__price__cycle">billed monthly</span>
-            </p>
+        <p class="plans__plan__price">
+          <span class="plans__plan__price__price"><sup>$</sup>9<sub>/mo</sub></span>
+          <span class="plans__plan__price__cycle">paid annually</span>
+        </p>
 
-            <div class="plans__plan__action_button">
-              <a href="{{route "sign-up" "t-s1"}}">
-                Sign up now
-              </a>
-            </div>
-          </div>
-
-          <div class="plans__plan plans__plan-featured">
-            <h1 class="plans__plan__title">
-              Medium
-            </h1>
-
-            <p class="plans__plan__summary">
-              For distributed teams of up to 25 people.
-            </p>
-
-            <p class="plans__plan__price">
-              <span class="plans__plan__price__price"><sup>$</sup>12</span>
-              <span class="plans__plan__price__cycle">per month</span>
-              <span class="plans__plan__price__cycle">billed monthly</span>
-            </p>
-
-            <div class="plans__plan__action_button">
-              <a href="{{route "sign-up" "t-m1"}}">
-                Sign up now
-              </a>
-            </div>
-          </div>
-
-          <div class="plans__plan">
-            <h1 class="plans__plan__title">
-              Large
-            </h1>
-
-            <p class="plans__plan__summary">
-              For distributed teams of up to 100 people.
-            </p>
-
-            <p class="plans__plan__price">
-              <span class="plans__plan__price__price"><sup>$</sup>20</span>
-              <span class="plans__plan__price__cycle">per month</span>
-              <span class="plans__plan__price__cycle">billed monthly</span>
-            </p>
-
-            <div class="plans__plan__action_button">
-              <a href="{{route "sign-up" "t-l1"}}">
-                Sign up now
-              </a>
-            </div>
-          </div>
+        <div class="plans__plan__action_button">
+          <a href="{{route "sign-up" "t-m12"}}">
+            Sign up now
+          </a>
         </div>
+      </div>
 
-        <div id="annual-plans" class="plans">
-          <div class="plans__plan">
-            <h1 class="plans__plan__title">
-              Small
-            </h1>
+      <div class="plans__plan">
+        <h1 class="plans__plan__title">
+          Large
+        </h1>
 
-            <p class="plans__plan__summary">
-              For distributed teams of up to 10 people.
-            </p>
+        <p class="plans__plan__summary">
+          For distributed teams of up to 100 people.
+        </p>
 
-            <p class="plans__plan__price">
-              <span class="plans__plan__price__price"><sup>$</sup>6</span>
-              <span class="plans__plan__price__cycle">per month</span>
-              <span class="plans__plan__price__cycle">billed annually</span>
-            </p>
+        <p class="plans__plan__price">
+          <span class="plans__plan__price__price"><sup>$</sup>18<sub>/mo</sub></span>
+          <span class="plans__plan__price__cycle">paid annually</span>
+        </p>
 
-            <div class="plans__plan__action_button">
-              <a href="{{route "sign-up" "t-s12"}}">
-                Sign up now
-              </a>
-            </div>
-          </div>
-
-          <div class="plans__plan plans__plan-featured">
-            <h1 class="plans__plan__title">
-              Medium
-            </h1>
-
-            <p class="plans__plan__summary">
-              For distributed teams of up to 25 people.
-            </p>
-
-            <p class="plans__plan__price">
-              <span class="plans__plan__price__price"><sup>$</sup>9</span>
-              <span class="plans__plan__price__cycle">per month</span>
-              <span class="plans__plan__price__cycle">billed annually</span>
-            </p>
-
-            <div class="plans__plan__action_button">
-              <a href="{{route "sign-up" "t-m12"}}">
-                Sign up now
-              </a>
-            </div>
-          </div>
-
-          <div class="plans__plan">
-            <h1 class="plans__plan__title">
-              Large
-            </h1>
-
-            <p class="plans__plan__summary">
-              For distributed teams of up to 100 people.
-            </p>
-
-            <p class="plans__plan__price">
-              <span class="plans__plan__price__price"><sup>$</sup>18</span>
-              <span class="plans__plan__price__cycle">per month</span>
-              <span class="plans__plan__price__cycle">billed annually</span>
-            </p>
-
-            <div class="plans__plan__action_button">
-              <a href="{{route "sign-up" "t-l12"}}">
-                Sign up now
-              </a>
-            </div>
-          </div>
+        <div class="plans__plan__action_button">
+          <a href="{{route "sign-up" "t-l12"}}">
+            Sign up now
+          </a>
         </div>
       </div>
     </div>

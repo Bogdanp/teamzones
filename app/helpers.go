@@ -12,6 +12,13 @@ import (
 	"golang.org/x/net/context"
 )
 
+func renderTemplate(res http.ResponseWriter, status int, template string, data interface{}) {
+	res.WriteHeader(status)
+	if err := renderer.TemplateLookup(template).Execute(res, data); err != nil {
+		panic(err)
+	}
+}
+
 // Render a template from the _emails directory.
 func renderEmail(buf *bytes.Buffer, template string, data interface{}) string {
 	if err := renderer.TemplateLookup("_emails/"+template).Execute(buf, data); err != nil {

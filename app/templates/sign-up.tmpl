@@ -1,144 +1,151 @@
-{{define "title-sign-up"}} - Order your Teamzones account{{end}}
-{{define "head-sign-up"}}
-<link
-    rel="stylesheet"
-    type="text/css"
-    href="{{asset "css/checkout.css"}}" />
-{{end}}
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <title>Teamzones.io - Order your Teamzones account</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<div id="header">
-  <h1>Checkout</h1>
-</div>
-<form action="" method="post" id="checkout">
-  <div id="summary">
-    <h4>Order Summary</h4>
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{asset "css/checkout.css"}}" />
+  </head>
+  <body>
+    <div id="header">
+      <h1>Checkout</h1>
+    </div>
+    <form action="" method="post" id="checkout">
+      <div id="summary">
+        <h4>Order Summary</h4>
 
-    <div id="order">
-      <div id="order-plan">
-        <div class="col">
-          <h5>{{.Plan.Label}} Plan</h5>
+        <div id="order">
+          <div id="order-plan">
+            <div class="col">
+              <h5>{{.Plan.Label}} Plan</h5>
+            </div>
+            <div class="col-r">
+              <h6>{{.Plan.DollarMPrice}}<small>/mo</small></h6>
+            </div>
+          </div>
+
+          <div id="order-plan-summary">
+            <p>{{.Plan.Summary}}</p>
+          </div>
+
+          <div id="order-vat">
+            <div class="col">
+              <h6>VAT</h6>
+            </div>
+            <div class="col-r">
+              <h6 id="vat-amount">$0</h6>
+            </div>
+          </div>
+
+          <div id="order-total">
+            <div class="col">
+              <h6>Total Due Today</h6>
+            </div>
+            <div class="col-r">
+              <h6 id="total-amount">{{.Plan.DollarPrice}}</h6>
+            </div>
+          </div>
         </div>
-        <div class="col-r">
-          <h6>{{.Plan.DollarMPrice}}<small>/mo</small></h6>
+
+        <div id="submit-wrapper">
+          <input type="submit"
+                 id="submit-button"
+                 class="button"
+                 disabled="disabled"
+                 value="Purchase Teamzones" />
         </div>
       </div>
 
-      <div id="order-plan-summary">
-        <p>{{.Plan.Summary}}</p>
-      </div>
-
-      <div id="order-vat">
-        <div class="col">
-          <h6>VAT</h6>
+      <div id="form">
+        {{if .Error}}
+        <div id="billing-error" class="row">
+          {{.Error}}
         </div>
-        <div class="col-r">
-          <h6 id="vat-amount">$0</h6>
+        {{end}}
+
+        <h4>Account information</h4>
+
+        <div class="row">
+          {{template "_fields/text" .Form.CompanyName}}
+          {{template "_fields/text" .Form.CompanySubdomain}}
         </div>
-      </div>
 
-      <div id="order-total">
-        <div class="col">
-          <h6>Total Due Today</h6>
+        <div class="row">
+          {{template "_fields/email" .Form.Email}}
         </div>
-        <div class="col-r">
-          <h6 id="total-amount">{{.Plan.DollarPrice}}</h6>
+        <div class="row">
+          {{template "_fields/password" .Form.Password}}
         </div>
+
+        <br/>
+        <h4>Billing information</h4>
+        <div class="row">
+          {{template "_fields/text" .Form.FirstName}}
+          {{template "_fields/text" .Form.LastName}}
+        </div>
+
+        <div class="row">
+          {{template "_fields/text" .Form.Address1}}
+        </div>
+
+        <div class="row">
+          {{template "_fields/text" .Form.Address2}}
+        </div>
+
+        <div class="row">
+          {{template "_fields/text" .Form.City}}
+          {{template "_fields/text" .Form.Region}}
+          {{template "_fields/text" .Form.PostalCode}}
+        </div>
+
+        <div class="row">
+          {{template "_fields/select" .Form.Country}}
+        </div>
+
+        <div class="row">
+          <div class="col {{if .Form.VATID.Errors}}errors{{end}}" id="eu-vat">
+            {{template "_fields/label" .Form.VATID}}
+            <input type="text" id="vat-prefix" disabled="disabled" />
+            <input type="text"
+                   id="{{.Form.VATID.Name}}"
+                   name="{{.Form.VATID.Name}}"
+                   value="{{.Form.VATID.Value}}" />
+            {{template "_fields/errors" .Form.VATID}}
+          </div>
+        </div>
+
+        <div class="row" id="payment-info">
+        </div>
+
+        {{template "_fields/hidden" .Form.Timezone}}
       </div>
-    </div>
+    </form>
 
-    <div id="submit-wrapper">
-      <input type="submit"
-             id="submit-button"
-             class="button"
-             disabled="disabled"
-             value="Purchase Teamzones" />
-    </div>
-  </div>
+    <script src="/static/js/braintree-2.24.1.min.js"></script>
+    <script src="{{asset "js/lib.js"}}"></script>
+    <script>
+      var checkout = new Checkout(
+        "payment-info",
+        {{.VATCountries}},
+        {{.PlanJS}},
+        {
+          form: document.getElementById("checkout"),
+          submit: document.getElementById("submit-button"),
+          country: document.getElementById("country"),
+          orderVAT: document.getElementById("order-vat"),
+          orderVATAmount: document.getElementById("vat-amount"),
+          orderTotalAmount: document.getElementById("total-amount"),
+          euVAT: document.getElementById("eu-vat"),
+          vatId: document.getElementById("vat-id"),
+          vatPrefix: document.getElementById("vat-prefix"),
+        }
+      );
 
-  <div id="form">
-    {{if .Error}}
-    <div id="billing-error" class="row">
-      {{.Error}}
-    </div>
-    {{end}}
-
-    <h4>Account information</h4>
-
-    <div class="row">
-      {{template "_fields/text" .Form.CompanyName}}
-      {{template "_fields/text" .Form.CompanySubdomain}}
-    </div>
-
-    <div class="row">
-      {{template "_fields/email" .Form.Email}}
-    </div>
-    <div class="row">
-      {{template "_fields/password" .Form.Password}}
-    </div>
-
-    <br/>
-    <h4>Billing information</h4>
-    <div class="row">
-      {{template "_fields/text" .Form.FirstName}}
-      {{template "_fields/text" .Form.LastName}}
-    </div>
-
-    <div class="row">
-      {{template "_fields/text" .Form.Address1}}
-    </div>
-
-    <div class="row">
-      {{template "_fields/text" .Form.Address2}}
-    </div>
-
-    <div class="row">
-      {{template "_fields/text" .Form.City}}
-      {{template "_fields/text" .Form.Region}}
-      {{template "_fields/text" .Form.PostalCode}}
-    </div>
-
-    <div class="row">
-      {{template "_fields/select" .Form.Country}}
-    </div>
-
-    <div class="row">
-      <div class="col {{if .Form.VATID.Errors}}errors{{end}}" id="eu-vat">
-        {{template "_fields/label" .Form.VATID}}
-        <input type="text" id="vat-prefix" disabled="disabled" />
-        <input type="text"
-               id="{{.Form.VATID.Name}}"
-               name="{{.Form.VATID.Name}}"
-               value="{{.Form.VATID.Value}}" />
-        {{template "_fields/errors" .Form.VATID}}
-      </div>
-    </div>
-
-    <div class="row" id="payment-info">
-    </div>
-
-    {{template "_fields/hidden" .Form.Timezone}}
-  </div>
-</form>
-
-<script src="/static/js/braintree-2.24.1.min.js"></script>
-<script src="{{asset "js/lib.js"}}"></script>
-<script>
-  var checkout = new Checkout(
-    "payment-info",
-    {{.VATCountries}},
-    {{.PlanJS}},
-    {
-      form: document.getElementById("checkout"),
-      submit: document.getElementById("submit-button"),
-      country: document.getElementById("country"),
-      orderVAT: document.getElementById("order-vat"),
-      orderVATAmount: document.getElementById("vat-amount"),
-      orderTotalAmount: document.getElementById("total-amount"),
-      euVAT: document.getElementById("eu-vat"),
-      vatId: document.getElementById("vat-id"),
-      vatPrefix: document.getElementById("vat-prefix"),
-    }
-  );
-
-  loadTimezone(document.getElementById("timezone"));
-</script>
+      loadTimezone(document.getElementById("timezone"));
+    </script>
+  </body>
+</html>
