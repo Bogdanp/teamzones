@@ -4,7 +4,7 @@ import Api exposing (Error, Response)
 import Api.Profile as ProfileApi exposing (Profile, createUploadUri, deleteAvatar, updateProfile)
 import Components.ConfirmationButton as CB
 import Components.Form as FC
-import Components.Notifications exposing (info)
+import Components.Notifications exposing (error, info)
 import Components.Page exposing (page)
 import Form exposing (Form)
 import Form.Field exposing (Field(..))
@@ -12,6 +12,7 @@ import Form.Validate as Validate exposing (..)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
+import HttpBuilder as HB
 import Task
 import Timestamp exposing (Timezone, showTimezone)
 import Types exposing (Workday, Workdays, User)
@@ -152,8 +153,13 @@ update msg model =
         ToDeleteAvatarButton msg ->
             { model | deleteAvatarButton = CB.update msg model.deleteAvatarButton } ! []
 
-        UploadUriError _ ->
-            model ! [ Task.perform UploadUriError UploadUriSuccess createUploadUri ]
+        UploadUriError err ->
+            case err of
+                HB.BadResponse _ ->
+                    model ! []
+
+                _ ->
+                    model ! [ Task.perform UploadUriError UploadUriSuccess createUploadUri ]
 
         UploadUriSuccess response ->
             { model | uploadUri = Just response.data } ! []
