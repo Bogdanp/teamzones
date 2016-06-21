@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
+	"teamzones/integrations"
 	"teamzones/models"
+
+	"github.com/qedus/nds"
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/user"
@@ -27,10 +29,31 @@ func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 		ctx, company,
 		"Peter", "Parker", "peter.parker@example.com", "password", "Europe/Bucharest",
 	)
-	if err != nil {
-		return
+	if err == models.ErrSubdomainTaken {
+		user = company.LookupMainUser(ctx)
+	} else if err != nil {
+		panic(err)
 	}
 
+	token, _, err := models.CreateOAuth2Token(
+		ctx, company.Key(ctx), user.Key(ctx), "gcalendar",
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	cData := models.NewGCalendarData(company.Key(ctx), user.Key(ctx))
+	cData.DefaultID = "default"
+	cData.Calendars = []integrations.Calendar{
+		{"default", "Default", "Europe/Bucharest"},
+	}
+	cDataKey := models.NewGCalendarDataKey(ctx, user.Key(ctx), "default")
+	if _, err := nds.Put(ctx, cDataKey, cData); err != nil {
+		panic(err)
+	}
+
+	user.GCalendarToken = token
+	user.GCalendarData = cDataKey
 	user.Workdays = models.Workdays{
 		Monday:    models.Workday{Start: 15, End: 23},
 		Tuesday:   models.Workday{Start: 15, End: 23},
@@ -66,17 +89,19 @@ func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 		{"Mac", "Gragan", "mac.gragan@example.com", "US/Central"},
 	}
 
-	for i := 0; i < 1; i++ {
-		suffix := ""
-		if i != 0 {
-			suffix = strconv.Itoa(i)
-		}
+	for _, user := range users {
+		models.CreateUser(
+			ctx, company.Key(ctx),
+			user.FirstName, user.LastName, user.Email, "password", user.Timezone,
+		)
+	}
 
-		for _, user := range users {
-			models.CreateUser(
-				ctx, company.Key(ctx),
-				user.FirstName, user.LastName, user.Email+suffix, "password", user.Timezone,
-			)
-		}
+	meetings, err := models.FindUpcomingMeetings(user.Key(ctx)).KeysOnly().GetAll(ctx, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	if err := nds.DeleteMulti(ctx, meetings); err != nil {
+		panic(err)
 	}
 }
