@@ -16,15 +16,15 @@
     <div class="nav">
       <div class="container">
         <div class="nav__logo">
-          <a href="/">Teamzones</a>
+          <a href="{{absRoute "home"}}">Teamzones</a>
         </div>
 
         <ul class="nav__items">
           <li class="nav__items__item">
-            <a href="/#product">Product</a>
+            <a href="{{absRoute "home"}}/#product">Product</a>
           </li>
           <li class="nav__items__item">
-            <a href="/#plans">Plans</a>
+            <a href="{{absRoute "home"}}/#plans">Plans</a>
           </li>
           <li class="nav__items__item">
             <a href="{{route "sign-in"}}">Sign in</a>
@@ -49,16 +49,16 @@
           <div class="column">
             <ul class="footer__nav">
               <li class="footer__nav__item">
-                <a href="{{route "about"}}">About</a>
+                <a href="{{absRoute "about"}}">About</a>
               </li>
               <li class="footer__nav__item">
-                <a href="{{route "terms"}}">Terms</a>
+                <a href="{{absRoute "terms"}}">Terms</a>
               </li>
               <li class="footer__nav__item">
-                <a href="/#product">Product</a>
+                <a href="{{absRoute "home"}}/#product">Product</a>
               </li>
               <li class="footer__nav__item">
-                <a href="/#plans">Plans</a>
+                <a href="{{absRoute "home"}}/#plans">Plans</a>
               </li>
               <li class="footer__nav__item">
                 <a href="{{route "sign-in"}}">Sign in</a>

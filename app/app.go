@@ -70,6 +70,10 @@ func createRenderer() *render.Render {
 			return ReverseRoute(name).Params(params...).Build()
 		},
 
+		"absRoute": func(name Route, params ...string) string {
+			return ReverseRoute(name).Params(params...).Absolute().Build()
+		},
+
 		"routeSub": func(name Route, subdomain string, params ...string) string {
 			return ReverseRoute(name).Subdomain(subdomain).Params(params...).Build()
 		},
