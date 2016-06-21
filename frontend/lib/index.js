@@ -48,9 +48,12 @@ window.init = function(Elm, el, context) {
     app.ports.timestamps.send(now());
   };
 
-  setTimeout(() => {
-    setInterval(sendTimestamp, 60000);
+  const schedule = function() {
+    setTimeout(() => {
+      schedule();
+      sendTimestamp();
+    }, (60 - seconds()) * 1000);
+  };
 
-    sendTimestamp();
-  }, (60 - seconds()) * 1000);
+  schedule();
 };
