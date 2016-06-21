@@ -179,19 +179,22 @@ view ({ data, vatPending, vatForm, cancelButton, activateButtons } as model) =
             loading
 
         Just data ->
-            let
-                plan =
-                    lookupPlan data data.planId
-            in
-                div []
-                    [ overview data plan cancelButton
-                    , plans data plan activateButtons
-                    , Maybe.map invoices model.invoices ?> loading
-                    , if data.status == Active && (data.vat /= 0 || data.vatId /= "") then
-                        vat data vatPending vatForm
-                      else
-                        text ""
-                    ]
+            if data.planId == "free" then
+                div [] [ p [] [ text "This is a free account so you have no billing information to manage!" ] ]
+            else
+                let
+                    plan =
+                        lookupPlan data data.planId
+                in
+                    div []
+                        [ overview data plan cancelButton
+                        , plans data plan activateButtons
+                        , Maybe.map invoices model.invoices ?> loading
+                        , if data.status == Active && (data.vat /= 0 || data.vatId /= "") then
+                            vat data vatPending vatForm
+                          else
+                            text ""
+                        ]
 
 
 overview : Subscription -> SubscriptionPlan -> CB.Model -> Html Msg

@@ -145,13 +145,21 @@ subscriptionPlan =
         |: ("summary" := string)
 
 
+subscriptionPlans : Decoder (List SubscriptionPlan)
+subscriptionPlans =
+    Json.oneOf
+        [ list subscriptionPlan
+        , Json.succeed []
+        ]
+
+
 subscription : Decoder Subscription
 subscription =
     succeed Subscription
         |: ("needVat" := bool)
         |: ("vat" := int)
         |: ("vatId" := string)
-        |: ("plans" := list subscriptionPlan)
+        |: ("plans" := subscriptionPlans)
         |: ("planId" := string)
         |: ("status" := subscriptionStatus)
         |: ("validUntil" := timestamp)
