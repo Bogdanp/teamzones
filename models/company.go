@@ -347,3 +347,8 @@ func (c *Company) SeatsLeft(ctx context.Context) int {
 
 	return p.Members - n
 }
+
+// IsDemo returns true if the Company is the demo account.
+func (c *Company) IsDemo() bool {
+	return c.Subdomain == "demo"
+}

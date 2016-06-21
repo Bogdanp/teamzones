@@ -31,6 +31,14 @@ var (
 		"/settings/billing",
 		"/sign-out",
 	}
+
+	demoPaths = []string{
+		"/integrations/connect",
+		"/api/integrations/refresh",
+		"/api/integrations/disconnect",
+		"/api/upload",
+		"/api/users/",
+	}
 )
 
 func isSubpath(path string, paths []string) bool {
@@ -54,6 +62,11 @@ func Access(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 
 	user := context.Get(req, userCtxKey).(*models.User)
 	company := context.Get(req, companyCtxKey).(*models.Company)
+	if company.IsDemo() && isSubpath(req.URL.Path, demoPaths) {
+		badRequest(res, "This functionality is not available in the demo.")
+		return
+	}
+
 	if company.Suspended() {
 		if user.Role != models.RoleMain {
 			ctx := appengine.NewContext(req)

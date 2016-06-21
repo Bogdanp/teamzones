@@ -6,6 +6,7 @@ import (
 	"teamzones/models"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/user"
 
 	"gopkg.in/julienschmidt/httprouter.v1"
 )
@@ -15,16 +16,16 @@ func init() {
 }
 
 func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	if !config.Debug {
+	ctx := appengine.NewContext(req)
+	if !config.Debug && !user.IsAdmin(ctx) {
 		notFound(res)
 		return
 	}
 
-	ctx := appengine.NewContext(req)
-	company := models.NewCompany("defn", "defn")
+	company := models.NewCompany("demo", "demo")
 	user, err := models.CreateMainUser(
 		ctx, company,
-		"Peter", "Parker", "bogdan@defn.io", "password", "Europe/Bucharest",
+		"Peter", "Parker", "peter.parker@example.com", "password", "Europe/Bucharest",
 	)
 	if err != nil {
 		return
@@ -47,22 +48,22 @@ func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 		Email     string
 		Timezone  string
 	}{
-		{"Richard", "Parker", "richard.parker@defn.io", "US/Pacific"},
-		{"Ben", "Parker", "ben.parker@defn.io", "Europe/Berlin"},
-		{"May", "Reilly", "may.reilly@defn.io", "US/Central"},
-		{"Mary Jane", "Watson", "mary.jane.watson@defn.io", "US/Central"},
-		{"Jessica", "Drew", "jessica.drew@defn.io", "Europe/London"},
-		{"Gwen", "Stacy", "gwen.stacy@defn.io", "Europe/London"},
-		{"Felicia", "Hardy", "felicia.hardy@defn.io", "Europe/Bucharest"},
-		{"Carol", "Danvers", "carol.danvers@defn.io", "Europe/Bucharest"},
-		{"Curt", "Connors", "curt.connors@defn.io", "Europe/Bucharest"},
-		{"Maxwell", "Dillon", "maxwell.dillon@defn.io", "US/Central"},
-		{"Richard", "Fisk", "richard.fisk@defn.io", "US/Pacific"},
-		{"Eddie", "Brock", "eddie.brock@defn.io", "US/Pacific"},
-		{"Cletus", "Kasady", "cletus.kasady@defn.io", "US/Central"},
-		{"Norman", "Osborn", "norman.osborn@defn.io", "US/Central"},
-		{"Harry", "Osborn", "harry.osborn@defn.io", "US/Central"},
-		{"Mac", "Gragan", "mac.gragan@defn.io", "US/Central"},
+		{"Richard", "Parker", "richard.parker@example.com", "US/Pacific"},
+		{"Ben", "Parker", "ben.parker@example.com", "Europe/Berlin"},
+		{"May", "Reilly", "may.reilly@example.com", "US/Central"},
+		{"Mary Jane", "Watson", "mary.jane.watson@example.com", "US/Central"},
+		{"Jessica", "Drew", "jessica.drew@example.com", "Europe/London"},
+		{"Gwen", "Stacy", "gwen.stacy@example.com", "Europe/London"},
+		{"Felicia", "Hardy", "felicia.hardy@example.com", "Europe/Bucharest"},
+		{"Carol", "Danvers", "carol.danvers@example.com", "Europe/Bucharest"},
+		{"Curt", "Connors", "curt.connors@example.com", "Europe/Bucharest"},
+		{"Maxwell", "Dillon", "maxwell.dillon@example.com", "US/Central"},
+		{"Richard", "Fisk", "richard.fisk@example.com", "US/Pacific"},
+		{"Eddie", "Brock", "eddie.brock@example.com", "US/Pacific"},
+		{"Cletus", "Kasady", "cletus.kasady@example.com", "US/Central"},
+		{"Norman", "Osborn", "norman.osborn@example.com", "US/Central"},
+		{"Harry", "Osborn", "harry.osborn@example.com", "US/Central"},
+		{"Mac", "Gragan", "mac.gragan@example.com", "US/Central"},
 	}
 
 	for i := 0; i < 1; i++ {

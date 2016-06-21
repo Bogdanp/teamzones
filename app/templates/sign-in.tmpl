@@ -16,6 +16,14 @@
         <input type="submit" class="button-primary button-primary-extra-margin" value="Sign in" />
       </form>
 
+      {{ if eq .Company.Subdomain "demo" }}
+      <p>
+        <small>
+          The demo credentials are <code>peter.parker@example.com</code> and <code>password</code>.
+        </small>
+      </p>
+      {{ end }}
+
       <p>
         <small>
           Don't remember your password?

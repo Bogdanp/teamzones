@@ -166,6 +166,7 @@ func scheduleMeetingHandler(res http.ResponseWriter, req *http.Request, _ httpro
 	}
 
 	ctx := appengine.NewContext(req)
+	company := context.Get(req, companyCtxKey).(*models.Company)
 	user := context.Get(req, userCtxKey).(*models.User)
 	k := models.NewMeetingKey(ctx, user.Key(ctx))
 	k, err := nds.Put(ctx, k, meeting)
@@ -174,7 +175,9 @@ func scheduleMeetingHandler(res http.ResponseWriter, req *http.Request, _ httpro
 		return
 	}
 
-	scheduleMeeting.Call(ctx, k)
+	if !company.IsDemo() {
+		scheduleMeeting.Call(ctx, k)
+	}
 
 	sid := strconv.FormatInt(k.IntID(), 10)
 	renderer.JSON(res, http.StatusOK, meetingResponse{sid, *meeting})
