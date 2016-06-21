@@ -1,4 +1,4 @@
 cron:
-- description: daily summary job
+- description: demo reset job
   url: /_tools/provision
   schedule: every 4 hours

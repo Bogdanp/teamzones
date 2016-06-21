@@ -8,7 +8,6 @@ import (
 	"github.com/qedus/nds"
 
 	"google.golang.org/appengine"
-	"google.golang.org/appengine/user"
 
 	"gopkg.in/julienschmidt/httprouter.v1"
 )
@@ -18,12 +17,12 @@ func init() {
 }
 
 func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	ctx := appengine.NewContext(req)
-	if !config.Debug && !user.IsAdmin(ctx) {
+	if !config.Debug && req.Header.Get("X-Appengine-Cron") == "" {
 		notFound(res)
 		return
 	}
 
+	ctx := appengine.NewContext(req)
 	company := models.NewCompany("demo", "demo")
 	user, err := models.CreateMainUser(
 		ctx, company,
