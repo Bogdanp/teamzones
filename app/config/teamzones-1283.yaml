@@ -6,7 +6,11 @@ secret:
 
 domain:
   host: teamzones.io
-  port: 80
+  port: 443
+
+appspot:
+  host: teamzones-1283.appspot.com
+  port: 443
 
 cloud_storage:
   bucket: teamzones-1283.appspot.com

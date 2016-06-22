@@ -8,5 +8,9 @@ domain:
   host: teamzones.dev
   port: 8080
 
+appspot:
+  host: localhost
+  port: 8080
+
 cloud_storage:
   bucket: teamzones-1283.appspot.com

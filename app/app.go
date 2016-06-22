@@ -56,6 +56,7 @@ func createRouters() (*httprouter.Router, *httprouter.Router) {
 
 	http.Handle("/", app)
 	http.Handle(fmt.Sprintf("%s/", config.Host()), site)
+	http.Handle(fmt.Sprintf("%s/", config.AppspotHost()), site)
 	return siteRouter, appRouter
 }
 
@@ -124,6 +125,11 @@ type Config struct {
 		Port int
 	}
 
+	Appspot struct {
+		Host string
+		Port int
+	}
+
 	CloudStorage struct {
 		Bucket string
 	} `yaml:"cloud_storage"`
@@ -137,6 +143,16 @@ func (c *Config) Host() string {
 	}
 
 	return c.Domain.Host
+}
+
+// AppspotHost is the full host name according to the configuration.  The
+// port is included if it's not 80 or 443.
+func (c *Config) AppspotHost() string {
+	if c.Appspot.Port != 80 && c.Appspot.Port != 443 {
+		return fmt.Sprintf("%s:%d", c.Appspot.Host, c.Appspot.Port)
+	}
+
+	return c.Appspot.Host
 }
 
 // Reads the configuration file for the current environment.
