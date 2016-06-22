@@ -132,8 +132,9 @@ func avatarUploadHandler(res http.ResponseWriter, req *http.Request, _ httproute
 
 		avatar := file[0]
 		imageURL, err := image.ServingURL(ctx, avatar.BlobKey, &image.ServingURLOptions{
-			Size: 500,
-			Crop: true,
+			Secure: true,
+			Size:   500,
+			Crop:   true,
 		})
 		if err != nil {
 			redirect()
@@ -141,8 +142,9 @@ func avatarUploadHandler(res http.ResponseWriter, req *http.Request, _ httproute
 		}
 
 		smImageURL, err := image.ServingURL(ctx, avatar.BlobKey, &image.ServingURLOptions{
-			Size: 100,
-			Crop: true,
+			Secure: true,
+			Size:   100,
+			Crop:   true,
 		})
 		if err != nil {
 			redirect()
