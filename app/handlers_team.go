@@ -9,6 +9,7 @@ import (
 	"teamzones/models"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/channel"
 	"google.golang.org/appengine/log"
 
 	"github.com/goincremental/negroni-sessions"
@@ -44,6 +45,7 @@ type dashboardPayload struct {
 	Company   *models.Company `json:"company"`
 	User      *models.User    `json:"user"`
 	Team      []models.User   `json:"team"`
+	ChanToken string          `json:"channelToken"`
 
 	Integrations integrationsPayload `json:"integrationStates"`
 }
@@ -58,11 +60,19 @@ func dashboardHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 	}
 
 	user := context.Get(req, userCtxKey).(*models.User)
+	token, err := channel.Create(ctx, user.ChannelKey())
+	if err != nil {
+		log.Errorf(ctx, "failed to create channel: %v", err)
+		serverError(res)
+		return
+	}
+
 	data, err := json.Marshal(dashboardPayload{
 		Suspended: company.Suspended(),
 		Company:   company,
 		User:      user,
 		Team:      users,
+		ChanToken: token,
 		Integrations: integrationsPayload{
 			GCalendar: user.GCalendarToken != nil,
 		},
@@ -166,7 +176,7 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 		}
 
 		ctx := appengine.NewContext(req)
-		_, err := models.CreateUser(
+		u, err := models.CreateUser(
 			ctx,
 			companyKey,
 			form.FirstName.Value,
@@ -182,6 +192,7 @@ func teamSignUpHandler(res http.ResponseWriter, req *http.Request, ps httprouter
 				models.DeleteInvite(ctx, companyKey, inviteID)
 			}
 
+			notifyMemberAdded.Call(ctx, companyKey, u.Key(ctx))
 			location := ReverseRoute("team-sign-in").
 				Subdomain(company.Subdomain).
 				Build()

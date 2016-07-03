@@ -3,7 +3,7 @@ module Main exposing (main)
 import AnimationFrame
 import Model exposing (Model, Msg(..), Flags)
 import Navigation
-import Ports exposing (timestamps, timezones, notifications)
+import Ports exposing (timestamps, timezones, newMembers, notifications)
 import Routes exposing (parsePath)
 import Update exposing (init, update, urlUpdate)
 import View exposing (view)
@@ -25,6 +25,7 @@ subscriptions model =
     Sub.batch
         [ timestamps Tick
         , timezones TimezoneChanged
+        , newMembers MemberAdded
         , notifications Notified
         , AnimationFrame.times UpdateSidebar
         ]

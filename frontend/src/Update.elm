@@ -99,6 +99,18 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
         RouteTo route ->
             model ! [ Routes.navigateTo route ]
 
+        MemberAdded user ->
+            let
+                ( teamMembers, team ) =
+                    prepareUser user
+                        |> addUser now model.teamMembers
+            in
+                { model
+                    | teamMembers = teamMembers
+                    , team = team
+                }
+                    ! [ Notifications.info (user.firstName ++ " has joined the team") ]
+
         Notified notification ->
             let
                 ( xs, fx ) =
@@ -146,7 +158,7 @@ update msg ({ now, user, team, teamMembers, notifications } as model) =
                 ( teamMembers, team ) =
                     case pmsg of
                         Just (DeleteUser email) ->
-                            deleteUser email model.teamMembers model.team
+                            deleteUser email model.team
 
                         Nothing ->
                             ( model.teamMembers, model.team )
@@ -407,8 +419,17 @@ updateUser now f user team =
         ( user', team', teamMembers )
 
 
-deleteUser : String -> List User -> Team -> ( List User, Team )
-deleteUser email teamMembers team =
+addUser : Timestamp -> List User -> User -> ( List User, Team )
+addUser now teamMembers user =
+    let
+        teamMembers' =
+            user :: teamMembers
+    in
+        ( teamMembers', groupTeam now teamMembers' )
+
+
+deleteUser : String -> Team -> ( List User, Team )
+deleteUser email team =
     let
         remove ( k, xs ) =
             ( k, List.filter (\u -> u.email /= email) xs )
@@ -419,8 +440,8 @@ deleteUser email teamMembers team =
                 |> Dict.fromList
                 |> Dict.filter (\_ xs -> not (List.isEmpty xs))
 
-        teamMembers' =
-            Dict.toList team
+        teamMembers =
+            Dict.toList team'
                 |> List.concatMap snd
     in
-        ( teamMembers', team' )
+        ( teamMembers, team' )

@@ -13,8 +13,9 @@
   <body>
     <div id="app"></div>
 
+    <script src="/_ah/channel/jsapi"></script>
     <script src="{{asset "js/lib.js"}}"></script>
     <script src="{{asset "js/app.js"}}"></script>
-    <script>init(Elm, document.getElementById("app"), {{.}})</script>
+    <script>init(Elm, goog, document.getElementById("app"), {{.}})</script>
   </body>
 </html>

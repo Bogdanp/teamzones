@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"teamzones/utils"
 	"time"
@@ -258,6 +259,11 @@ func (u *User) Put(ctx context.Context) (*datastore.Key, error) {
 // FullName returns the User's full name.
 func (u *User) FullName() string {
 	return u.FirstName + " " + u.LastName
+}
+
+// ChannelKey is the User's unique Channel id.
+func (u *User) ChannelKey() string {
+	return fmt.Sprintf("%s-%s", u.Company.StringID(), u.Email)
 }
 
 // NewRecoveryTokenKey creates fully-qualified datastore keys for RecoveryTokens.

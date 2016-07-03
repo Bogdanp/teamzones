@@ -21,6 +21,7 @@ type Msg
     = Tick Timestamp
     | TimezoneChanged Timezone
     | RouteTo Sitemap
+    | MemberAdded ContextUser
     | Notified Notification
     | ToInvite Invite.Msg
     | ToProfile Profile.Msg

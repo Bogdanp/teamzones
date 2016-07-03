@@ -156,6 +156,10 @@
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
 		{
+			"ImportPath": "google.golang.org/appengine/channel",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
 			"ImportPath": "google.golang.org/appengine/datastore",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
@@ -181,6 +185,10 @@
 		},
 		{
 			"ImportPath": "google.golang.org/appengine/internal/blobstore",
+			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
+		},
+		{
+			"ImportPath": "google.golang.org/appengine/internal/channel",
 			"Rev": "c8bc8a996f05c4c477475fc0ae5d6614136be4c0"
 		},
 		{

@@ -3,7 +3,7 @@ plans:
     label: Free
     price: 0
     cycle: never
-    members: 15
+    members: 150
     summary: >-
       The free plan.
 

@@ -56,7 +56,7 @@ func createRouters() (*httprouter.Router, *httprouter.Router) {
 
 	http.Handle("/", app)
 	http.Handle(fmt.Sprintf("%s/", config.Host()), site)
-	http.Handle(fmt.Sprintf("%s/", config.AppspotHost()), site)
+	//http.Handle(fmt.Sprintf("%s/", config.AppspotHost()), site)
 	return siteRouter, appRouter
 }
 

@@ -22,7 +22,7 @@ window.loadTimezone = function(el) {
 
 window.moment = moment;
 window.Checkout = Checkout;
-window.init = function(Elm, el, context) {
+window.init = function(Elm, goog, el, context) {
   context.viewportWidth = window.innerWidth;
   context.now = now();
   context.user.integrations = context.integrations;
@@ -31,6 +31,21 @@ window.init = function(Elm, el, context) {
   });
 
   const app = Elm.Main.embed(el, context);
+
+  // Channels
+  const channel = new goog.appengine.Channel(context.channelToken);
+  const socket = channel.open();
+  socket.onmessage = (message) => {
+    message = JSON.parse(message.data);
+
+    switch(message.kind) {
+    case "MemberAdded":
+      app.ports.newMembers.send(message.value);
+      break;
+    default:
+      console.warn("Unknown message: ", message);
+    }
+  };
 
   // Time{zone,stamp} subs
   fetchLocation().then(location => {

@@ -11,6 +11,7 @@ import (
 	"github.com/qedus/nds"
 
 	"golang.org/x/net/context"
+	"google.golang.org/appengine/channel"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/delay"
 	"google.golang.org/appengine/log"
@@ -246,5 +247,29 @@ var scheduleMeeting = delay.Func(
 
 		meeting.EventID = event.Id
 		meeting.Put(ctx, k)
+	},
+)
+
+var notifyMemberAdded = delay.Func(
+	"notify-member-added",
+	func(ctx context.Context, compKey, userKey *datastore.Key) {
+		var company models.Company
+		var users []models.User
+		var user models.User
+
+		_ = nds.Get(ctx, compKey, &company)
+		_ = nds.Get(ctx, userKey, &user)
+		if _, err := models.FindUsers(compKey).GetAll(ctx, &users); err != nil {
+			panic(err)
+		}
+
+		for _, u := range users {
+			if u.Email != userKey.StringID() {
+				channel.SendJSON(ctx, u.ChannelKey(), map[string]interface{}{
+					"kind":  "MemberAdded",
+					"value": user,
+				})
+			}
+		}
 	},
 )
