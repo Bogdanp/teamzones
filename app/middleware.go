@@ -142,6 +142,7 @@ func Auth(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 		defer context.Clear(req)
 		next(res, req)
 	case datastore.ErrNoSuchEntity:
+		session.Delete(uidSessionKey)
 		redirectAuth(res, req, req.URL.String())
 	default:
 		panic(err)
