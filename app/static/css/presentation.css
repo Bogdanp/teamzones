@@ -354,12 +354,12 @@ a:hover {
   .nav__logo {
     float: left; }
     .nav__logo img {
-      width: 22px;
+      width: 24px;
       margin-right: 2px;
-      margin-bottom: -4px; }
+      margin-bottom: -5px; }
     .nav__logo a {
       display: block;
-      padding: 14px 0;
+      padding: 10px 0;
       color: black;
       font-size: 1em;
       font-weight: 400;
