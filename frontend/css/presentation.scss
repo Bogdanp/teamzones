@@ -49,6 +49,12 @@ a {
   &__logo {
     float: left;
 
+    img {
+      width: 22px;
+      margin-right: 2px;
+      margin-bottom: -4px;
+    }
+
     a {
       display: block;
       padding: 14px 0;

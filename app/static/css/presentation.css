@@ -353,6 +353,10 @@ a:hover {
   z-index: 1; }
   .nav__logo {
     float: left; }
+    .nav__logo img {
+      width: 22px;
+      margin-right: 2px;
+      margin-bottom: -4px; }
     .nav__logo a {
       display: block;
       padding: 14px 0;
