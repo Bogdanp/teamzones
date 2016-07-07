@@ -7,6 +7,7 @@ import (
 	"strings"
 	"teamzones/models"
 
+	"github.com/codegangsta/negroni"
 	"github.com/goincremental/negroni-sessions"
 	"github.com/gorilla/context"
 	"github.com/qedus/nds"
@@ -151,28 +152,32 @@ func Auth(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 
 // Subdomain reads the appropriate Company from datastore based on the
 // current subdomain and stores it in the context.  404s if the
-// subdomain does not exist.
-func Subdomain(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
-	subdomain, err := parseSubdomain(req.Host)
-	if err != nil {
-		panic(err)
-	}
+// subdomain does not exist.  If there is no subdomain, then
+// siteHandler is used to handle the request.
+func Subdomain(siteHandler http.Handler) negroni.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
+		subdomain, err := parseSubdomain(req.Host)
+		if err != nil {
+			siteHandler.ServeHTTP(res, req)
+			return
+		}
 
-	var company models.Company
+		var company models.Company
 
-	ctx := appengine.NewContext(req)
-	key := models.NewCompanyKey(ctx, subdomain)
-	err = nds.Get(ctx, key, &company)
+		ctx := appengine.NewContext(req)
+		key := models.NewCompanyKey(ctx, subdomain)
+		err = nds.Get(ctx, key, &company)
 
-	switch err {
-	case nil:
-		context.Set(req, companyCtxKey, &company)
-		defer context.Clear(req)
-		next(res, req)
-	case datastore.ErrNoSuchEntity:
-		notFound(res)
-	default:
-		panic(err)
+		switch err {
+		case nil:
+			context.Set(req, companyCtxKey, &company)
+			defer context.Clear(req)
+			next(res, req)
+		case datastore.ErrNoSuchEntity:
+			notFound(res)
+		default:
+			panic(err)
+		}
 	}
 }
 
@@ -180,7 +185,7 @@ var prefixedHost = fmt.Sprintf(".%s", config.Host())
 
 func parseSubdomain(host string) (string, error) {
 	ps := strings.Split(host, prefixedHost)
-	if ps[0] == config.Domain.Host {
+	if ps[0] == config.Host() || ps[0] == config.AppspotHost() {
 		return "", errors.New("no subdomain")
 	}
 

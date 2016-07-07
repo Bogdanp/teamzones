@@ -48,7 +48,7 @@ func createRouters() (*httprouter.Router, *httprouter.Router) {
 	site := negroni.New(negroni.Wrap(siteRouter))
 	app := negroni.New(
 		sessions.Sessions("__", store),
-		negroni.HandlerFunc(Subdomain),
+		negroni.HandlerFunc(Subdomain(siteRouter)),
 		negroni.HandlerFunc(Auth),
 		negroni.HandlerFunc(Access),
 		negroni.Wrap(appRouter),
@@ -56,7 +56,6 @@ func createRouters() (*httprouter.Router, *httprouter.Router) {
 
 	http.Handle("/", app)
 	http.Handle(fmt.Sprintf("%s/", config.Host()), site)
-	//http.Handle(fmt.Sprintf("%s/", config.AppspotHost()), site)
 	return siteRouter, appRouter
 }
 
