@@ -14,9 +14,10 @@ func TestCheckVAT(t *testing.T) {
 		Valid bool
 	}{
 		{"a", false},
-		{"RO    ", false},
+		{"DE    ", false},
 		{"AT0000", false},
-		{"RO1234", false},
+		{"DE1234", false},
+		{"RO35033035", false}, // valid but rejected due to RO prefix
 		{"DE146269081", true},
 	}
 

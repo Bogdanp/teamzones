@@ -37,6 +37,7 @@ func CheckVAT(ctx context.Context, VATID string) bool {
 
 	// XXX: We must not accept VAT ids from Romania.
 	if strings.HasPrefix(strings.ToUpper(VATID), "RO") {
+		log.Infof(ctx, "CheckVAT: rejecting vat id %v due to RO prefix", VATID)
 		return false
 	}
 
@@ -60,6 +61,7 @@ func checkVAT(ctx context.Context, VATID string) bool {
 
 	e, err := buildVATEnvelope(VATID)
 	if err != nil {
+		log.Infof(ctx, "checkVat: %v", err)
 		return false
 	}
 
