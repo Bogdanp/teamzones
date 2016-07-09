@@ -356,6 +356,8 @@ func braintreeWebhookHandler(res http.ResponseWriter, req *http.Request, _ httpr
 	// Delay these tasks by 5 minutes to avoid a race condition when
 	// creating new accounts.
 	task.Delay = 5 * time.Minute
+	task.Header = make(http.Header)
+	task.Header.Add("Host", config.AppspotHost())
 	taskqueue.Add(ctx, task, "braintree")
 	res.WriteHeader(http.StatusAccepted)
 }
