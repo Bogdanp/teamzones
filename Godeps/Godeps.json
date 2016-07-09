@@ -72,6 +72,11 @@
 			"Rev": "c6f473068fb96c74c0df816ab87fa31f55bc98cf"
 		},
 		{
+			"ImportPath": "github.com/sendgrid/smtpapi-go",
+			"Comment": "v0.4.0-8-g9a208a7",
+			"Rev": "9a208a752a428567e4bc1e159226a6e3b044e482"
+		},
+		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
 			"Rev": "1777f3ba8c1fed80fcaec3317e3aaa4f627764d2"
 		},
@@ -339,6 +344,11 @@
 			"ImportPath": "gopkg.in/julienschmidt/httprouter.v1",
 			"Comment": "v1.1",
 			"Rev": "8c199fb6259ffc1af525cc3ad52ee60ba8359669"
+		},
+		{
+			"ImportPath": "gopkg.in/sendgrid/sendgrid-go.v2",
+			"Comment": "v2.0.0",
+			"Rev": "0bf6332788d0230b7da84a1ae68d7531073200e1"
 		},
 		{
 			"ImportPath": "gopkg.in/unrolled/render.v1",

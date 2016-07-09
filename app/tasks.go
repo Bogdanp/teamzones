@@ -7,6 +7,8 @@ import (
 	"teamzones/integrations"
 	"teamzones/models"
 
+	"gopkg.in/sendgrid/sendgrid-go.v2"
+
 	"github.com/lionelbarrow/braintree-go"
 	"github.com/qedus/nds"
 
@@ -15,7 +17,7 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/delay"
 	"google.golang.org/appengine/log"
-	"google.golang.org/appengine/mail"
+	"google.golang.org/appengine/urlfetch"
 )
 
 var processBtWebhook = delay.Func(
@@ -127,13 +129,16 @@ var sendMail = delay.Func(
 	"send-mail",
 	func(ctx context.Context, to, subject, txtMsg, htmlMsg string) {
 		log.Debugf(ctx, "Sending email to %q with subject %q and message %q...", to, subject, txtMsg)
-		mail.Send(ctx, &mail.Message{
-			To:       []string{to},
-			Sender:   "Teamzones.io <support@teamzones.io>",
-			Subject:  subject,
-			Body:     txtMsg,
-			HTMLBody: htmlMsg,
-		})
+
+		sg := sendgrid.NewSendGridClient("teamzones", "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")
+		sg.Client = urlfetch.Client(ctx)
+
+		message := sendgrid.NewMail()
+		message.AddTo(to)
+		message.SetSubject(subject)
+		message.SetFrom("Teamzones.io <support@teamzones.io>")
+		message.SetText(txtMsg)
+		message.SetHTML(htmlMsg)
 	},
 )
 
