@@ -137,6 +137,10 @@ a {
 
 .column {
   flex: 1 1 auto;
+
+  &-33 {
+    flex: 1 1 33%;
+  }
 }
 
 .plan-selector {
@@ -252,6 +256,29 @@ a {
       border: 1px solid $darker-border;
       box-shadow: 2px 3px 5px rgba(0,0,0,0.05);
     }
+  }
+}
+
+.feature {
+  padding: 20px 15px 0 15px;
+  box-sizing: border-box;
+
+  i {
+    display: block;
+    color: #DDD;
+    font-size: 3em;
+    text-align: center;
+  }
+
+  h1 {
+    margin-top: 0;
+    margin-left: 5px;
+    font-size: 1.5em;
+    text-align: center;
+  }
+
+  p {
+    text-align: center;
   }
 }
 
