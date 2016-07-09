@@ -130,7 +130,7 @@ var sendMail = delay.Func(
 	func(ctx context.Context, to, subject, txtMsg, htmlMsg string) {
 		log.Debugf(ctx, "Sending email to %q with subject %q and message %q...", to, subject, txtMsg)
 
-		sg := sendgrid.NewSendGridClient("teamzones", "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")
+		sg := sendgrid.NewSendGridClientWithApiKey("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")
 		sg.Client = urlfetch.Client(ctx)
 
 		message := sendgrid.NewMail()
@@ -139,6 +139,7 @@ var sendMail = delay.Func(
 		message.SetFrom("Teamzones.io <support@teamzones.io>")
 		message.SetText(txtMsg)
 		message.SetHTML(htmlMsg)
+		sg.Send(message)
 	},
 )
 
