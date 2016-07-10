@@ -29,8 +29,9 @@ func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 		panic(err)
 	}
 
+	companyKey := company.Key(ctx)
 	token, _, err := models.CreateOAuth2Token(
-		ctx, company.Key(ctx), user.Key(ctx), "gcalendar",
+		ctx, companyKey, user.Key(ctx), "gcalendar",
 	)
 	if err != nil {
 		panic(err)
@@ -86,12 +87,14 @@ func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 	}
 
 	for _, user := range users {
-		u, _ := models.CreateUser(
-			ctx, company.Key(ctx),
-			user.FirstName, user.LastName, user.Email, "password", user.Timezone,
-		)
-
+		u := models.NewUser()
+		u.Company = companyKey
+		u.FirstName = user.FirstName
+		u.LastName = user.LastName
+		u.Email = user.Email
+		u.Timezone = user.Timezone
 		u.Workdays = workdays
+		u.SetPassword("password")
 		u.Put(ctx)
 	}
 
