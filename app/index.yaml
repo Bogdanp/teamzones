@@ -20,12 +20,11 @@ indexes:
   properties:
   - name: StartTime
 
-- kind: Transaction
+- kind: Meeting
   ancestor: yes
   properties:
-  - name: TransactionStatus
-  - name: CreatedAt
-    direction: desc
+  - name: Status
+  - name: EndTime
 
 - kind: Transaction
   ancestor: yes

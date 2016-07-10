@@ -47,6 +47,11 @@ func init() {
 		"integrations-calendar-meeting", "/api/integrations/gcalendar/meetings/:id",
 		meetingDetailsHandler,
 	)
+	DELETE(
+		appRouter,
+		"integrations-calendar-cancel-meeting", "/api/integrations/gcalendar/meetings/:id",
+		cancelMeetingHandler,
+	)
 	PATCH(
 		appRouter,
 		"integrations-calendar-set-default", "/api/integrations/gcalendar/meetings",
@@ -220,6 +225,33 @@ func meetingDetailsHandler(res http.ResponseWriter, req *http.Request, params ht
 	}
 
 	renderer.JSON(res, http.StatusOK, meeting)
+}
+
+func cancelMeetingHandler(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	ctx := appengine.NewContext(req)
+	user := context.Get(req, userCtxKey).(*models.User)
+	company := context.Get(req, companyCtxKey).(*models.Company)
+
+	sid := params.ByName("id")
+	id, err := strconv.ParseInt(sid, 10, 64)
+	if err != nil {
+		notFound(res)
+		return
+	}
+
+	meeting := meetingResponse{ID: sid}
+	if err := models.GetMeetingByID(ctx, user.Key(ctx), id, &meeting); err != nil {
+		notFound(res)
+		return
+	}
+
+	uk := user.Key(ctx)
+	meeting.Cancel(ctx, uk, id)
+	if !company.IsDemo() {
+		cancelMeeting.Call(ctx, meeting.Key(ctx, uk, id))
+	}
+
+	res.WriteHeader(http.StatusAccepted)
 }
 
 func setDefaultCalendarHandler(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {

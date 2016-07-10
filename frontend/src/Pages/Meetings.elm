@@ -1,8 +1,10 @@
 module Pages.Meetings exposing (Msg, Model, init, update, view)
 
 import Api.Calendar exposing (Meeting)
+import Components.ConfirmationButton as CB
 import Components.Notifications exposing (info)
 import Components.Page exposing (pageWithTabs)
+import Dict exposing (Dict)
 import Html exposing (Html)
 import Html.App as Html
 import Pages.Meetings.Meeting as Meeting
@@ -37,6 +39,7 @@ type alias Model =
     , subRoute : MeetingsSitemap
     , currentUser : User
     , teamMembers : List User
+    , cancelButtons : Dict String CB.Model
     , meetings : Maybe (List Meeting)
     , meeting : Maybe Meeting
     , scheduler : Scheduler.Model
@@ -55,6 +58,7 @@ init ({ now, fullRoute, subRoute, integrationStates, currentUser, teamMembers } 
             , subRoute = subRoute ?> ScheduledMeetingsR ()
             , currentUser = currentUser
             , teamMembers = teamMembers
+            , cancelButtons = Dict.empty
             , meetings = Nothing
             , meeting = Nothing
             , scheduler = scheduler

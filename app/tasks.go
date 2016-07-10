@@ -256,6 +256,26 @@ var scheduleMeeting = delay.Func(
 	},
 )
 
+var cancelMeeting = delay.Func(
+	"cancel-meeting",
+	func(ctx context.Context, k *datastore.Key) {
+		var meeting models.Meeting
+		var user models.User
+		var token models.OAuth2Token
+		var calendars models.GCalendarData
+
+		_ = nds.Get(ctx, k, &meeting)
+		_ = nds.Get(ctx, k.Parent(), &user)
+		_ = nds.Get(ctx, user.GCalendarToken, &token)
+		_ = nds.Get(ctx, user.GCalendarData, &calendars)
+
+		err := integrations.CancelMeeting(ctx, &token.Token, calendars.DefaultID, meeting.EventID)
+		if err != nil {
+			panic(err)
+		}
+	},
+)
+
 var notifyMemberAdded = delay.Func(
 	"notify-member-added",
 	func(ctx context.Context, compKey, userKey *datastore.Key) {

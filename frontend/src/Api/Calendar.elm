@@ -11,10 +11,11 @@ module Api.Calendar
         , createMeeting
         , fetchMeetings
         , fetchMeeting
+        , cancelMeeting
         , setDefaultCalendar
         )
 
-import Api exposing (Errors, Error, Response, getJson, patchJson, postJson, postPlain)
+import Api exposing (Errors, Error, Response, deletePlain, getJson, patchJson, postJson, postPlain)
 import Json.Decode as Json exposing (Decoder, (:=), string, maybe, list)
 import Json.Encode as JE
 import Task exposing (Task)
@@ -155,6 +156,11 @@ fetchMeetings =
 fetchMeeting : String -> Task Error (Response Meeting)
 fetchMeeting id =
     getJson meeting ("integrations/gcalendar/meetings/" ++ id)
+
+
+cancelMeeting : String -> Task Error (Response String)
+cancelMeeting id =
+    deletePlain ("integrations/gcalendar/meetings/" ++ id)
 
 
 setDefaultCalendar : String -> Task Error (Response Calendars)

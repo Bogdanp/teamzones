@@ -139,3 +139,20 @@ func ScheduleMeeting(
 
 	return event, nil
 }
+
+// CancelMeeting cancels a calendar event.
+func CancelMeeting(
+	ctx context.Context, token *oauth2.Token,
+	calendarID, eventID string,
+) error {
+	service, err := NewCalendarService(ctx, token)
+	if err != nil {
+		return err
+	}
+
+	if err := service.Events.Delete(calendarID, eventID).Do(); err != nil {
+		return err
+	}
+
+	return nil
+}
