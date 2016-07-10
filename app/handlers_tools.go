@@ -46,17 +46,19 @@ func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 		panic(err)
 	}
 
+	workdays := models.Workdays{
+		Monday:    models.Workday{Start: 9, End: 17},
+		Tuesday:   models.Workday{Start: 9, End: 17},
+		Wednesday: models.Workday{Start: 9, End: 17},
+		Thursday:  models.Workday{Start: 9, End: 17},
+		Friday:    models.Workday{Start: 9, End: 17},
+		Saturday:  models.Workday{Start: 9, End: 17},
+		Sunday:    models.Workday{Start: 9, End: 17},
+	}
+
 	user.GCalendarToken = token
 	user.GCalendarData = cDataKey
-	user.Workdays = models.Workdays{
-		Monday:    models.Workday{Start: 15, End: 23},
-		Tuesday:   models.Workday{Start: 15, End: 23},
-		Wednesday: models.Workday{Start: 15, End: 23},
-		Thursday:  models.Workday{Start: 15, End: 23},
-		Friday:    models.Workday{Start: 13, End: 21},
-		Saturday:  models.Workday{Start: 0, End: 0},
-		Sunday:    models.Workday{Start: 0, End: 0},
-	}
+	user.Workdays = workdays
 	user.Put(ctx)
 
 	users := []struct {
@@ -84,10 +86,13 @@ func provisionHandler(res http.ResponseWriter, req *http.Request, _ httprouter.P
 	}
 
 	for _, user := range users {
-		models.CreateUser(
+		u, _ := models.CreateUser(
 			ctx, company.Key(ctx),
 			user.FirstName, user.LastName, user.Email, "password", user.Timezone,
 		)
+
+		u.Workdays = workdays
+		u.Put(ctx)
 	}
 
 	meetings, err := models.FindUpcomingMeetings(user.Key(ctx)).KeysOnly().GetAll(ctx, nil)
