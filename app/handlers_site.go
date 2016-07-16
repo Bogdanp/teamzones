@@ -248,6 +248,7 @@ func signUpHandler(res http.ResponseWriter, req *http.Request, params httprouter
 
 		switch err {
 		case nil:
+			notifySignup.Call(ctx, company.Subdomain)
 			location := ReverseRoute("team-sign-in").
 				Subdomain(form.CompanySubdomain.Value).
 				Build()

@@ -17,6 +17,7 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/delay"
 	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/mail"
 	"google.golang.org/appengine/urlfetch"
 )
 
@@ -297,5 +298,17 @@ var notifyMemberAdded = delay.Func(
 				})
 			}
 		}
+	},
+)
+
+var notifySignup = delay.Func(
+	"notify-signup",
+	func(ctx context.Context, subdomain string) {
+		m := &mail.Message{
+			Sender:  "support@teamzones.io",
+			Subject: fmt.Sprintf("New company: %s", subdomain),
+			Body:    "",
+		}
+		mail.SendToAdmins(ctx, m)
 	},
 )
